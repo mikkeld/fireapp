@@ -1,0 +1,84 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "username": "Username",
+      "firstName": "firstname",
+      "lastName": "lastname",
+      "email": "email",
+      "company": "",
+      "contactNumber": "123",
+      "role": "",
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "id": 2,
+      "username": "asd",
+      "firstName": "asdasd",
+      "lastName": "asd",
+      "email": "asd",
+      "company": "",
+      "contactNumber": "sss",
+      "role": "",
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "id": 3,
+      "username": "asd",
+      "firstName": "asdasd",
+      "lastName": "asd",
+      "email": "asd",
+      "company": "",
+      "contactNumber": "sss",
+      "role": "",
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "id": 4,
+      "username": "ss",
+      "firstName": "22",
+      "lastName": "22",
+      "email": "22",
+      "company": "",
+      "contactNumber": "22",
+      "role": "",
+      "status": "active",
+      "notes": "notes22"
+    },
+    {
+      "id": 5,
+      "username": "ss",
+      "firstName": "ssssssss"
+    },
+    {
+      "id": 6
+    },
+    {
+      "id": 7,
+      "username": "Mikkel",
+      "firstName": "",
+      "lastName": "",
+      "email": "",
+      "company": "",
+      "contactNumber": "",
+      "role": "",
+      "status": "active",
+      "notes": ""
+    },
+    {
+      "id": 8,
+      "username": "Mikkel",
+      "firstName": "",
+      "lastName": "",
+      "email": "",
+      "contactNumber": "",
+      "company": "",
+      "role": "",
+      "notes": "",
+      "status": "active"
+    }
+  ]
+}
