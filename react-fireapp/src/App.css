@@ -12,3 +12,8 @@ li {
   display: inline;
   padding: 10px;
 }
+
+
+.navLink {
+  margin: 5px;
+}

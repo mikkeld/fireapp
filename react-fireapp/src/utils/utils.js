@@ -10,3 +10,11 @@ export const updatedUsers = (users, updatedUser) => {
     ...users.slice(updatedIndex+1)
   ];
 };
+
+export const removeUser = (users, id) => {
+  const removedIndex = users.findIndex(user => user.id === id);
+  return [
+    ...users.slice(0, removedIndex),
+    ...users.slice(removedIndex+1)
+  ]
+};
