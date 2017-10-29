@@ -14,32 +14,6 @@
       "password": "123123"
     },
     {
-      "id": 2,
-      "username": "brianbbb",
-      "firstName": "mikkelddd",
-      "lastName": "mikkel",
-      "email": "asdasd@",
-      "contactNumber": "asdasd",
-      "company": "siac",
-      "role": "client",
-      "notes": "dfwef",
-      "status": "active",
-      "password": "33ffasdasd"
-    },
-    {
-      "id": 3,
-      "username": "new_user",
-      "firstName": "",
-      "lastName": "",
-      "email": "",
-      "contactNumber": "",
-      "company": "new",
-      "role": "client",
-      "notes": "",
-      "status": "active",
-      "password": ""
-    },
-    {
       "id": 4,
       "username": "hello",
       "firstName": "Mik",
@@ -51,6 +25,27 @@
       "notes": "",
       "status": "active",
       "password": "asdasdasd"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "asd",
+      "pricing": "Per Unit",
+      "description": "asdasd"
+    }
+  ],
+  "companies": [
+    {
+      "id": 1,
+      "name": "asdsad",
+      "contactNumber": "aasd",
+      "email": "asdasd",
+      "address1": "asd",
+      "address2": "asd",
+      "address3": "asd",
+      "county": "asdsdsad",
+      "notes": "asdasd"
     }
   ]
 }

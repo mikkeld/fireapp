@@ -1,5 +1,5 @@
 import React  from 'react';
-import {ListUsersTableRow} from "./listUserTableRow";
+import {ListCompanyTableRow} from "./ListCompanyTableRow";
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Paper from 'material-ui/Paper';
@@ -15,7 +15,7 @@ const styles = theme => ({
   },
 });
 
-export const ListUsersTable = (props) => {
+export const ListCompaniesTable = (props) => {
   const { classes } = props;
   return (
     <Paper className={classes.root}>
@@ -23,17 +23,14 @@ export const ListUsersTable = (props) => {
         <TableHead>
           <TableRow>
             <TableCell>Edit</TableCell>
-            <TableCell>Full name</TableCell>
-            <TableCell>Username</TableCell>
-            <TableCell>Email</TableCell>
-            <TableCell>Company</TableCell>
-            <TableCell>Contact Number</TableCell>
-            <TableCell>Role</TableCell>
-            <TableCell>Status</TableCell>
+            <TableCell>Company name</TableCell>
+            <TableCell>Company phone number</TableCell>
+            <TableCell>Company email</TableCell>
+            <TableCell>Notes</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.users.map(user => <ListUsersTableRow key={user.id} {...user} toggleEdit={props.toggleEdit}/>)}
+          {props.companies.map(company => <ListCompanyTableRow key={company.id} {...company} toggleEdit={props.toggleEdit}/>)}
         </TableBody>
       </Table>
     </Paper>
@@ -41,4 +38,4 @@ export const ListUsersTable = (props) => {
   )
 };
 
-export default withStyles(styles)(ListUsersTable);
+export default withStyles(styles)(ListCompaniesTable);

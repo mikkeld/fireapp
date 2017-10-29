@@ -3,12 +3,13 @@ import React, { Component } from 'react';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 
-import {ListUsersTable} from "../../components/admin/users/listUsersTable";
+import ListUsersTable from "../../components/admin/users/listUsersTable";
 import {deleteUser, loadUsers, updateUser} from "../../utils/userService";
 import CreateUserForm from "../../components/admin/users/createUserForm";
 import {createUser} from "../../utils/userService";
 import {findUserById, updatedUsers, removeUser} from "../../utils/utils";
 import SimpleSnackbar from '../../components/snackbar';
+import {AlertDialog} from "../../components/alert";
 
 const initialFormState = {
   id: 0,
@@ -201,7 +202,6 @@ export class User extends Component {
   };
 
   handleSnackbarShow = (msg) => {
-    console.log("Snackbar should show")
     this.setState({
       showSnackbar: true,
       snackbarMsg: msg
@@ -228,17 +228,20 @@ export class User extends Component {
     return (
       <div>
         <h1>Users</h1>
-        <b>{this.state.message}</b>
-        <Button color="primary" onClick={() => {this.handleClickOpen(); this.setState({isEditting: false})}}>Create User</Button>
-        <TextField
-          value={this.state.search}
-          onChange={this.updateSearch.bind(this)}
-          id="search"
-          label="Search username"
-          className={styles.textField}
-          type="search"
-          margin="normal"
-        />
+        <div>
+          <Button color="primary"
+                  onClick={() => {this.handleClickOpen(); this.setState({isEditting: false})}}>
+            Create User
+          </Button>
+          <TextField
+            value={this.state.search}
+            onChange={this.updateSearch.bind(this)}
+            id="search"
+            label="Search username"
+            className={styles.textField}
+            type="search"
+            margin="normal"/>
+        </div>
         <ListUsersTable users={filteredUsers} toggleEdit={this.toggleEdit}/>
         {
           <CreateUserForm handleSubmit={this.handleSubmit}
@@ -249,8 +252,8 @@ export class User extends Component {
                           {...this.state.currentUser}
                           {...this.state.formErrors}
                           open={this.state.open}
-                          alertOpen={this.state.alertOpen}
-                          handleRequestClose={this.handleRequestClose} />
+                          handleRequestClose={this.handleRequestClose}
+          />
         }
         <SimpleSnackbar showSnackbar={this.state.showSnackbar}
                         handleSnackbarClose={this.handleSnackbarClose}

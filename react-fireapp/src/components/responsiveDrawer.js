@@ -1,24 +1,39 @@
+/* eslint-disable flowtype/require-valid-file-annotation */
+
 import React from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from 'material-ui/styles';
 import Drawer from 'material-ui/Drawer';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
-import List from 'material-ui/List';
+import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
+import ListSubheader from 'material-ui/List/ListSubheader';
+
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
 import Hidden from 'material-ui/Hidden';
 import Divider from 'material-ui/Divider';
 import MenuIcon from 'material-ui-icons/Menu';
-// import { mailFolderListItems, otherMailFolderListItems } from './tileData';
+
+import Collapse from 'material-ui/transitions/Collapse';
+import ExpandLess from 'material-ui-icons/ExpandLess';
+import ExpandMore from 'material-ui-icons/ExpandMore';
+import StarBorder from 'material-ui-icons/StarBorder';
+import BusinessIcon from 'material-ui-icons/Business';
+import EventIcon from 'material-ui-icons/Event';
+import DashboardIcon from 'material-ui-icons/Dashboard';
+
+import {
+  Link,
+  NavLink
+} from 'react-router-dom';
 
 const drawerWidth = 240;
 
 const styles = theme => ({
   root: {
     width: '100%',
-    height: 430,
-    marginTop: theme.spacing.unit * 3,
+    height: '100%',
     zIndex: 1,
     overflow: 'hidden',
   },
@@ -49,6 +64,9 @@ const styles = theme => ({
       height: '100%',
     },
   },
+  nested: {
+    paddingLeft: theme.spacing.unit * 4,
+  },
   content: {
     backgroundColor: theme.palette.background.default,
     width: '100%',
@@ -60,15 +78,43 @@ const styles = theme => ({
       marginTop: 64,
     },
   },
+  subLink: {
+    textDecoration: 'none'
+  },
+  active: {
+    color: 'green'
+  }
+
 });
 
 class ResponsiveDrawer extends React.Component {
   state = {
     mobileOpen: false,
+    adminOpen: true,
+    jobsOpen: false,
+    reportsOpen: false
+  };
+
+  handleClick = state => {
+    if(state === "admin") {
+      this.setState({adminOpen: !this.state.adminOpen})
+    } else if (state === "jobs") {
+      this.setState({jobsOpen: !this.state.jobsOpen})
+    } else if (state === "reports") {
+      this.setState({reportsOpen: !this.state.reportsOpen})
+    } else {
+      console.log("unknown link group")
+    }
   };
 
   handleDrawerToggle = () => {
     this.setState({ mobileOpen: !this.state.mobileOpen });
+  };
+
+  isActiveFunc = (match, location) => {
+    console.log(match);
+    console.log(location);
+    return match
   };
 
   render() {
@@ -78,9 +124,67 @@ class ResponsiveDrawer extends React.Component {
       <div>
         <div className={classes.drawerHeader} />
         <Divider />
-        <List>One</List>
-        <Divider />
-        <List>Two</List>
+        {this.props.Navigation}
+        <List className={classes.root} subheader={<ListSubheader>Nested List Items</ListSubheader>}>
+          <ListItem button onClick={() => this.handleClick("admin")}>
+            <ListItemIcon>
+              <BusinessIcon />
+            </ListItemIcon>
+            <ListItemText inset primary="Admin" />
+            {this.state.adminOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={this.state.adminOpen} transitionDuration="auto" unmountOnExit>
+            <NavLink isActive={this.isActiveFunc} className={classes.subLink} to={{ pathname: "/admin/users" }}>
+              <ListItem button className={classes.nested}>
+                <ListItemText inset primary="Users" />
+              </ListItem>
+            </NavLink>
+            <Link className={classes.subLink} to={{ pathname: "/admin/companies" }}>
+              <ListItem button className={classes.nested}>
+                <ListItemText inset primary="Companies" />
+              </ListItem>
+            </Link>
+            <Link className={classes.subLink} to={{ pathname: "/admin/products" }}>
+              <ListItem button className={classes.nested}>
+                <ListItemText inset primary="Products" />
+              </ListItem>
+            </Link>
+          </Collapse>
+          <ListItem button onClick={() => this.handleClick("jobs")}>
+            <ListItemIcon>
+              <EventIcon />
+            </ListItemIcon>
+            <ListItemText inset primary="Jobs" />
+            {this.state.jobsOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={this.state.jobsOpen} transitionDuration="auto" unmountOnExit>
+            <Link to={{ pathname: "/jobs" }}>
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <StarBorder />
+                </ListItemIcon>
+                <ListItemText inset primary="Starred" />
+              </ListItem>
+            </Link>
+          </Collapse>
+          <ListItem button onClick={() => this.handleClick("reports")}>
+            <ListItemIcon>
+              <DashboardIcon />
+            </ListItemIcon>
+            <ListItemText inset primary="Reports" />
+            {this.state.reportsOpen ? <ExpandLess /> : <ExpandMore />}
+          </ListItem>
+          <Collapse in={this.state.reportsOpen} transitionDuration="auto" unmountOnExit>
+            <Link to={{ pathname: "/jobs" }}>
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <StarBorder />
+                </ListItemIcon>
+                <ListItemText inset primary="Starred" />
+              </ListItem>
+            </Link>
+          </Collapse>
+        </List>
       </div>
     );
 
@@ -131,9 +235,8 @@ class ResponsiveDrawer extends React.Component {
           </Hidden>
           <main className={classes.content}>
             <Typography type="body1" noWrap>
-              {'You think water moves fast? You should see ice.'}
-              {this.props.children}
             </Typography>
+            {this.props.children}
           </main>
         </div>
       </div>

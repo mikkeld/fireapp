@@ -20,7 +20,7 @@ export class AlertDialog extends React.Component {
     if (!this.props.showAlert) return null;
     return (
       <div>
-        <Dialog open={this.state.open} onRequestClose={this.handleRequestClose}>
+        <Dialog open={this.state.showAlert}>
           <DialogTitle>{"Use Google's location service?"}</DialogTitle>
           <DialogContent>
             <DialogContentText>
@@ -29,12 +29,12 @@ export class AlertDialog extends React.Component {
             </DialogContentText>
           </DialogContent>
           <DialogActions>
-            <Button onClick={() => {this.handleRequestClose(); return false}} color="primary">
-              Disagree
-            </Button>
-            <Button onClick={() => {this.handleRequestClose(); return true}} color="primary" autoFocus>
-              Agree
-            </Button>
+            {/*<Button onClick={() => {this.handleRequestClose(); return false}} color="primary">*/}
+              {/*Disagree*/}
+            {/*</Button>*/}
+            {/*<Button onClick={() => {this.handleRequestClose(); return true}} color="primary" autoFocus>*/}
+              {/*Agree*/}
+            {/*</Button>*/}
           </DialogActions>
         </Dialog>
       </div>

@@ -9,6 +9,7 @@ import Dialog, {
 } from 'material-ui/Dialog';
 import { MenuItem } from 'material-ui/Menu';
 import { withStyles } from 'material-ui/styles';
+import NoteAddIcon from 'material-ui-icons/NoteAdd';
 
 import {AlertDialog} from "../../alert";
 
@@ -32,13 +33,16 @@ const styles = () => ({
   menu: {
     width: 200,
   },
+  contentStyle: {
+    width: '90%',
+    height: '90%'
+  },
+  createNewMenuItem: {
+    color: "green"
+  }
 });
 
 const companies = [
-  {
-    name: "new",
-    value: "New Company",
-  },
   {
     name: "siac",
     value: "SIAC" ,
@@ -62,11 +66,19 @@ const roles = [
 ];
 
 
+
+
 export const CreateUserForm = (props) => {
   const { classes } = props;
+  let confirmDelete = () => {
+    const r = window.confirm("Confirm deletion of user");
+    return r === true;
+  };
+
   return (
     <div>
-    <Dialog open={props.open} onRequestClose={props.handleRequestClose} >
+    <Dialog open={props.open}
+            onRequestClose={props.handleRequestClose}>
       <form onSubmit={props.isEditting ? props.handleEdit : props.handleSubmit}  noValidate autoComplete="off">
         <DialogTitle>{props.isEditting ? "Edit user " + props.username : "Create new user"}</DialogTitle>
         <DialogContent>
@@ -144,6 +156,9 @@ export const CreateUserForm = (props) => {
             <MenuItem key="none" value="none">
               <em>None</em>
             </MenuItem>
+            <MenuItem className={classes.createNewMenuItem} value="new" key="new">
+              <NoteAddIcon/>new company
+            </MenuItem>
             {companies.map(option => (
               <MenuItem key={option.name} value={option.name}>
                 {option.value}
@@ -196,10 +211,9 @@ export const CreateUserForm = (props) => {
         </DialogContent>
         <DialogActions>
           {props.isEditting
-            ? <Button onClick={() => props.handleRemove(props.id)}>⚠️ Delete</Button>
+            ? <Button onClick={() => { if(confirmDelete()) {props.handleRemove(props.id)}}}>⚠️ Delete</Button>
             : null
           }
-          <AlertDialog/>
           <Button color="primary" onClick={props.handleRequestClose}>
           Cancel
           </Button>
