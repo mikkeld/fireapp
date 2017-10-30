@@ -9,7 +9,6 @@ import CreateUserForm from "../../components/admin/users/createUserForm";
 import {createUser} from "../../utils/userService";
 import {findUserById, updatedUsers, removeUser} from "../../utils/utils";
 import SimpleSnackbar from '../../components/snackbar';
-import {AlertDialog} from "../../components/alert";
 
 const initialFormState = {
   id: 0,

@@ -11,8 +11,6 @@ import { MenuItem } from 'material-ui/Menu';
 import { withStyles } from 'material-ui/styles';
 import NoteAddIcon from 'material-ui-icons/NoteAdd';
 
-import {AlertDialog} from "../../alert";
-
 
 const styles = () => ({
   container: {

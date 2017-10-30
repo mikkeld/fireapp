@@ -33,6 +33,12 @@
       "name": "asd",
       "pricing": "Per Unit",
       "description": "asdasd"
+    },
+    {
+      "id": 2,
+      "name": "dfgdfg",
+      "pricing": "Per Unit",
+      "description": "dfgfdg"
     }
   ],
   "companies": [
@@ -46,6 +52,125 @@
       "address3": "asd",
       "county": "asdsdsad",
       "notes": "asdasd"
+    },
+    {
+      "id": 2,
+      "name": "new company",
+      "contactNumber": "123",
+      "email": "asdasd@",
+      "address1": "asd",
+      "address2": "asd",
+      "address3": "asd",
+      "county": "",
+      "notes": ""
+    }
+  ],
+  "jobs": [
+    {
+      "id": 1,
+      "jobId": "asdasdasd",
+      "jobName": "asdsad",
+      "startDate": "",
+      "buildingName": "ssds",
+      "address1": "ads",
+      "address2": "asdsa",
+      "selectedCompany": {
+        "id": 2,
+        "name": "new company",
+        "contactNumber": "123",
+        "email": "asdasd@",
+        "address1": "asd",
+        "address2": "asd",
+        "address3": "asd",
+        "county": "",
+        "notes": ""
+      },
+      "selectedClients": [
+        {
+          "id": 1,
+          "username": "mikkeld",
+          "firstName": "Mikkel",
+          "lastName": "Dengsoe",
+          "email": "mikkel@",
+          "contactNumber": "123123",
+          "company": "siac",
+          "role": "client",
+          "notes": "dddddd",
+          "status": "active",
+          "password": "123123"
+        }
+      ],
+      "currentClient": null,
+      "selectedProducts": [
+        {
+          "id": 1,
+          "name": "asd",
+          "pricing": "Per Unit",
+          "description": "asdasd"
+        }
+      ],
+      "currentProduct": null,
+      "selectedUploads": [
+        {
+          "name": "nike.jpeg",
+          "url": "https://storage.googleapis.com/friendlychat-61656.appspot.com/1509381434729nike.jpeg?GoogleAccessId=inbox-service-account@friendlychat-61656.iam.gserviceaccount.com&Expires=1742169600&Signature=DYZJUQQyG%2F81Z26IorczoFLtWblZNH9MMf%2B0c72rEilBmf3DBxWs80rDZLiWNUFqDDJx6xc80uQMD%2FORHq7Hghjc%2BJSMZun4dmPyAOQeCjkoTeJMD0z2omuqBcBQhkPTx49ytJpN%2F8YHX0YWUxCjv%2BGrqO5arjWCAxzEDlU2rFmQSnqtcFYrZJtF35ibf8MOQTOwJZnLb3LaJTYNqBf8xtiWZvzDqaPT16iRe8yKxW26%2FoNAaWOhGj9FPOxbginFFI6Pc7pOb01T5R9Lzu7qkf7XeeJX4fxqOrGvHleFTzh19Kegi3NRIZfM1Woqe%2B8E1fXu6QhzBo%2Fsw3GS3rZ46g%3D%3D",
+          "id": 0
+        }
+      ],
+      "status": "active",
+      "notes": "",
+      "productPrice": "",
+      "clientPrice": ""
+    },
+    {
+      "id": 2,
+      "jobId": "Es001",
+      "jobName": "Spencer Dock",
+      "startDate": "",
+      "buildingName": "Spencer Dock",
+      "address1": "Add1",
+      "address2": "Add2",
+      "selectedCompany": {
+        "id": 1,
+        "name": "asdsad",
+        "contactNumber": "aasd",
+        "email": "asdasd",
+        "address1": "asd",
+        "address2": "asd",
+        "address3": "asd",
+        "county": "asdsdsad",
+        "notes": "asdasd"
+      },
+      "selectedClients": [
+        {
+          "id": 1,
+          "username": "mikkeld",
+          "firstName": "Mikkel",
+          "lastName": "Dengsoe",
+          "email": "mikkel@",
+          "contactNumber": "123123",
+          "company": "siac",
+          "role": "client",
+          "notes": "dddddd",
+          "status": "active",
+          "password": "123123"
+        }
+      ],
+      "currentClient": null,
+      "selectedProducts": [
+        {
+          "id": 2,
+          "name": "dfgdfg",
+          "pricing": "Per Unit",
+          "description": "dfgfdg"
+        }
+      ],
+      "currentProduct": null,
+      "selectedUploads": [],
+      "status": "active",
+      "notes": "Notes",
+      "productPrice": "",
+      "clientPrice": ""
     }
   ]
 }
