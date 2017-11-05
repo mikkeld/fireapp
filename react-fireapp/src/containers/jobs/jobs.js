@@ -3,13 +3,12 @@ import React, { Component } from 'react';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 
-import ListUsersTable from "../../components/admin/users/listUsersTable";
 import {loadJobs, updateJob, createJob, deleteJob, uploadFile} from "../../utils/jobsService";
 import {findUserById, updatedUsers, removeUser} from "../../utils/utils";
 import SimpleSnackbar from '../../components/snackbar';
 import {loadCompanies} from "../../utils/companyService";
 import {loadUsers} from "../../utils/userService";
-import {CreateJob} from "../../components/jobs/createJob";
+import CreateJob from "../../components/jobs/createJob";
 import {loadProducts} from "../../utils/productService";
 import ListJobsTable from "../../components/jobs/listJobsTable";
 

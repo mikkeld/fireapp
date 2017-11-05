@@ -7,6 +7,12 @@ export const loadJobs = () => {
     .then(jobs => jobs.json())
 };
 
+export const loadJobFromId = (id) => {
+  const path = `${SERVER}/${id}`;
+  return fetch(path)
+    .then(job => job.json())
+};
+
 export const createJob = (job) => {
   return fetch(SERVER, {
     method: 'POST',

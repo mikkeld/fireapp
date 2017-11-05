@@ -1,11 +1,12 @@
 import React  from 'react';
 import {TableCell, TableRow } from 'material-ui/Table';
+import { Link } from 'react-router-dom';
 
 
 export const ListJobTableRow = (props) => {
   return (
     <TableRow>
-      <TableCell>View</TableCell>
+      <TableCell><Link to={{ pathname: `/jobs/${props.id}` }}>View</Link></TableCell>
       <TableCell>Job Reports</TableCell>
       <TableCell>{props.jobName}</TableCell>
       <TableCell>Status (need to add)</TableCell>

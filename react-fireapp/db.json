@@ -25,6 +25,19 @@
       "notes": "",
       "status": "active",
       "password": "asdasdasd"
+    },
+    {
+      "id": 5,
+      "username": "Stephen",
+      "firstName": "assa",
+      "lastName": "saasas",
+      "email": "assas@ssd",
+      "contactNumber": "",
+      "company": "siac",
+      "role": "client",
+      "notes": "",
+      "status": "active",
+      "password": "asdasdassad"
     }
   ],
   "products": [
@@ -39,6 +52,12 @@
       "name": "dfgdfg",
       "pricing": "Per Unit",
       "description": "dfgfdg"
+    },
+    {
+      "id": 3,
+      "name": "Stephen",
+      "pricing": "Per Unit",
+      "description": "sss"
     }
   ],
   "companies": [

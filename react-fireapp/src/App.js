@@ -10,6 +10,7 @@ import {Administrator} from './containers/admin/administrator';
 import {Jobs} from "./containers/jobs/jobs";
 import {Reports} from "./containers/reports/reports";
 import ResponsiveDrawer from "./components/responsiveDrawer";
+import ViewJob from "./containers/jobs/viewJob";
 
 const Links = () => (
   <nav>
@@ -29,7 +30,8 @@ class App extends Component {
               <div>
                 <Route exact path="/" component={Administrator} />
                 <Route path="/admin" component={Administrator} />
-                <Route path="/jobs" component={Jobs} />
+                <Route exact path="/jobs" component={Jobs} />
+                <Route path="/jobs/:id" render={({match}) => <ViewJob id={match.params.id} />} />
                 <Route path="/reports" component={Reports} />
               </div>
           </div>
