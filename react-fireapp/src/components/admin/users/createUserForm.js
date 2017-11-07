@@ -37,6 +37,10 @@ const styles = () => ({
   },
   createNewMenuItem: {
     color: "green"
+  },
+  dialogContent: {
+    overflow: "scroll",
+    height: 300,
   }
 });
 
@@ -79,7 +83,7 @@ export const CreateUserForm = (props) => {
             onRequestClose={props.handleRequestClose}>
       <form onSubmit={props.isEditting ? props.handleEdit : props.handleSubmit}  noValidate autoComplete="off">
         <DialogTitle>{props.isEditting ? "Edit user " + props.username : "Create new user"}</DialogTitle>
-        <DialogContent>
+        <DialogContent className={classes.dialogContent}>
           <DialogContentText>
             Update user details
           </DialogContentText>

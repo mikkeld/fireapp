@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
-import {loadJobFromId} from "../../utils/jobsService";
+import {loadJobFromId, updateJob} from "../../utils/jobsService";
+import {updatedUsers} from "../../utils/utils";
 import { FormControlLabel } from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
 import { withStyles } from 'material-ui/styles';
@@ -29,11 +30,12 @@ class ViewJob extends Component {
 
     this.state = {
       currentJob: null,
-      checkedCompleted: false,
       promiseResolved: false,
       attachmentDialogOpen: false,
       openAttachment: null,
     };
+
+    this.handleJobStatusChange = this.handleJobStatusChange.bind(this)
   }
 
 
@@ -57,6 +59,18 @@ class ViewJob extends Component {
     });
   };
 
+  handleJobStatusChange() {
+    const newState = !this.state.currentJob.completed;
+    const updatedJob = {
+      ...this.state.currentJob,
+      'completed': newState
+    };
+    updateJob(updatedJob);
+    this.setState({
+      currentJob: updatedJob
+    });
+  }
+
   render() {
     const { classes } = this.props;
     let confirmDelete = () => {
@@ -74,8 +88,8 @@ class ViewJob extends Component {
                 className={classes.rightElement}
                 control={
                   <Switch
-                    checked={this.state.checkedCompleted}
-                    onChange={(event, checked) => this.setState({ checkedCompleted: checked })}
+                    checked={this.state.currentJob.completed}
+                    onChange={this.handleJobStatusChange}
                   />
                 }
                 label="Completed"

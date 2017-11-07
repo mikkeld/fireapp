@@ -139,7 +139,8 @@
       "status": "active",
       "notes": "",
       "productPrice": "",
-      "clientPrice": ""
+      "clientPrice": "",
+      "completed": false
     },
     {
       "id": 2,
@@ -189,7 +190,84 @@
       "status": "active",
       "notes": "Notes",
       "productPrice": "",
-      "clientPrice": ""
+      "clientPrice": "",
+      "completed": true
+    },
+    {
+      "id": 3,
+      "jobId": "Job001",
+      "jobName": "Dublin 4",
+      "startDate": "",
+      "buildingName": "Kirkpatrick",
+      "address1": "Dublin 4",
+      "address2": "Dublin",
+      "selectedCompany": {
+        "id": 2,
+        "name": "new company",
+        "contactNumber": "123",
+        "email": "asdasd@",
+        "address1": "asd",
+        "address2": "asd",
+        "address3": "asd",
+        "county": "",
+        "notes": ""
+      },
+      "selectedClients": [
+        {
+          "id": 4,
+          "username": "hello",
+          "firstName": "Mik",
+          "lastName": "Den",
+          "email": "ss@",
+          "contactNumber": "",
+          "company": "siac",
+          "role": "client",
+          "notes": "",
+          "status": "active",
+          "password": "asdasdasd"
+        },
+        {
+          "id": 5,
+          "username": "Stephen",
+          "firstName": "assa",
+          "lastName": "saasas",
+          "email": "assas@ssd",
+          "contactNumber": "",
+          "company": "siac",
+          "role": "client",
+          "notes": "",
+          "status": "active",
+          "password": "asdasdassad"
+        }
+      ],
+      "currentClient": null,
+      "selectedProducts": [
+        {
+          "id": 2,
+          "name": "dfgdfg",
+          "pricing": "Per Unit",
+          "description": "dfgfdg",
+          "productPrice": "33",
+          "clientPrice": "44"
+        },
+        {
+          "id": 3,
+          "name": "Stephen",
+          "pricing": "Per Unit",
+          "description": "sss",
+          "productPrice": "335",
+          "clientPrice": "445"
+        }
+      ],
+      "currentProduct": null,
+      "selectedUploads": [],
+      "status": "active",
+      "notes": "",
+      "productPrice": "335",
+      "clientPrice": "445",
+      "completed": true
     }
+  ],
+  "entries": [
   ]
 }

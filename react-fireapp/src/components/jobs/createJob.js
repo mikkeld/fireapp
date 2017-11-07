@@ -325,7 +325,7 @@ export const CreateJob = (props) => {
           <section className={classes.section}>
             <Typography type="title" gutterBottom>
               Add a client to the job
-              {props.selectedClients.length > 0 && <CheckCircle className={classes.green}/>}
+              {/*{props.selectedClients.length > 0 && <CheckCircle className={classes.green}/>}*/}
             </Typography>
             <Divider />
             <div className={classes.chipContainer}>
@@ -345,7 +345,7 @@ export const CreateJob = (props) => {
           <section className={classes.section}>
             <Typography type="title" gutterBottom>
               Add a product to the job
-              {props.selectedProducts.length > 0 && <CheckCircle className={classes.green}/>}
+              {/*{props.selectedProducts.length > 0 && <CheckCircle className={classes.green}/>}*/}
             </Typography>
             <Divider/>
             <div className={classes.chipContainer}>

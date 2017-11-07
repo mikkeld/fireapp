@@ -29,7 +29,8 @@ const initialFormState = {
   status: 'active',
   notes: '',
   productPrice: '',
-  clientPrice: ''
+  clientPrice: '',
+  completed: false
 };
 
 const initialFormErrorState = {
@@ -258,7 +259,12 @@ export class Jobs extends Component {
       }
     } else if (group === "product") {
       if (this.state.currentJob.currentProduct) {
-        const updatedSelectedProducts = [...this.state.currentJob.selectedProducts, this.state.currentJob.currentProduct];
+        const updatedCurrentProduct = {
+          ...this.state.currentJob.currentProduct,
+          'productPrice': this.state.currentJob.productPrice,
+          'clientPrice': this.state.currentJob.clientPrice,
+        };
+        const updatedSelectedProducts = [...this.state.currentJob.selectedProducts, updatedCurrentProduct];
         const updatedJobStatus = {
           ...this.state.currentJob,
           selectedProducts: updatedSelectedProducts,
