@@ -43,7 +43,10 @@ const styles = theme => ({
   },
   wrapper: {
     marginTop: theme.spacing.unit*2
-  }
+  },
+  section: {
+    marginBottom: theme.spacing.unit * 3,
+  },
 });
 
 
@@ -57,6 +60,7 @@ export const CreateEntryForm = (props) => {
         id="selectedProduct"
         select
         label="Select a product"
+        error={props.selectProductError !== ''}
         margin="normal"
         fullWidth
         className={props.textField}
@@ -68,7 +72,7 @@ export const CreateEntryForm = (props) => {
           },
           name: "currentProduct"
         }}
-        helperText="Example: product 1"
+        helperText={props.selectProductError || "Example: Product 1"}
       >
         {props.job.selectedProducts.map((product, index) => (
           <MenuItem key={index} value={product}>
@@ -93,97 +97,107 @@ export const CreateEntryForm = (props) => {
 
   return (
     <div>
-      <Typography type="title" gutterBottom>
-        Add tag location
-      </Typography>
-      {props.job &&
-      <Paper className={classes.root}>
-        <TextField
-          id="currentUpload"
-          select
-          label="Select an image to mark"
-          margin="normal"
-          fullWidth
-          className={props.textField}
-          value={props.currentUpload || ''}
-          onChange={props.handleInputChange('currentUpload')}
-          SelectProps={{
-            MenuProps: {
-              className: props.menu,
-            },
-            name: "currentUpload"
-          }}
-        >
-          {props.job.selectedUploads.map((file, index) => (
-            <MenuItem key={index} value={file}>
-              {file.name}
-            </MenuItem>
-          ))}
-        </TextField>
-        <Button color="primary" onClick={() => props.handleAttachmentDialogOpen(props.job.selectedUploads)}>
-          Set marker on image
-        </Button>
-        {props.selectedMarkedImage ? props.selectedMarkedImage.url : 0}
-        {props.selectedMarkedImage &&
-          <MarkedImage markerPosition={props.selectedMarkedImage.position}
-                       attachment={props.selectedMarkedImage.attachment}
-                       imageLoaded={props.markedImageLoaded}
-                       handleImageLoaded={props.handleMarkedImageLoaded}
-          />}
-      </Paper>
-      }
-      <Typography type="title" gutterBottom>
-        Add a product to the job
-      </Typography>
-      <Divider/>
-      <Paper className={classes.root}>
-        <div className={classes.chipContainer}>
-          {props.selectedProducts.map((product, index) => {
-            return (
-              <Chip
-                label={product.name}
-                key={index}
-                className={classes.chip}
-                // onRequestDelete={() => props.handleRequestDeleteChip(product, "product")}
-              />
-            )
-          })}
-        </div>
-        {props.job && <ProductFormGroup/>}
-      </Paper>
-      <Typography type="title" gutterBottom>
-        Add pictures to the entry
-      </Typography>
-      <Divider/>
-      <Paper className={classes.root}>
-        <input type="file" id="myFile" onChange={props.handleFileUpload} />
-        {props.uploadLoading
-            ? <CircularProgress/>
-            : null}
-        {props.selectedUploads.length > 0 && <EntryImageView selectedUploads={props.selectedUploads}/>}
-      </Paper>
-      <Divider/>
-      <TextField
-        id="locationDescription"
-        label="Location Description"
-        multiline
-        rows="4"
-        value={props.locationDescription}
-        onChange={props.handleInputChange('locationDescription')}
-        margin="normal"
-        fullWidth
-      />
-      <TextField
-        id="comments"
-        label="Comments"
-        multiline
-        rows="4"
-        value={props.comments}
-        onChange={props.handleInputChange('comments')}
-        margin="normal"
-        fullWidth
-      />
+      <section className={classes.section}>
+        <Typography type="title" gutterBottom>
+          Add tag location
+        </Typography>
+        {props.job &&
+        <Paper className={classes.root}>
+          <TextField
+            id="currentUpload"
+            select
+            label="Select an image to mark"
+            margin="normal"
+            fullWidth
+            className={props.textField}
+            value={props.currentUpload || ''}
+            onChange={props.handleInputChange('currentUpload')}
+            SelectProps={{
+              MenuProps: {
+                className: props.menu,
+              },
+              name: "currentUpload"
+            }}
+          >
+            {props.job.selectedUploads.map((file, index) => (
+              <MenuItem key={index} value={file}>
+                {file.name}
+              </MenuItem>
+            ))}
+          </TextField>
+          <Button color="primary" onClick={() => props.handleAttachmentDialogOpen(props.job.selectedUploads)}>
+            Set marker on image
+          </Button>
+          {props.selectedMarkedImage &&
+            <MarkedImage markerPosition={props.selectedMarkedImage.position}
+                         attachment={props.selectedMarkedImage.attachment}
+                         imageLoaded={props.markedImageLoaded}
+                         handleImageLoaded={props.handleMarkedImageLoaded}
+            />}
+        </Paper>
+        }
+      </section>
+      <section className={classes.section}>
+        <Typography type="title" gutterBottom>
+          Add a product to the job
+        </Typography>
+        <Paper className={classes.root}>
+          <div className={classes.chipContainer}>
+            {props.selectedProducts.map((product, index) => {
+              return (
+                <Chip
+                  label={product.name}
+                  key={index}
+                  className={classes.chip}
+                  // onRequestDelete={() => props.handleRequestDeleteChip(product, "product")}
+                />
+              )
+            })}
+          </div>
+          {props.job && <ProductFormGroup/>}
+        </Paper>
+      </section>
+      <section className={classes.section}>
+        <Typography type="title" gutterBottom>
+          Add pictures to the entry
+        </Typography>
+        <Paper className={classes.root}>
+          <input type="file" id="myFile" onChange={props.handleFileUpload} />
+          {props.uploadLoading
+              ? <CircularProgress/>
+              : null}
+          {props.selectedUploads.length > 0 && <EntryImageView selectedUploads={props.selectedUploads}/>}
+        </Paper>
+      </section>
+      <section className={classes.section}>
+        <Typography type="title" gutterBottom>
+          Add comments to the entry
+        </Typography>
+        <Paper className={classes.root}>
+          <TextField
+            id="locationDescription"
+            label="Location Description"
+            multiline
+            rows="4"
+            value={props.locationDescription}
+            onChange={props.handleInputChange('locationDescription')}
+            margin="normal"
+            fullWidth
+          />
+          <TextField
+            id="comments"
+            label="Comments"
+            multiline
+            rows="4"
+            value={props.comments}
+            onChange={props.handleInputChange('comments')}
+            margin="normal"
+            fullWidth
+          />
+        </Paper>
+      </section>
       <Button color="primary" onClick={props.handleSubmit}>Create entry</Button>
+
     </div>
   )
 };

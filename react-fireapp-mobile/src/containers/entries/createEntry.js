@@ -4,6 +4,7 @@ import { withStyles } from 'material-ui/styles';
 import {loadJobFromId, uploadFile} from "../../utils/jobsService";
 import ViewImageDialog from "../../components/entries/viewImageDialog";
 import {createEntry} from "../../utils/entriesService";
+import {FirebaseList} from "../../utils/firebase/firebaseList";
 
 const styles = theme => ({
   root: {
@@ -12,7 +13,6 @@ const styles = theme => ({
 });
 
 const initialFormState = {
-  id: 0,
   currentProduct: null,
   selectedProducts: [],
   selectedUploads: [],
@@ -24,7 +24,7 @@ const initialFormState = {
 };
 
 const initialFormErrorState = {
-  jobIdError: '',
+  selectProductError: '',
 };
 
 class CreateEntry extends Component {
@@ -34,12 +34,15 @@ class CreateEntry extends Component {
       products: [],
       job: null,
       currentEntry: initialFormState,
+      formErrors: initialFormErrorState,
       uploadLoading: false,
       markedImageLoaded: false,
       attachmentDialogOpen: false,
       openAttachment: null,
       markerPosition: null
     };
+
+    this.firebase = new FirebaseList('entries');
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -51,18 +54,24 @@ class CreateEntry extends Component {
   }
 
   componentDidMount() {
-    loadJobFromId(this.props.match.params.id)
-      .then(job => {this.setState({job: job})})
+    this.firebase.path = `entries/${this.props.match.params.id}`;
+    this.firebase.db().ref(`jobs/${this.props.match.params.id}`).on('value', (snap) => {
+      const job = {
+        id: snap.key,
+        ...snap.val()
+      };
+      this.setState({job: job})
+    });
   }
 
   validate() {
     const errors = {...initialFormErrorState};
     let isError = false;
 
-    // if(this.state.currentEntry.jobName === '') {
-    //   errors.jobNameError = "Job name cannot be empty";
-    //   isError = true;
-    // }
+    if(this.state.currentEntry.selectedProducts.length === 0) {
+      errors.selectProductError = "You must select at least one product";
+      isError = true;
+    }
 
     this.setState({formErrors: errors});
 
@@ -70,7 +79,6 @@ class CreateEntry extends Component {
   }
 
   handleSubmit() {
-    console.log("submit clicked")
     const err = this.validate();
     if(!err) {
       const newEntry = {
@@ -78,12 +86,12 @@ class CreateEntry extends Component {
         'lastUpdated': Date.now()
       };
       if(this.state.job && this.state.currentEntry) {
-        createEntry(this.state.job.jobId, newEntry)
-          .then(res => console.log("Entry created"));
+        console.log(newEntry);
+        this.firebase.push(newEntry)
+          .then(() => console.log("Entry created"));
       }
     }
   };
-
 
   handleInputChange = name => e => {
     e.preventDefault();
@@ -127,7 +135,7 @@ class CreateEntry extends Component {
     uploadFile(formData)
       .then(publicUrl => {
         if(publicUrl.status === 200) {
-          const uploadItem = {"name": file.name, "url": publicUrl.data, "id": this.generateRandom()};
+          const uploadItem = {"name": file.name, "url": publicUrl.data};
           const updatedSelectedUploads = [...this.state.currentEntry.selectedUploads, uploadItem];
           const updatedJobStatus = {
             ...this.state.currentEntry,
@@ -182,10 +190,6 @@ class CreateEntry extends Component {
     this.setState({markedImageLoaded: true})
   }
 
-  generateRandom() {
-    return this.state.job.jobIdError + parseInt(Math.random());
-  }
-
   render() {
     const {classes} = this.props;
     return (
@@ -214,6 +218,7 @@ class CreateEntry extends Component {
                          markedImageLoaded={this.state.markedImageLoaded}
                          handleMarkedImageLoaded={this.handleMarkedImageLoaded}
                          {...this.state.currentEntry}
+                         {...this.state.formErrors}
         />
       </div>
     );

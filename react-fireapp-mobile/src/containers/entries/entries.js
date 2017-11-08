@@ -6,7 +6,7 @@ import {
   Link
 } from 'react-router-dom';
 import EntriesTable from "../../components/entries/entriesTable";
-import {loadEntriesForJob} from "../../utils/entriesService";
+import {FirebaseList} from "../../utils/firebase/firebaseList";
 
 const styles = theme => ({
   button: {
@@ -22,12 +22,23 @@ class Entries extends Component {
     super();
     this.state = {
       entries: []
-    }
+    };
+    this.firebase = new FirebaseList('entries');
   }
 
   componentDidMount() {
-    loadEntriesForJob()
-      .then(entries => this.setState({entries: entries}))
+    this.firebase.path = `entries/${this.props.match.params.id}`;
+    const previousEntries = this.state.entries;
+
+    this.firebase.database.on('child_added', snap => {
+      previousEntries.push({
+        id: snap.key,
+        ...snap.val()
+      });
+      this.setState({
+        entries: previousEntries
+      });
+    })
   }
 
   render() {

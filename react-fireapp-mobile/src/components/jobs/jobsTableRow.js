@@ -8,7 +8,7 @@ import {
 
 export const JobTableRow = (props) => {
   return (
-    <Link to={{ pathname: `/entries/${props.id}` }}>
+    <Link to={{ pathname: `/entries/${props.id}` }} style={{textDecoration: 'none'}}>
       <ListItem button>
         <Avatar>
           <FolderIcon />
