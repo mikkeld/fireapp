@@ -10,6 +10,8 @@ import Dialog, {
 import { MenuItem } from 'material-ui/Menu';
 import { withStyles } from 'material-ui/styles';
 import NoteAddIcon from 'material-ui-icons/NoteAdd';
+import { FormControlLabel } from 'material-ui/Form';
+import Switch from 'material-ui/Switch';
 
 
 const styles = () => ({
@@ -41,6 +43,9 @@ const styles = () => ({
   dialogContent: {
     overflow: "scroll",
     height: 300,
+  },
+  rightElement: {
+    float: 'right'
   }
 });
 
@@ -87,6 +92,18 @@ export const CreateUserForm = (props) => {
           <DialogContentText>
             Update user details
           </DialogContentText>
+          {props.isEditting &&
+            <FormControlLabel
+              className={classes.rightElement}
+              control={
+                <Switch
+                  checked={props.isActive}
+                  onChange={props.toggleUserActive}
+                />
+              }
+              label="Active"
+            />
+          }
           <TextField
             error={props.usernameError !== ''}
             helperText={props.usernameError || "Example: markgram"}
@@ -157,9 +174,6 @@ export const CreateUserForm = (props) => {
           >
             <MenuItem key="none" value="none">
               <em>None</em>
-            </MenuItem>
-            <MenuItem className={classes.createNewMenuItem} value="new" key="new">
-              <NoteAddIcon/>new company
             </MenuItem>
             {companies.map(option => (
               <MenuItem key={option.name} value={option.name}>

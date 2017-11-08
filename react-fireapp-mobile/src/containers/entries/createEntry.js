@@ -75,7 +75,7 @@ class CreateEntry extends Component {
     if(!err) {
       const newEntry = {
         ...this.state.currentEntry,
-        id: this.generateRandom()
+        'lastUpdated': Date.now()
       };
       if(this.state.job && this.state.currentEntry) {
         createEntry(this.state.job.jobId, newEntry)
@@ -183,7 +183,7 @@ class CreateEntry extends Component {
   }
 
   generateRandom() {
-    return parseInt(Math.random());
+    return this.state.job.jobIdError + parseInt(Math.random());
   }
 
   render() {

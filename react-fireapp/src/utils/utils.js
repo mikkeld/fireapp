@@ -1,20 +1,20 @@
-export const findUserById = (users, id) => {
-  return users.find((user) => user.id === id)
+export const findItemById = (items, id) => {
+  return items.find((item) => item.id === id)
 };
 
-export const updatedUsers = (users, updatedUser) => {
-  const updatedIndex = users.findIndex(user => user.id === updatedUser.id);
+export const updatedItems = (items, updatedItems) => {
+  const updatedIndex = items.findIndex(item => item.id === updatedItems.id);
   return [
-    ...users.slice(0, updatedIndex),
-    updatedUser,
-    ...users.slice(updatedIndex+1)
+    ...items.slice(0, updatedIndex),
+    updatedItems,
+    ...items.slice(updatedIndex+1)
   ];
 };
 
-export const removeUser = (users, id) => {
-  const removedIndex = users.findIndex(user => user.id === id);
+export const removeItem = (items, id) => {
+  const removedIndex = items.findIndex(item => item.id === id);
   return [
-    ...users.slice(0, removedIndex),
-    ...users.slice(removedIndex+1)
+    ...items.slice(0, removedIndex),
+    ...items.slice(removedIndex+1)
   ]
 };

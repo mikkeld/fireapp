@@ -13,7 +13,7 @@ export const EntryTableRow = (props) => {
         <Avatar>
           <FolderIcon />
         </Avatar>
-        <ListItemText primary={props.entry} secondary={`Location: ${props.jobName}`} />
+        <ListItemText primary={props.id} secondary={`Last updated: ${props.lastUpdated}`} />
       </ListItem>
     </Link>
   )

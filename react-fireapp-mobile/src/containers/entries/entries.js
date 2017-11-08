@@ -5,6 +5,8 @@ import { withStyles } from 'material-ui/styles';
 import {
   Link
 } from 'react-router-dom';
+import EntriesTable from "../../components/entries/entriesTable";
+import {loadEntriesForJob} from "../../utils/entriesService";
 
 const styles = theme => ({
   button: {
@@ -24,13 +26,15 @@ class Entries extends Component {
   }
 
   componentDidMount() {
+    loadEntriesForJob()
+      .then(entries => this.setState({entries: entries}))
   }
 
   render() {
     const { classes } = this.props;
     return (
       <div className="App">
-        <h4>Entries...</h4>
+        <EntriesTable entries={this.state.entries}/>
         <Link to={{ pathname: `/createEntry/${this.props.match.params.id}` }}>
           <Button fab color="primary" aria-label="add" className={classes.button}>
             <AddIcon />

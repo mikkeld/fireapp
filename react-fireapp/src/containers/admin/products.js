@@ -4,13 +4,15 @@ import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 
 import ListProductsTable from "../../components/admin/products/listProductsTable";
-import {createProduct, deleteProduct, loadProduct, loadProducts, updateProduct} from "../../utils/productService";
 import CreateProductForm from "../../components/admin/products/createProductForm";
-import {findUserById, updatedUsers, removeUser} from "../../utils/utils";
+import {findItemById, updatedItems, removeItem} from "../../utils/utils";
 import SimpleSnackbar from '../../components/snackbar';
+import {FirebaseList} from "../../utils/firebase/firebaseList";
+import Typography from 'material-ui/Typography';
+import { withStyles } from 'material-ui/styles';
+
 
 const initialFormState = {
-  id: 0,
   name: '',
   pricing: 'sqm',
   description: ''
@@ -25,20 +27,25 @@ const styles = theme => ({
     margin: theme.spacing.unit,
   },
   container: {
-    display: 'flex',
-    flexWrap: 'wrap',
+    display: 'inline',
   },
   textField: {
     marginLeft: theme.spacing.unit,
     marginRight: theme.spacing.unit,
     width: 200,
   },
+  textFieldSearch: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit,
+    width: 200,
+    float: 'right',
+  },
   menu: {
     width: 200,
   },
 });
 
-export class Products extends Component {
+class Products extends Component {
   constructor() {
     super();
     this.state = {
@@ -54,6 +61,7 @@ export class Products extends Component {
       formErrors: initialFormErrorState
     };
 
+    this.firebase = new FirebaseList('products');
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.toggleEdit = this.toggleEdit.bind(this);
@@ -62,27 +70,43 @@ export class Products extends Component {
   }
 
   componentDidMount() {
-    loadProducts()
-      .then(products => this.setState({products}))
+    const previousProducts = this.state.products;
+
+    this.firebase.database.on('child_added', snap => {
+      previousProducts.push({
+        id: snap.key,
+        ...snap.val()
+      });
+
+      this.setState({
+        products: previousProducts
+      })
+    });
+
+    this.firebase.database.on('child_changed', snap => {
+      const updatedProducts = updatedItems(this.state.products, this.state.currentProduct);
+      this.setState({
+        products: updatedProducts
+      })
+    });
+
+    this.firebase.database.on('child_removed', snap => {
+      const updatedProducts = removeItem(previousProducts, snap.key);
+      this.setState({
+        products: updatedProducts
+      })
+    })
   }
 
   handleSubmit(e) {
     e.preventDefault();
     const err = this.validate();
     if(!err) {
-      const newProduct = {
-        ...this.state.currentProduct,
-        id: this.generateRandom()
-      };
-
-      const updatedProduct = [...this.state.products, newProduct];
-      this.setState({
-        users: updatedProduct
-      });
-      createProduct(newProduct)
+      this.firebase.push(this.state.currentProduct)
         .then(() => {
           this.handleRequestClose();
           this.handleSnackbarShow("Product created");
+          this.setState({currentProduct: initialFormState})
         })
     }
   };
@@ -91,10 +115,7 @@ export class Products extends Component {
     e.preventDefault();
     const err = this.validate();
     if(!err) {
-      this.setState({
-        products: updatedUsers(this.state.products, this.state.currentProduct)
-      });
-      updateProduct(this.state.currentProduct)
+      this.firebase.update(this.state.currentProduct.id, this.state.currentProduct)
         .then(() => {
           this.handleRequestClose();
           this.handleSnackbarShow("Product updated");
@@ -103,9 +124,8 @@ export class Products extends Component {
   }
 
   handleRemove = (id) => {
-    const updated = removeUser(this.state.products, id);
-    this.setState({products: updated, currentProduct: initialFormState});
-    deleteProduct(id)
+    this.setState({currentProduct: initialFormState});
+    this.firebase.remove(id)
       .then(() => {
         this.handleRequestClose();
         this.handleSnackbarShow("Product deleted");
@@ -136,16 +156,12 @@ export class Products extends Component {
   };
 
   toggleEdit(id){
-    const editingProduct = findUserById(this.state.products, id);
+    const editingProduct = findItemById(this.state.products, id);
     this.handleClickOpen();
     this.setState({
       currentProduct: editingProduct,
       isEditting: true
     });
-  }
-
-  generateRandom() {
-    return parseInt(Math.random());
   }
 
   updateSearch(e) {
@@ -178,12 +194,12 @@ export class Products extends Component {
     if (reason === 'clickaway') {
       return;
     }
-
     this.setState({ showSnackbar: false });
   };
 
 
   render() {
+    const {classes} = this.props;
     let filteredProducts = this.state.products.filter(
       (product) => {
         return product.name.toLowerCase().indexOf(
@@ -193,8 +209,10 @@ export class Products extends Component {
 
     return (
       <div>
-        <h1>Products</h1>
-        <div>
+        <Typography type="title" gutterBottom>
+          Products
+        </Typography>
+        <div className={classes.container}>
           <Button color="primary"
                   onClick={() => {this.handleClickOpen(); this.setState({isEditting: false})}}>
             Create Product
@@ -204,23 +222,22 @@ export class Products extends Component {
             onChange={this.updateSearch.bind(this)}
             id="search"
             label="Search product"
-            className={styles.textField}
+            className={classes.textField}
             type="search"
             margin="normal"/>
         </div>
         <ListProductsTable products={filteredProducts} toggleEdit={this.toggleEdit}/>
-        {
-          <CreateProductForm handleSubmit={this.handleSubmit}
-                          handleEdit={this.handleEdit}
-                          handleRemove={this.handleRemove}
-                          isEditting={this.state.isEditting}
-                          handleInputChange={this.handleInputChange}
-                          {...this.state.currentProduct}
-                          {...this.state.formErrors}
-                          open={this.state.open}
-                          handleRequestClose={this.handleRequestClose}
-          />
-        }
+        <CreateProductForm handleSubmit={this.handleSubmit}
+                           handleEdit={this.handleEdit}
+                           handleRemove={this.handleRemove}
+                           isEditting={this.state.isEditting}
+                           handleInputChange={this.handleInputChange}
+                           {...this.state.currentProduct}
+                           {...this.state.formErrors}
+                           open={this.state.open}
+                           handleRequestClose={this.handleRequestClose}
+        />
+
         <SimpleSnackbar showSnackbar={this.state.showSnackbar}
                         handleSnackbarClose={this.handleSnackbarClose}
                         snackbarMsg={this.state.snackbarMsg}
@@ -230,3 +247,4 @@ export class Products extends Component {
   }
 }
 
+export default withStyles(styles)(Products);

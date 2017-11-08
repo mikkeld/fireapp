@@ -3,17 +3,14 @@ import React, { Component } from 'react';
 import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 
-import {loadJobs, updateJob, createJob, deleteJob, uploadFile} from "../../utils/jobsService";
-import {findUserById, updatedUsers, removeUser} from "../../utils/utils";
+import {uploadFile} from "../../utils/jobsService";
+import {findItemById, updatedItems, removeItem} from "../../utils/utils";
 import SimpleSnackbar from '../../components/snackbar';
-import {loadCompanies} from "../../utils/companyService";
-import {loadUsers} from "../../utils/userService";
 import CreateJob from "../../components/jobs/createJob";
-import {loadProducts} from "../../utils/productService";
 import ListJobsTable from "../../components/jobs/listJobsTable";
+import {FirebaseList} from "../../utils/firebase/firebaseList";
 
 const initialFormState = {
-  id: 0,
   jobId: '',
   jobName: '',
   startDate: '',
@@ -66,7 +63,6 @@ export class Jobs extends Component {
         super();
         this.state = {
           jobs: [],
-          createJobVisible: false,
           open: false,
           showSnackbar: false,
           snackbarMsg: '',
@@ -81,6 +77,8 @@ export class Jobs extends Component {
           uploadLoading: false
         };
 
+    this.firebase = new FirebaseList('jobs');
+
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.toggleEdit = this.toggleEdit.bind(this);
@@ -90,36 +88,65 @@ export class Jobs extends Component {
   }
 
   componentDidMount() {
-    loadJobs()
-      .then(jobs => this.setState({jobs: jobs}));
+    const previousJobs = this.state.jobs;
 
-    loadCompanies()
-      .then(companies => this.setState({availableCompanies: companies}));
+    this.firebase.database.on('child_added', snap => {
+      previousJobs.push({
+        id: snap.key,
+        ...snap.val()
+      });
 
-    loadUsers()
-      .then(users => this.setState({availableUsers: users}));
+      this.setState({
+        jobs: previousJobs
+      })
+    });
 
-    loadProducts()
-      .then(products => this.setState({availableProducts: products}))
+    this.firebase.database.on('child_changed', snap => {
+      const updatedJobs = updatedItems(this.state.jobs, this.state.currentJob);
+      this.setState({
+        jobs: updatedJobs
+      })
+    });
+
+    this.firebase.database.on('child_removed', snap => {
+      const updatedJobs = removeItem(previousJobs, snap.key);
+      this.setState({
+        jobs: updatedJobs
+      })
+    });
+
+    this.firebase.databaseSnapshot('companies').then((snap) => {
+      const companies = this.snapshotToArray(snap);
+      this.setState({availableCompanies: companies})
+    });
+    this.firebase.databaseSnapshot('users').then((snap) => {
+      const users = this.snapshotToArray(snap);
+      this.setState({availableUsers: users})
+    });
+    this.firebase.databaseSnapshot('products').then((snap) => {
+      const products = this.snapshotToArray(snap);
+      this.setState({availableProducts: products})
+    });
+  }
+
+  snapshotToArray(snapshot) {
+    let items = [];
+    snapshot.forEach(function(item) {
+      let itemVal = item.val();
+      items.push(itemVal);
+    });
+    return items
   }
 
   handleSubmit(e) {
     e.preventDefault();
     const err = this.validate();
     if(!err) {
-      const newJob = {
-        ...this.state.currentJob,
-        id: this.generateRandom()
-      };
-
-      const updatedJobs = [...this.state.jobs, newJob];
-      this.setState({
-        jobs: updatedJobs
-      });
-      createJob(newJob)
+      this.firebase.push(this.state.currentJob)
         .then(() => {
           this.handleRequestClose();
           this.handleSnackbarShow("Job created");
+          this.setState({currentJob: initialFormState})
         })
     }
   };
@@ -128,10 +155,7 @@ export class Jobs extends Component {
     e.preventDefault();
     const err = this.validate();
     if(!err) {
-      this.setState({
-        jobs: updatedUsers(this.state.jobs, this.state.currentJob)
-      });
-      updateJob(this.state.currentJob)
+      this.firebase.update(this.state.currentJob.id, this.state.currentJob)
         .then(() => {
           this.handleRequestClose();
           this.handleSnackbarShow("Job updated");
@@ -140,9 +164,8 @@ export class Jobs extends Component {
   }
 
   handleRemove = (id) => {
-    const updated = removeUser(this.state.users, id);
-    this.setState({jobs: updated, currentJob: initialFormState});
-    deleteJob(id)
+    this.setState({currentJob: initialFormState});
+    this.firebase.remove(id)
       .then(() => {
         this.handleRequestClose();
         this.handleSnackbarShow("Job deleted");
@@ -183,7 +206,6 @@ export class Jobs extends Component {
       isError = true;
     }
 
-
     this.setState({formErrors: errors});
 
     return isError
@@ -198,7 +220,7 @@ export class Jobs extends Component {
   };
 
   toggleEdit(id){
-    const editingJob = findUserById(this.state.jobs, id);
+    const editingJob = findItemById(this.state.jobs, id);
     this.handleClickOpen();
     this.setState({
       currentJob: editingJob,
@@ -276,29 +298,14 @@ export class Jobs extends Component {
   };
 
   handleRequestDeleteChip = (data, group) => {
-    // NEED REFACTORING
-    if (group === "client") {
-      const updatedSelectedClients = removeUser(this.state.currentJob.selectedClients, data.id);
-      const updatedJobStatus = {
-        ...this.state.currentJob,
-        selectedClients: updatedSelectedClients
-      };
-      this.setState({currentJob: updatedJobStatus});
-    } else if (group === "product") {
-      const updatedSelectedProducts = removeUser(this.state.currentJob.selectedProducts, data.id);
-      const updatedJobStatus = {
-        ...this.state.currentJob,
-        selectedProducts: updatedSelectedProducts
-      };
-      this.setState({currentJob: updatedJobStatus});
-    } else if (group === "upload") {
-      const updatedSelectedUplods = removeUser(this.state.currentJob.selectedUploads, data.id);
-      const updatedJobStatus = {
-        ...this.state.currentJob,
-        selectedUploads: updatedSelectedUplods
-      };
-      this.setState({currentJob: updatedJobStatus});
-    }
+    const itemToChange = new Map([['client', 'selectedClients'], ['product', 'selectedProducts'], ['upload', 'selectedUploads']]);
+    const selected = itemToChange.get(group);
+    const updatedSelectedClients = removeItem(this.state.currentJob[selected], data.id);
+    const updatedJobStatus = {
+      ...this.state.currentJob,
+      [selected]: updatedSelectedClients
+    };
+    this.setState({currentJob: updatedJobStatus});
   };
 
   handleFileUpload(e) {

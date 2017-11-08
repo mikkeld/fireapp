@@ -13,7 +13,7 @@ export const ListUsersTableRow = (props) => {
       <TableCell>{props.company}</TableCell>
       <TableCell>{props.contactNumber}</TableCell>
       <TableCell>{props.role}</TableCell>
-      <TableCell>{props.status}</TableCell>
+      <TableCell>{props.isActive ? 'Active' : 'Inactive'}</TableCell>
     </TableRow>
   )
 };

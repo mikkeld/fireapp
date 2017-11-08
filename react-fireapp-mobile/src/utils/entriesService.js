@@ -1,7 +1,7 @@
 const SERVER = "http://localhost:8080/entries";
 
 export const loadEntriesForJob = (jobId) => {
-  const path = `${SERVER}/${jobId}`;
+  const path = `${SERVER}`;
   return fetch(path)
     .then(entries => entries.json())
 };

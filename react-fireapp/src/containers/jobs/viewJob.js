@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {loadJobFromId, updateJob} from "../../utils/jobsService";
-import {updatedUsers} from "../../utils/utils";
+import {updatedItems} from "../../utils/utils";
 import { FormControlLabel } from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
 import { withStyles } from 'material-ui/styles';
@@ -14,6 +14,7 @@ import ViewProductsDetails from "../../components/jobs/viewJob/viewProductsDetai
 import ViewAttachmentDetails from "../../components/jobs/viewJob/viewAttachmentDetails";
 import ViewEventLogDetails from "../../components/jobs/viewJob/viewEventLogDetails";
 import ViewSummaryDetails from "../../components/jobs/viewJob/viewSummary";
+import {FirebaseList} from "../../utils/firebase/firebaseList";
 
 const styles = theme => ({
   wrapper: {
@@ -35,13 +36,20 @@ class ViewJob extends Component {
       openAttachment: null,
     };
 
+    this.firebase = new FirebaseList('jobs');
+
     this.handleJobStatusChange = this.handleJobStatusChange.bind(this)
   }
 
 
   componentDidMount() {
-    loadJobFromId(this.props.id)
-      .then(job => this.setState({currentJob: job}))
+    this.firebase.db().ref(`jobs/${this.props.id}`).on('value', (snap) => {
+      const job = {
+        id: snap.key,
+        ...snap.val()
+      };
+      this.setState({currentJob: job})
+    });
   }
 
   handleRemove() {
@@ -65,10 +73,7 @@ class ViewJob extends Component {
       ...this.state.currentJob,
       'completed': newState
     };
-    updateJob(updatedJob);
-    this.setState({
-      currentJob: updatedJob
-    });
+    this.firebase.update(this.state.currentJob.id, updatedJob)
   }
 
   render() {

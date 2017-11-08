@@ -6,11 +6,11 @@ import TextField from 'material-ui/TextField';
 import ListCompaniesTable from "../../components/admin/companies/listCompaniesTable";
 import {createCompany, deleteCompany, loadCompanies, updateCompany} from "../../utils/companyService";
 import CreateCompanyForm from "../../components/admin/companies/createCompanyForm";
-import {findUserById, updatedUsers, removeUser} from "../../utils/utils";
+import {findItemById, updatedItems, removeItem} from "../../utils/utils";
 import SimpleSnackbar from '../../components/snackbar';
+import {FirebaseList} from "../../utils/firebase/firebaseList";
 
 const initialFormState = {
-  id: 0,
   name: '',
   contactNumber: '',
   email: '',
@@ -61,6 +61,8 @@ export class Companies extends Component {
       formErrors: initialFormErrorState
     };
 
+    this.firebase = new FirebaseList('companies');
+
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.toggleEdit = this.toggleEdit.bind(this);
@@ -69,27 +71,43 @@ export class Companies extends Component {
   }
 
   componentDidMount() {
-    loadCompanies()
-      .then(companies => this.setState({companies}))
+    const previousCompanies = this.state.companies;
+
+    this.firebase.database.on('child_added', snap => {
+      previousCompanies.push({
+        id: snap.key,
+        ...snap.val()
+      });
+
+      this.setState({
+        companies: previousCompanies
+      })
+    });
+
+    this.firebase.database.on('child_changed', snap => {
+      const updatedCompanies = updatedItems(this.state.companies, this.state.currentCompany);
+      this.setState({
+        companies: updatedCompanies
+      })
+    });
+
+    this.firebase.database.on('child_removed', snap => {
+      const updatedCompanies = removeItem(previousCompanies, snap.key);
+      this.setState({
+        companies: updatedCompanies
+      })
+    })
   }
 
   handleSubmit(e) {
     e.preventDefault();
     const err = this.validate();
     if(!err) {
-      const newCompany = {
-        ...this.state.currentCompany,
-        id: this.generateRandom()
-      };
-
-      const updateCompany = [...this.state.companies, newCompany];
-      this.setState({
-        companies: updateCompany
-      });
-      createCompany(newCompany)
+      this.firebase.push(this.state.currentCompany)
         .then(() => {
           this.handleRequestClose();
           this.handleSnackbarShow("Company created");
+          this.setState({currentCompany: initialFormState})
         })
     }
   };
@@ -98,10 +116,7 @@ export class Companies extends Component {
     e.preventDefault();
     const err = this.validate();
     if(!err) {
-      this.setState({
-        companies: updatedUsers(this.state.companies, this.state.currentCompany)
-      });
-      updateCompany(this.state.currentCompany)
+      this.firebase.update(this.state.currentCompany.id, this.state.currentCompany)
         .then(() => {
           this.handleRequestClose();
           this.handleSnackbarShow("Company updated");
@@ -110,9 +125,8 @@ export class Companies extends Component {
   }
 
   handleRemove = (id) => {
-    const updated = removeUser(this.state.companies, id);
-    this.setState({companies: updated, currentCompany: initialFormState});
-    deleteCompany(id)
+    this.setState({currentCompany: initialFormState});
+    this.firebase.remove(id)
       .then(() => {
         this.handleRequestClose();
         this.handleSnackbarShow("Company deleted");
@@ -151,16 +165,12 @@ export class Companies extends Component {
   };
 
   toggleEdit(id){
-    const editingCompany = findUserById(this.state.companies, id);
+    const editingCompany = findItemById(this.state.companies, id);
     this.handleClickOpen();
     this.setState({
       currentCompany: editingCompany,
       isEditting: true
     });
-  }
-
-  generateRandom() {
-    return parseInt(Math.random());
   }
 
   updateSearch(e) {
@@ -180,6 +190,7 @@ export class Companies extends Component {
       currentCompany: initialFormState,
       formErrors: initialFormErrorState
     });
+    this.props.toggleCreateCompanyOpen && this.props.toggleCreateCompanyOpen()
   };
 
   handleSnackbarShow = (msg) => {
@@ -208,38 +219,38 @@ export class Companies extends Component {
 
     return (
       <div>
-        <h1>Companies</h1>
-        <div>
-          <Button color="primary"
-                  onClick={() => {this.handleClickOpen(); this.setState({isEditting: false})}}>
-            Create Company
-          </Button>
-          <TextField
-            value={this.state.search}
-            onChange={this.updateSearch.bind(this)}
-            id="search"
-            label="Search companies"
-            className={styles.textField}
-            type="search"
-            margin="normal"/>
-        </div>
-        <ListCompaniesTable companies={filteredCompanies} toggleEdit={this.toggleEdit}/>
-        {
-          <CreateCompanyForm handleSubmit={this.handleSubmit}
-                             handleEdit={this.handleEdit}
-                             handleRemove={this.handleRemove}
-                             isEditting={this.state.isEditting}
-                             handleInputChange={this.handleInputChange}
-                             {...this.state.currentCompany}
-                             {...this.state.formErrors}
-                             open={this.state.open}
-                             handleRequestClose={this.handleRequestClose}
-          />
-        }
-        <SimpleSnackbar showSnackbar={this.state.showSnackbar}
-                        handleSnackbarClose={this.handleSnackbarClose}
-                        snackbarMsg={this.state.snackbarMsg}
+        <CreateCompanyForm handleSubmit={this.handleSubmit}
+                           handleEdit={this.handleEdit}
+                           handleRemove={this.handleRemove}
+                           isEditting={this.state.isEditting}
+                           handleInputChange={this.handleInputChange}
+                           {...this.state.currentCompany}
+                           {...this.state.formErrors}
+                           open={this.state.open}
+                           handleRequestClose={this.handleRequestClose}
         />
+        <div>
+          <h1>Companies</h1>
+          <div>
+            <Button color="primary"
+                    onClick={() => {this.handleClickOpen(); this.setState({isEditting: false})}}>
+              Create Company
+            </Button>
+            <TextField
+              value={this.state.search}
+              onChange={this.updateSearch.bind(this)}
+              id="search"
+              label="Search companies"
+              className={styles.textField}
+              type="search"
+              margin="normal"/>
+          </div>
+          <ListCompaniesTable companies={filteredCompanies} toggleEdit={this.toggleEdit}/>
+          <SimpleSnackbar showSnackbar={this.state.showSnackbar}
+                          handleSnackbarClose={this.handleSnackbarClose}
+                          snackbarMsg={this.state.snackbarMsg}
+          />
+        </div>
       </div>
     );
   }

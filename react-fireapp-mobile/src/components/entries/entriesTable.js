@@ -1,7 +1,7 @@
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import List from 'material-ui/List';
-import {JobTableRow} from "./jobsTableRow";
+import {EntryTableRow} from "./entryTableRow";
 
 
 const styles = theme => ({
@@ -12,19 +12,19 @@ const styles = theme => ({
   },
 });
 
-export const JobsTable = (props) => {
+export const EntriesTable = (props) => {
   const { classes } = props;
   return (
     <div className={classes.root}>
       <List className={classes.root}>
-        {props.jobs.map(job => {
-          return <JobTableRow key={job.id} {...job} />
+        {props.entries.map(entry => {
+          return <EntryTableRow key={entry.id} {...entry} />
         })}
       </List>
     </div>
   );
 };
 
-export default withStyles(styles)(JobsTable);
+export default withStyles(styles)(EntriesTable);
 
 

@@ -29,6 +29,10 @@ const styles = () => ({
   menu: {
     width: 200,
   },
+  dialogContent: {
+    overflow: "scroll",
+    height: 300,
+  },
   contentStyle: {
     width: '90%',
     height: '90%'
@@ -52,7 +56,7 @@ export const CreateCompanyForm = (props) => {
               onRequestClose={props.handleRequestClose}>
         <form onSubmit={props.isEditting ? props.handleEdit : props.handleSubmit}  noValidate autoComplete="off">
           <DialogTitle>{props.isEditting ? "Edit company " + props.name : "Create new company"}</DialogTitle>
-          <DialogContent>
+          <DialogContent className={classes.dialogContent}>
             <DialogContentText>
               Update company details
             </DialogContentText>
