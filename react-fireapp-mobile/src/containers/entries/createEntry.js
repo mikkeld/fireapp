@@ -1,10 +1,15 @@
 import React, { Component } from 'react';
 import CreateEntryForm from "../../components/entries/createEntryForm";
 import { withStyles } from 'material-ui/styles';
-import {loadJobFromId, uploadFile} from "../../utils/jobsService";
+import {uploadFile} from "../../utils/jobsService";
 import ViewImageDialog from "../../components/entries/viewImageDialog";
-import {createEntry} from "../../utils/entriesService";
 import {FirebaseList} from "../../utils/firebase/firebaseList";
+import {removeItem} from "../../utils/utils";
+import {
+  Redirect
+} from 'react-router-dom';
+import AppBar from "../../components/appBar";
+import Spinner from "../../components/shared/spinner";
 
 const styles = theme => ({
   root: {
@@ -39,7 +44,10 @@ class CreateEntry extends Component {
       markedImageLoaded: false,
       attachmentDialogOpen: false,
       openAttachment: null,
-      markerPosition: null
+      markerPosition: null,
+      redirect: false,
+      loading: true,
+      isEditing: false
     };
 
     this.firebase = new FirebaseList('entries');
@@ -55,13 +63,28 @@ class CreateEntry extends Component {
 
   componentDidMount() {
     this.firebase.path = `entries/${this.props.match.params.id}`;
+    this.jobId = this.props.match.params.id;
+    this.entryId = this.props.match.params.entry || null;
     this.firebase.db().ref(`jobs/${this.props.match.params.id}`).on('value', (snap) => {
       const job = {
         id: snap.key,
         ...snap.val()
       };
-      this.setState({job: job})
+      this.setState({
+        job: job,
+        loading: false,
+      })
     });
+    if (this.entryId) {
+      this.firebase.databaseSnapshot(`entries/${this.jobId}/${this.entryId}`).then((entry) => {
+        const updatedEntry = Object.assign(initialFormState, entry.val());
+        this.setState({
+          currentEntry: updatedEntry,
+          isEditing: !!this.entryId
+        })
+      });
+    }
+    console.log(this.props.match.params.entry)
   }
 
   validate() {
@@ -86,9 +109,13 @@ class CreateEntry extends Component {
         'lastUpdated': Date.now()
       };
       if(this.state.job && this.state.currentEntry) {
-        console.log(newEntry);
-        this.firebase.push(newEntry)
-          .then(() => console.log("Entry created"));
+        if(!this.state.isEditing) {
+          this.firebase.push(newEntry)
+            .then(() => this.setState({redirect: 'create'}));
+        } else {
+          this.firebase.update(this.entryId, newEntry)
+            .then(() => this.setState({redirect: 'edit'}));
+        }
       }
     }
   };
@@ -97,6 +124,10 @@ class CreateEntry extends Component {
     e.preventDefault();
     const target = e.target;
     const value = target.value;
+
+    if (name === 'currentUpload') {
+      this.handleAttachmentDialogOpen(this.state.job.selectedUploads);
+    }
 
     this.setState({ currentEntry: { ...this.state.currentEntry, [name]: value } });
   };
@@ -111,20 +142,24 @@ class CreateEntry extends Component {
       const updatedEntryStatus = {
         ...this.state.currentEntry,
         selectedProducts: updatedSelectedProducts,
-        currentProduct: null
+        currentProduct: null,
+        productQuantity: ''
       };
       this.setState({currentEntry: updatedEntryStatus});
     }
   };
 
-  // handleRequestDeleteChip = (data) => {
-  //   const updatedSelectedClients = removeUser(this.state.currentJob.selectedClients, data.id);
-  //   const updatedJobStatus = {
-  //     ...this.state.currentJob,
-  //     selectedClients: updatedSelectedClients
-  //   };
-  //   this.setState({currentJob: updatedJobStatus});
-  // };
+  handleRequestDeleteChip = (data, group) => {
+    const itemToChange = new Map([['product', 'selectedProducts'], ['upload', 'selectedUploads']]);
+    const selected = itemToChange.get(group);
+    const updatedSelectedItems = removeItem(this.state.currentEntry[selected], data.id);
+    const updatedEntryStatus = {
+      ...this.state.currentEntry,
+      [selected]: updatedSelectedItems
+    };
+    this.setState({currentEntry: updatedEntryStatus});
+  };
+
 
   handleFileUpload(e) {
     this.setState({uploadLoading: true});
@@ -190,37 +225,58 @@ class CreateEntry extends Component {
     this.setState({markedImageLoaded: true})
   }
 
+  filterProducts(selected, available) {
+    if(this.state.job) {
+      const selectedProductNames = [];
+      selected.forEach(product => selectedProductNames.push(product.name));
+      return available.filter(product => !selectedProductNames.includes(product.name))
+    }
+  }
+
   render() {
     const {classes} = this.props;
+    const filteredProducts = this.filterProducts(this.state.currentEntry.selectedProducts, this.state.job && this.state.job.selectedProducts);
+    const title = this.state.isEditing ? "Edit entry for" : "Add entry for";
+    const redirectRoute = this.state.redirect
+      ? `/entries/${this.props.match.params.id}/${this.state.redirect}`
+      : `/entries/${this.props.match.params.id}`;
     return (
-      <div className={classes.root}>
-        <ViewImageDialog open={this.state.attachmentDialogOpen}
-                         handleRequestClose={this.handleAttachmentDialogClose}
-                         attachment={this.state.currentEntry.currentUpload}
-                         setMarker={this.setMarker}
-                         markerPosition={this.state.markerPosition}
-                         saveMarkedImage={this.saveMarkedImage}
-                         markedImageLoaded={this.state.markedImageLoaded}
-                         handleMarkedImageLoaded={this.handleMarkedImageLoaded}
-        />
+      <section>
+        <AppBar title={`${title} ${this.state.job && this.state.job.jobId}`} route={`/entries/${this.props.match.params.id}`}/>
+        {this.state.loading
+          ? <Spinner />
+          : <div className={classes.root}>
+              <ViewImageDialog open={this.state.attachmentDialogOpen}
+                               handleRequestClose={this.handleAttachmentDialogClose}
+                               attachment={this.state.currentEntry.currentUpload}
+                               setMarker={this.setMarker}
+                               markerPosition={this.state.markerPosition}
+                               saveMarkedImage={this.saveMarkedImage}
+                               markedImageLoaded={this.state.markedImageLoaded}
+                               handleMarkedImageLoaded={this.handleMarkedImageLoaded}
+              />
 
-        <CreateEntryForm handleInputChange={this.handleInputChange}
-                         handleSubmit={this.handleSubmit}
-                         products={this.state.products}
-                         currentEntry={this.state.currentEntry}
-                         addSelectedChip={this.addSelectedChip}
-                         handleFileUpload={this.handleFileUpload}
-                         job={this.state.job}
-                         uploadLoading={this.state.uploadLoading}
-                         handleAttachmentDialogOpen={this.handleAttachmentDialogOpen}
-                         markerPosition={this.props.markerPosition}
-                         attachment={this.props.attachment}
-                         markedImageLoaded={this.state.markedImageLoaded}
-                         handleMarkedImageLoaded={this.handleMarkedImageLoaded}
-                         {...this.state.currentEntry}
-                         {...this.state.formErrors}
-        />
-      </div>
+              <CreateEntryForm handleInputChange={this.handleInputChange}
+                               handleSubmit={this.handleSubmit}
+                               availableProducts={filteredProducts}
+                               currentEntry={this.state.currentEntry}
+                               addSelectedChip={this.addSelectedChip}
+                               handleRequestDeleteChip={this.handleRequestDeleteChip}
+                               handleFileUpload={this.handleFileUpload}
+                               job={this.state.job}
+                               uploadLoading={this.state.uploadLoading}
+                               handleAttachmentDialogOpen={this.handleAttachmentDialogOpen}
+                               markerPosition={this.props.markerPosition}
+                               attachment={this.props.attachment}
+                               markedImageLoaded={this.state.markedImageLoaded}
+                               handleMarkedImageLoaded={this.handleMarkedImageLoaded}
+                               isEditing={this.state.isEditing}
+                               {...this.state.currentEntry}
+                               {...this.state.formErrors}
+              />
+              {this.state.redirect && <Redirect to={redirectRoute} push />}
+            </div>}
+      </section>
     );
   }
 }

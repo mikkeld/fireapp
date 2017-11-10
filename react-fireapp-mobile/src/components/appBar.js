@@ -3,13 +3,15 @@ import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
-import Button from 'material-ui/Button';
+import Avatar from 'material-ui/Avatar';
+import deepOrange from 'material-ui/colors/deepOrange';
 import IconButton from 'material-ui/IconButton';
-import MenuIcon from 'material-ui-icons/Menu';
+import ArrowBackIcon from 'material-ui-icons/ArrowBack';
+import { Link } from 'react-router-dom';
 
 const styles = theme => ({
   root: {
-    marginBottom: theme.spacing.unit * 3,
+    marginBottom: theme.spacing.unit,
     width: '100%',
   },
   flex: {
@@ -19,7 +21,16 @@ const styles = theme => ({
     marginLeft: -12,
     marginRight: 20,
   },
+  avatar: {
+    margin: 10,
+  },
+  orangeAvatar: {
+    margin: 10,
+    color: '#fff',
+    backgroundColor: deepOrange[500],
+  },
 });
+
 
 const FireAppBar = (props) => {
   const { classes } = props;
@@ -27,13 +38,18 @@ const FireAppBar = (props) => {
     <div className={classes.root}>
       <AppBar position="static">
         <Toolbar>
-          <IconButton className={classes.menuButton} color="contrast" aria-label="Menu">
-            <MenuIcon />
-          </IconButton>
+          {props.route &&
+            <Link to={{ pathname: props.route }} style={{textDecoration: 'none'}}>
+              <IconButton className={classes.menuButton} color="contrast">
+                <ArrowBackIcon/>
+              </IconButton>
+            </Link>}
           <Typography type="title" color="inherit" className={classes.flex}>
-            Title
+            {props.title || ''}
           </Typography>
-          <Button color="contrast">Login</Button>
+          {props.rightIcon
+            ? props.rightIcon
+            : <Avatar className={classes.orangeAvatar}>M</Avatar>}
         </Toolbar>
       </AppBar>
     </div>

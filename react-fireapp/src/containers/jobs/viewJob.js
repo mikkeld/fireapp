@@ -6,7 +6,7 @@ import Switch from 'material-ui/Switch';
 import { withStyles } from 'material-ui/styles';
 
 import Button from 'material-ui/Button';
-import {ViewJobAttachment} from "../../components/jobs/viewJobAttachment";
+import ViewJobAttachment from "../../components/jobs/viewJobAttachment";
 import ViewJobDetails from "../../components/jobs/viewJob/viewJobDetails";
 import ViewCompanyDetails from "../../components/jobs/viewJob/viewCompanyDetails";
 import ViewClientsDetails from "../../components/jobs/viewJob/viewClientsDetails";
@@ -116,7 +116,6 @@ class ViewJob extends Component {
             />
 
         </div>}
-
       </div>
     );
   }

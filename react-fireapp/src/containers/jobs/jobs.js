@@ -23,7 +23,6 @@ const initialFormState = {
   selectedProducts: [],
   currentProduct: null,
   selectedUploads: [],
-  status: 'active',
   notes: '',
   productPrice: '',
   clientPrice: '',
@@ -267,7 +266,6 @@ export class Jobs extends Component {
   };
 
   addSelectedChip = (group) => {
-    // NEED REFACTORING
     if (group === "client") {
       if (this.state.currentJob.currentClient) {
         const updatedSelectedClients = [...this.state.currentJob.selectedClients, this.state.currentJob.currentClient];

@@ -16,8 +16,11 @@ export const EntriesTable = (props) => {
   return (
     <div className={classes.root}>
       <List className={classes.root}>
-        {props.entries.map(entry => {
-          return <EntryTableRow key={entry.id} {...entry} />
+        {props.entries.map((entry, index) => {
+          return <EntryTableRow key={entry.id} {...entry}
+                                jobId={props.jobId}
+                                jobKey={props.jobKey}
+                                index={index} />
         })}
       </List>
     </div>

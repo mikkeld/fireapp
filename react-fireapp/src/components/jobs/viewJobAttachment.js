@@ -1,7 +1,14 @@
 import React, {Component} from 'react';
 import Dialog, { DialogTitle } from 'material-ui/Dialog';
 import { CircularProgress } from 'material-ui/Progress';
+import { withStyles } from 'material-ui/styles';
 
+const styles = theme => ({
+  popupImg: {
+    maxHeight: 400,
+    maxWidth: 400
+  }
+});
 
 export class ViewJobAttachment extends Component {
   constructor() {
@@ -12,6 +19,7 @@ export class ViewJobAttachment extends Component {
   }
 
   render() {
+    const { classes } = this.props;
     return (
       <Dialog
         open={this.props.open}
@@ -26,6 +34,7 @@ export class ViewJobAttachment extends Component {
 
           <img
             src={this.props.attachment.url}
+            className={classes.popupImg}
             onLoad={() => this.setState({imageLoaded: true})}
           />
         </div>
@@ -34,3 +43,5 @@ export class ViewJobAttachment extends Component {
     )
   }
 }
+
+export default withStyles(styles)(ViewJobAttachment);

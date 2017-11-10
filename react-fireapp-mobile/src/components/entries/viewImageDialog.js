@@ -1,16 +1,14 @@
 import React, {Component} from 'react';
 import Dialog, { DialogTitle } from 'material-ui/Dialog';
-import { CircularProgress } from 'material-ui/Progress';
-import { withStyles } from 'material-ui/styles';
-import Button from 'material-ui/Button';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import IconButton from 'material-ui/IconButton';
 import Typography from 'material-ui/Typography';
 import CloseIcon from 'material-ui-icons/Close';
+import CheckIcon from 'material-ui-icons/Check';
 import Slide from 'material-ui/transitions/Slide';
-import {Marker} from "./marker";
 import {MarkedImage} from "./markedImage";
+import { withStyles } from 'material-ui/styles';
 
 const styles = {
   appBar: {
@@ -44,9 +42,9 @@ export class ViewImageDialog extends Component {
               <Typography type="title" color="inherit" className={classes.flex}>
                 Place Marker
               </Typography>
-              <Button color="contrast" onClick={this.props.saveMarkedImage}>
-                save
-              </Button>
+              <IconButton color="contrast" onClick={this.props.saveMarkedImage}>
+                <CheckIcon />
+              </IconButton>
             </Toolbar>
           </AppBar>
           {this.props.attachment &&

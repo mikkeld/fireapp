@@ -3,30 +3,36 @@ import './App.css';
 import {
   BrowserRouter as Router,
   Route,
-  Link
 } from 'react-router-dom';
 import Jobs from "./containers/jobs/jobs";
-import FireAppBar from "./components/appBar";
 import Entries from "./containers/entries/entries";
 import CreateEntry from "./containers/entries/createEntry";
+import { withStyles } from 'material-ui/styles';
+
+const styles = theme => ({
+});
 
 
 class App extends Component {
+  componentWillReceiveProps(nextProps) {
+   console.log(nextProps.location)
+  }
   render() {
     return (
       <Router>
         <div className="App">
-          <FireAppBar />
-          <div>
+          <main>
             <Route exact path="/" component={Jobs} />
-            <Route path="/entries/:id" component={Entries} />
+            <Route path="/jobs" component={Jobs} />
+            <Route exact path="/entries/:id/" component={Entries} />
+            <Route path="/entries/:id/:type" component={Entries} />
             <Route path="/createEntry/:id" component={CreateEntry} />
-          </div>
+            <Route path="/editEntry/:id/:entry" component={CreateEntry} />
+          </main>
         </div>
-
       </Router>
     );
   }
 }
 
-export default App;
+export default withStyles(styles, { withTheme: true })(App);

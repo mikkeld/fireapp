@@ -1,6 +1,8 @@
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import { GridList, GridListTile } from 'material-ui/GridList';
+import RemoveCircle from 'material-ui-icons/RemoveCircle';
+import IconButton from 'material-ui/IconButton';
 
 const styles = theme => ({
   root: {
@@ -9,14 +11,21 @@ const styles = theme => ({
     justifyContent: 'space-around',
     overflow: 'hidden',
     background: theme.palette.background.paper,
+    marginTop: theme.spacing.unit * 2
   },
   gridList: {
     width: 500,
-    height: 450,
+    display: 'relative'
   },
   subheader: {
     width: '100%',
   },
+  deleteIcon: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    size: '120%',
+  }
 });
 
 export const EntryImageView = (props) => {
@@ -27,6 +36,11 @@ export const EntryImageView = (props) => {
         {props.selectedUploads.map(file => (
           <GridListTile key={file.name} cols={file.cols || 1}>
             <img src={file.url} alt={file.name} />
+            <IconButton className={classes.deleteIcon}
+                        onClick={() => props.handleRequestDeleteChip(file, "upload")}
+                        color="primary">
+              <RemoveCircle  />
+            </IconButton>
           </GridListTile>
         ))}
       </GridList>
