@@ -15,7 +15,7 @@ export const EntryTableRow = (props) => {
         <Avatar>
           <FolderIcon />
         </Avatar>
-        <ListItemText primary={props.jobId + '-' + props.index} secondary={`Last updated: ${formatTimestamp(props.lastUpdated)}`} />
+        <ListItemText primary={props.jobId + '-' + props.index} secondary={`Date created: ${formatTimestamp(props.creationDate)}`} />
       </ListItem>
     </Link>
   )

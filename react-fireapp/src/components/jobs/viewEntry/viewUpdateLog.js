@@ -2,7 +2,8 @@ import React from 'react';
 import Paper from 'material-ui/Paper';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
-import EntriesTable from "./listEntriesTable";
+import ListEntryLogTable from "./listEntryLogTable";
+
 
 const styles = theme => ({
   root: {
@@ -10,23 +11,36 @@ const styles = theme => ({
     padding: theme.spacing.unit,
     overflowX: 'auto',
   },
+  textHeader: {
+    display: 'block',
+    color: 'grey',
+    fontSize: '70%'
+  },
   wrapper: {
-    marginTop: theme.spacing.unit*2
+    marginBottom: theme.spacing.unit*2,
+  },
+  inline: {
+    float: 'left',
+    paddingRight: theme.spacing.unit*2,
+  },
+  clearBoth: {
+    clear: 'both',
+    marginBottom: theme.spacing.unit*2,
   }
 });
 
-export const ViewEventLogDetails = (props) => {
+export const ViewUpdateLog = (props) => {
   const { classes } = props;
   return (
     <div className={classes.wrapper}>
       <Typography type="subheading" color="secondary">
-        Event log
+        Update log
       </Typography>
       <Paper className={classes.root}>
-        <EntriesTable jobId={props.jobId} jobKey={props.jobKey} entries={props.entries}/>
+        <ListEntryLogTable updateLog={props.updateLog} />
       </Paper>
     </div>
   )
 };
 
-export default withStyles(styles)(ViewEventLogDetails);
+export default withStyles(styles)(ViewUpdateLog);

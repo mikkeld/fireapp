@@ -23,40 +23,41 @@ function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
-export class ViewImageDialog extends Component {
+export class ViewPinnedImageDialog extends Component {
   render() {
     const {classes} = this.props;
+    const appBarTitle = this.props.isEditing ? "Place marker" : "";
     return (
       <div>
         <Dialog
-          fullScreen
           open={this.props.open}
-          onRequestClose={this.props.handleRequestClose}
+          fullScreen
+          onRequestClose={() => this.props.handleRequestClose()}
           transition={Transition}
         >
           <AppBar className={classes.appBar}>
             <Toolbar>
-              <IconButton color="contrast" onClick={this.props.handleRequestClose} aria-label="Close">
+              <IconButton color="contrast" onClick={() =>this.props.handleRequestClose()} aria-label="Close">
                 <CloseIcon />
               </IconButton>
               <Typography type="title" color="inherit" className={classes.flex}>
-                Place Marker
+                {appBarTitle}
               </Typography>
+              {this.props.isEditing &&
               <IconButton color="contrast" onClick={this.props.saveMarkedImage}>
                 <CheckIcon />
-              </IconButton>
+              </IconButton>}
             </Toolbar>
           </AppBar>
           {this.props.attachment &&
-          <div>
-            <DialogTitle>{this.props.attachment.name}</DialogTitle>
-            <MarkedImage setMarker={this.props.setMarker}
-                         markerPosition={this.props.markerPosition}
-                         attachment={this.props.attachment}
-                         imageLoaded={this.props.markedImageLoaded}
-                         handleImageLoaded={this.props.handleMarkedImageLoaded}
-            />
-          </div>
+            <div>
+              <DialogTitle>{this.props.attachment.name}</DialogTitle>
+              <MarkedImage markerPosition={this.props.attachment.position}
+                           attachment={this.props.attachment.attachment}
+                           imageLoaded={this.props.markedImageLoaded}
+                           handleImageLoaded={this.props.handleMarkedImageLoaded}
+                           setMarker={this.props.isEditing && this.props.setMarker} />
+            </div>
           }
         </Dialog>
       </div>
@@ -64,4 +65,4 @@ export class ViewImageDialog extends Component {
   }
 }
 
-export default withStyles(styles)(ViewImageDialog);
+export default withStyles(styles)(ViewPinnedImageDialog);

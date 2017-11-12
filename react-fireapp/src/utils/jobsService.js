@@ -45,6 +45,19 @@ export const deleteJob = (id) => {
   })
 };
 
+const map = new Map([["client", "clientPrice"], ["product", "productPrice"]]);
+
+export const calculateCost = (product, type) => {
+  const user = map.get(type);
+  return product[user] * product.productQuantity
+};
+
+export const calculateTotalCost = (products, type) => {
+  let totalCosts = 0;
+  products.forEach(product => totalCosts += calculateCost(product, type));
+  return totalCosts
+};
+
 export const uploadFile = (data) => {
   return axios.post('http://localhost:8000/upload', data)
 };

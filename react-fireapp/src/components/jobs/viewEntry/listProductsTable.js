@@ -1,8 +1,7 @@
-import React from 'react';
+import React, {Component}  from 'react';
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import {ListProductTableRow} from "./listProductTableRow";
-
 
 const styles = theme => ({
   root: {
@@ -21,14 +20,20 @@ export const ListProductsTable = (props) => {
     <Table className={classes.table}>
       <TableHead>
         <TableRow>
+          {props.isEditing && <TableCell>Edit</TableCell>}
           <TableCell>Product Name</TableCell>
-          <TableCell>Pricing Method</TableCell>
-          <TableCell>Product Price</TableCell>
-          <TableCell>Client Price</TableCell>
+          <TableCell>Description</TableCell>
+          <TableCell>Quantity</TableCell>
+          <TableCell>Total measurement</TableCell>
+          <TableCell>Product cost</TableCell>
+          <TableCell>Client cost</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {props.products.map(product => <ListProductTableRow key={product.jobId} {...product} />)}
+        {props.products.map(product => <ListProductTableRow key={product.id}
+                                                            {...product}
+                                                            isEditing={props.isEditing}
+                                                            toggleEdit={props.toggleEdit}/>)}
       </TableBody>
     </Table>
   )

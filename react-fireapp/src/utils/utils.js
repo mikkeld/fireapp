@@ -18,3 +18,18 @@ export const removeItem = (items, id) => {
     ...items.slice(removedIndex+1)
   ]
 };
+
+export const formatTimestamp = (timestamp) => {
+  const t = new Date(timestamp);
+  const ISO = t.toISOString();
+  return ISO.substring(0,10) + ' ' +ISO.substring(11, 16);
+};
+
+export const snapshotToArray = (snapshot) => {
+  let items = [];
+  snapshot.forEach(function(item) {
+    let itemVal = item.val();
+    items.push(itemVal);
+  });
+  return items
+};

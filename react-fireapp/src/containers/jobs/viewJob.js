@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-import {loadJobFromId, updateJob} from "../../utils/jobsService";
-import {updatedItems} from "../../utils/utils";
 import { FormControlLabel } from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
 import { withStyles } from 'material-ui/styles';
@@ -31,6 +29,7 @@ class ViewJob extends Component {
 
     this.state = {
       currentJob: null,
+      entries: [],
       promiseResolved: false,
       attachmentDialogOpen: false,
       openAttachment: null,
@@ -49,6 +48,19 @@ class ViewJob extends Component {
         ...snap.val()
       };
       this.setState({currentJob: job})
+    });
+
+    const previousEntries = this.state.entries;
+
+    this.firebase.db().ref(`entries/${this.props.id}`).on('child_added', snap => {
+      previousEntries.push({
+        id: snap.key,
+        ...snap.val()
+      });
+
+      this.setState({
+        entries: previousEntries
+      })
     });
   }
 
@@ -107,9 +119,8 @@ class ViewJob extends Component {
             {this.state.currentJob.selectedUploads.length > 0
               ? <ViewAttachmentDetails currentJob={this.state.currentJob} handleClickOpen={this.handleClickOpen}/>
               : null}
-            <ViewEventLogDetails currentJob={this.state.currentJob}/>
+            <ViewEventLogDetails jobId={this.state.currentJob.jobId} jobKey={this.state.currentJob.id} entries={this.state.entries}/>
             <ViewSummaryDetails currentJob={this.state.currentJob}/>
-
             <ViewJobAttachment open={this.state.attachmentDialogOpen}
                                handleRequestClose={this.handleAttachmentDialogClose}
                                attachment={this.state.openAttachment}

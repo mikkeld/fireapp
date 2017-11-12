@@ -26,6 +26,7 @@ const initialFormState = {
   locationDescription: '',
   comments: '',
   currentUpload: null,
+  username: 'emoore'
 };
 
 const initialFormErrorState = {
@@ -84,7 +85,6 @@ class CreateEntry extends Component {
         })
       });
     }
-    console.log(this.props.match.params.entry)
   }
 
   validate() {
@@ -104,16 +104,24 @@ class CreateEntry extends Component {
   handleSubmit() {
     const err = this.validate();
     if(!err) {
-      const newEntry = {
-        ...this.state.currentEntry,
-        'lastUpdated': Date.now()
-      };
       if(this.state.job && this.state.currentEntry) {
         if(!this.state.isEditing) {
+          const newEntry = {
+            ...this.state.currentEntry,
+            'creationDate': Date.now()
+          };
           this.firebase.push(newEntry)
             .then(() => this.setState({redirect: 'create'}));
         } else {
-          this.firebase.update(this.entryId, newEntry)
+          const updatedEntry = {
+            ...this.state.currentEntry
+          };
+          const newLogEntry = {
+            'lastUpdated': Date.now(),
+            'updatedBy': 'emoore'
+          };
+          this.firebase.db().ref(`log/${this.jobId}/${this.entryId}`).push(newLogEntry);
+          this.firebase.update(this.entryId, updatedEntry)
             .then(() => this.setState({redirect: 'edit'}));
         }
       }

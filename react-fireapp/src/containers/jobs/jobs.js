@@ -4,7 +4,7 @@ import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 
 import {uploadFile} from "../../utils/jobsService";
-import {findItemById, updatedItems, removeItem} from "../../utils/utils";
+import {findItemById, updatedItems, removeItem, snapshotToArray} from "../../utils/utils";
 import SimpleSnackbar from '../../components/snackbar';
 import CreateJob from "../../components/jobs/createJob";
 import ListJobsTable from "../../components/jobs/listJobsTable";
@@ -115,26 +115,17 @@ export class Jobs extends Component {
     });
 
     this.firebase.databaseSnapshot('companies').then((snap) => {
-      const companies = this.snapshotToArray(snap);
+      const companies = snapshotToArray(snap);
       this.setState({availableCompanies: companies})
     });
     this.firebase.databaseSnapshot('users').then((snap) => {
-      const users = this.snapshotToArray(snap);
+      const users = snapshotToArray(snap);
       this.setState({availableUsers: users})
     });
     this.firebase.databaseSnapshot('products').then((snap) => {
-      const products = this.snapshotToArray(snap);
+      const products = snapshotToArray(snap);
       this.setState({availableProducts: products})
     });
-  }
-
-  snapshotToArray(snapshot) {
-    let items = [];
-    snapshot.forEach(function(item) {
-      let itemVal = item.val();
-      items.push(itemVal);
-    });
-    return items
   }
 
   handleSubmit(e) {

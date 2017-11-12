@@ -1,8 +1,7 @@
-import React from 'react';
+import React, {Component}  from 'react';
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-import {ListProductTableRow} from "./listProductTableRow";
-
+import {ListEntryLogTableRow} from './listEntryLogTableRow'
 
 const styles = theme => ({
   root: {
@@ -11,30 +10,28 @@ const styles = theme => ({
     overflowX: 'auto',
   },
   table: {
-    minWidth: 700,
+    maxWidth: 300,
   },
 });
 
-export const ListProductsTable = (props) => {
+export const ListEntryLogTable = (props) => {
   const { classes } = props;
   return (
     <Table className={classes.table}>
       <TableHead>
         <TableRow>
-          <TableCell>Product Name</TableCell>
-          <TableCell>Pricing Method</TableCell>
-          <TableCell>Product Price</TableCell>
-          <TableCell>Client Price</TableCell>
+          <TableCell>Update date</TableCell>
+          <TableCell>Username</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {props.products.map(product => <ListProductTableRow key={product.jobId} {...product} />)}
+        {props.updateLog.map(row => <ListEntryLogTableRow key={row.id} {...row} />)}
       </TableBody>
     </Table>
   )
 };
 
-export default withStyles(styles)(ListProductsTable);
+export default withStyles(styles)(ListEntryLogTable);
 
 
 

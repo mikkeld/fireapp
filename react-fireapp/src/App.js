@@ -11,6 +11,7 @@ import {Jobs} from "./containers/jobs/jobs";
 import {Reports} from "./containers/reports/reports";
 import ResponsiveDrawer from "./components/responsiveDrawer";
 import ViewJob from "./containers/jobs/viewJob";
+import Entry from "./containers/jobs/entries/entry";
 
 const Links = () => (
   <nav>
@@ -32,6 +33,7 @@ class App extends Component {
                 <Route path="/admin" component={Administrator} />
                 <Route exact path="/jobs" component={Jobs} />
                 <Route path="/jobs/:id" render={({match}) => <ViewJob id={match.params.id} />} />
+                <Route path="/entries/:jobId/:entryId" render={({match}) => <Entry jobId={match.params.jobId} entryId={match.params.entryId} />} />
                 <Route path="/reports" component={Reports} />
               </div>
           </div>

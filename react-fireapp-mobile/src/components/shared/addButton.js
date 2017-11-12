@@ -9,7 +9,7 @@ import Tooltip from 'material-ui/Tooltip';
 
 const styles = theme => ({
   button: {
-    position: 'absolute',
+    position: 'fixed',
     bottom: theme.spacing.unit*2,
     right: theme.spacing.unit*2,
     zIndex: 0
