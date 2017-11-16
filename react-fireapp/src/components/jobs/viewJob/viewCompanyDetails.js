@@ -36,7 +36,7 @@ export const ViewCompanyDetails = (props) => {
   return (
     <div className={classes.marginWrapper}>
       <Typography type="subheading" color="secondary">
-        Companies listed for job
+        Company listed for job
       </Typography>
       <Paper className={classes.root}>
         <div className={classes.wrapper}>
@@ -54,8 +54,8 @@ export const ViewCompanyDetails = (props) => {
         <div className={classes.clearBoth} />
         <div className={classes.wrapper}>
           <span className={classes.textHeader}>Company Address</span>
-          <span>Company address: {props.currentJob.selectedCompany.address1}</span><br />
-          <span>Company address: {props.currentJob.selectedCompany.address2}</span>
+          <span>{props.currentJob.selectedCompany.address1}</span><br />
+          <span>{props.currentJob.selectedCompany.address2}</span>
         </div>
       </Paper>
     </div>

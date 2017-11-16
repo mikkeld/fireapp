@@ -58,6 +58,38 @@ export const calculateTotalCost = (products, type) => {
   return totalCosts
 };
 
+export const calculateTotalPerProduct = (entries) => {
+  const initialState = {
+    'totalMeasurement': 0,
+    'productCost': 0,
+    'clientCost': 0
+  };
+  let totalsPerGroup =  {...initialState};
+  let totalsPerProduct = {};
+  for (let entry of entries) {
+    if (entry && entry.selectedProducts) {
+      for (let product of entry.selectedProducts) {
+        if (!totalsPerProduct.hasOwnProperty(product.name)) {
+          totalsPerProduct[product.name] = initialState;
+        }
+
+        let productCost = calculateCost(product, "product");
+        let clientCost = calculateCost(product, "client");
+        let totalMeasurement = Number(product.productQuantity);
+
+        totalsPerProduct[product.name].productCost += productCost;
+        totalsPerProduct[product.name].clientCost += clientCost;
+        totalsPerProduct[product.name].totalMeasurement += totalMeasurement;
+
+        totalsPerGroup.productCost += productCost;
+        totalsPerGroup.clientCost += clientCost;
+        totalsPerGroup.totalMeasurement += totalMeasurement;
+      }
+    }
+  }
+  return {costPerProduct: totalsPerProduct, costPerItem: totalsPerGroup}
+};
+
 export const uploadFile = (data) => {
   return axios.post('http://localhost:8000/upload', data)
 };

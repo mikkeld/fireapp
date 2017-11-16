@@ -1,14 +1,12 @@
 import React, { Component } from 'react';
-
-import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
-
 import ListUsersTable from "../../components/admin/users/listUsersTable";
 import CreateUserForm from "../../components/admin/users/createUserForm";
-import {findItemById, updatedItems, removeItem} from "../../utils/utils";
-import SimpleSnackbar from '../../components/snackbar';
-import Typography from 'material-ui/Typography';
+import {findItemById, updatedItems, removeItem, snapshotToArray} from "../../utils/utils";
+import SimpleSnackbar from '../../components/shared/snackbar';
 import {FirebaseList} from "../../utils/firebase/firebaseList";
+import AddButton from "../../components/shared/addButton";
+import Spinner from "../../components/shared/spinner";
 
 const initialFormState = {
   username: '',
@@ -55,6 +53,7 @@ export class User extends Component {
     super();
     this.state = {
       users: [],
+      availableCompanies: [],
       createUserVisible: false,
       open: false,
       showSnackbar: false,
@@ -63,7 +62,9 @@ export class User extends Component {
       search: '',
       isEditting: false,
       currentUser: initialFormState,
-      formErrors: initialFormErrorState
+      formErrors: initialFormErrorState,
+      companiesLoading: true,
+      usersLoading: true
     };
 
     this.firebase = new FirebaseList('users');
@@ -74,6 +75,8 @@ export class User extends Component {
     this.handleEdit= this.handleEdit.bind(this);
     this.handleRemove= this.handleRemove.bind(this);
     this.toggleUserActive = this.toggleUserActive.bind(this);
+    this.updateSearch = this.updateSearch.bind(this);
+    this.handleClickOpen = this.handleClickOpen.bind(this);
   }
 
   componentDidMount() {
@@ -86,7 +89,8 @@ export class User extends Component {
       });
 
       this.setState({
-        users: previousUsers
+        users: previousUsers,
+        usersLoading: false
       })
     });
 
@@ -102,7 +106,15 @@ export class User extends Component {
       this.setState({
         users: updatedUsers
       })
-    })
+    });
+
+    this.firebase.databaseSnapshot('companies').then((snap) => {
+      const companies = snapshotToArray(snap);
+      this.setState({
+        availableCompanies: companies,
+        companiesLoading: false
+      })
+    });
   }
 
   handleSubmit(e) {
@@ -184,10 +196,10 @@ export class User extends Component {
 
   toggleEdit(id){
     const editingUser = findItemById(this.state.users, id);
-    this.handleClickOpen();
     this.setState({
       currentUser: editingUser,
-      isEditting: true
+      isEditting: true,
+      open: true
     });
   }
 
@@ -198,6 +210,7 @@ export class User extends Component {
 
   handleClickOpen = () => {
     this.setState({
+      isEditing: false,
       open: true
     });
   };
@@ -245,44 +258,42 @@ export class User extends Component {
       }
     );
 
-    return (
-      <div>
-        <Typography type="title" gutterBottom>
-          Users
-        </Typography>
+    if (this.state.usersLoading || this.state.companiesLoading) {
+      return <Spinner />
+    } else {
+      return (
         <div>
-          <Button color="primary"
-                  onClick={() => {this.handleClickOpen(); this.setState({isEditting: false})}}>
-            Create User
-          </Button>
-          <TextField
-            value={this.state.search}
-            onChange={this.updateSearch.bind(this)}
-            id="search"
-            label="Search username"
-            className={styles.textField}
-            type="search"
-            margin="normal"/>
+          <div>
+            <AddButton tooltip="Create new user" handleClick={this.handleClickOpen}/>
+            <TextField
+              value={this.state.search}
+              onChange={this.updateSearch}
+              id="search"
+              label="Search username"
+              className={styles.textField}
+              type="search"
+              margin="normal"/>
+          </div>
+          <ListUsersTable users={filteredUsers} toggleEdit={this.toggleEdit}/>
+          <CreateUserForm handleSubmit={this.handleSubmit}
+                          handleEdit={this.handleEdit}
+                          handleRemove={this.handleRemove}
+                          isEditting={this.state.isEditting}
+                          handleInputChange={this.handleInputChange}
+                          {...this.state.currentUser}
+                          {...this.state.formErrors}
+                          open={this.state.open}
+                          handleRequestClose={this.handleRequestClose}
+                          toggleUserActive={this.toggleUserActive}
+                          companies={this.state.availableCompanies}
+          />
+          <SimpleSnackbar showSnackbar={this.state.showSnackbar}
+                          handleSnackbarClose={this.handleSnackbarClose}
+                          snackbarMsg={this.state.snackbarMsg}
+          />
         </div>
-        {this.state.open}
-        <ListUsersTable users={filteredUsers} toggleEdit={this.toggleEdit}/>
-        <CreateUserForm handleSubmit={this.handleSubmit}
-                        handleEdit={this.handleEdit}
-                        handleRemove={this.handleRemove}
-                        isEditting={this.state.isEditting}
-                        handleInputChange={this.handleInputChange}
-                        {...this.state.currentUser}
-                        {...this.state.formErrors}
-                        open={this.state.open}
-                        handleRequestClose={this.handleRequestClose}
-                        toggleUserActive={this.toggleUserActive}
-        />
-        <SimpleSnackbar showSnackbar={this.state.showSnackbar}
-                        handleSnackbarClose={this.handleSnackbarClose}
-                        snackbarMsg={this.state.snackbarMsg}
-        />
-      </div>
-    );
+      );
+    }
   }
 }
 

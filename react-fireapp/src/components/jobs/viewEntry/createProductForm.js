@@ -50,8 +50,8 @@ export const CreateProductForm = (props) => {
     <div>
       <Dialog open={props.open}
               onRequestClose={props.handleRequestClose}>
-        <form onSubmit={props.isEditting ? props.handleEdit : props.handleSubmit}  noValidate autoComplete="off">
-          <DialogTitle>{props.isEditting ? "Edit product " + props.name : "Add product to entry"}</DialogTitle>
+        <form onSubmit={props.isEditing ? props.handleEdit : props.handleSubmit}  noValidate autoComplete="off">
+          <DialogTitle>{props.isEditing ? "Edit product " + props.name : "Add product to entry"}</DialogTitle>
           <DialogContent>
             <DialogContentText>
               Update product details

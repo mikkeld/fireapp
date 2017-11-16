@@ -1,22 +1,21 @@
 import React, { Component } from 'react';
-
-import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
-
 import {uploadFile} from "../../utils/jobsService";
 import {findItemById, updatedItems, removeItem, snapshotToArray} from "../../utils/utils";
-import SimpleSnackbar from '../../components/snackbar';
+import SimpleSnackbar from '../../components/shared/snackbar';
 import CreateJob from "../../components/jobs/createJob";
 import ListJobsTable from "../../components/jobs/listJobsTable";
 import {FirebaseList} from "../../utils/firebase/firebaseList";
+import AddButton from "../../components/shared/addButton";
+import Spinner from "../../components/shared/spinner";
 
 const initialFormState = {
   jobId: '',
   jobName: '',
-  startDate: '',
   buildingName: '',
   address1: '',
   address2: '',
+  startDate: '',
   selectedCompany: null,
   selectedClients: [],
   currentClient: null,
@@ -73,7 +72,11 @@ export class Jobs extends Component {
           availableCompanies: [],
           availableUsers: [],
           availableProducts: [],
-          uploadLoading: false
+          uploadLoading: false,
+          jobsLoading: true,
+          usersLoading: true,
+          companiesLoading: true,
+          productsLoading: true
         };
 
     this.firebase = new FirebaseList('jobs');
@@ -84,6 +87,8 @@ export class Jobs extends Component {
     this.handleEdit= this.handleEdit.bind(this);
     this.handleRemove= this.handleRemove.bind(this);
     this.handleFileUpload= this.handleFileUpload.bind(this);
+    this.updateSearch = this.updateSearch.bind(this);
+    this.handleClickOpen = this.handleClickOpen.bind(this);
   }
 
   componentDidMount() {
@@ -96,7 +101,8 @@ export class Jobs extends Component {
       });
 
       this.setState({
-        jobs: previousJobs
+        jobs: previousJobs,
+        jobsLoading: false
       })
     });
 
@@ -116,15 +122,24 @@ export class Jobs extends Component {
 
     this.firebase.databaseSnapshot('companies').then((snap) => {
       const companies = snapshotToArray(snap);
-      this.setState({availableCompanies: companies})
+      this.setState({
+        availableCompanies: companies,
+        companiesLoading: false
+      })
     });
     this.firebase.databaseSnapshot('users').then((snap) => {
       const users = snapshotToArray(snap);
-      this.setState({availableUsers: users})
+      this.setState({
+        availableUsers: users,
+        usersLoading: false
+      })
     });
     this.firebase.databaseSnapshot('products').then((snap) => {
       const products = snapshotToArray(snap);
-      this.setState({availableProducts: products})
+      this.setState({
+        availableProducts: products,
+        productsLoading: false
+      })
     });
   }
 
@@ -175,10 +190,10 @@ export class Jobs extends Component {
       errors.jobNameError = "Job name cannot be empty";
       isError = true;
     }
-    // if(this.state.currentJob.startDate === '') {
-    //   errors.startDateError = "Start Date cannot be empty";
-    //   isError = true;
-    // }
+    if(this.state.currentJob.startDate === '') {
+      errors.startDateError = "Start Date cannot be empty";
+      isError = true;
+    }
     if(this.state.currentJob.buildingName === '') {
       errors.buildingNameError = "Building name cannot be empty";
       isError = true;
@@ -211,10 +226,10 @@ export class Jobs extends Component {
 
   toggleEdit(id){
     const editingJob = findItemById(this.state.jobs, id);
-    this.handleClickOpen();
     this.setState({
       currentJob: editingJob,
-      isEditting: true
+      isEditting: true,
+      open: true
     });
   }
 
@@ -229,7 +244,8 @@ export class Jobs extends Component {
 
   handleClickOpen = () => {
     this.setState({
-      open: true
+      open: true,
+      isEditting: false
     });
   };
 
@@ -323,6 +339,21 @@ export class Jobs extends Component {
       });
   }
 
+  filterProducts(selected, available) {
+    if(!this.state.productsLoading) {
+      const selectedProductNames = [];
+      selected.forEach(product => selectedProductNames.push(product.name));
+      return available.filter(product => !selectedProductNames.includes(product.name))
+    }
+  }
+
+  filterClients(selected, available) {
+    if(!this.state.usersLoading) {
+      const selectedClientNames = [];
+      selected.forEach(client => selectedClientNames.push(client.name));
+      return available.filter(client => !selectedClientNames.includes(client.name))
+    }
+  }
 
   render() {
     let filteredJobs = this.state.jobs.filter(
@@ -331,16 +362,15 @@ export class Jobs extends Component {
           this.state.search.toLowerCase()) !== -1;
       }
     );
+    let filteredProducts = this.filterProducts(this.state.currentJob.selectedProducts, this.state.availableProducts);
+    let filteredClients = this.filterClients(this.state.currentJob.selectedClients, this.state.availableUsers);
 
     const JobsMainPage = () => (
       <div>
-        <Button color="primary"
-                onClick={() => {this.handleClickOpen(); this.setState({isEditting: false})}}>
-          Create Job
-        </Button>
+        <AddButton tooltip="Create new job" handleClick={this.handleClickOpen}/>
         <TextField
           value={this.state.search}
-          onChange={this.updateSearch.bind(this)}
+          onChange={this.updateSearch}
           id="search"
           label="Search jobs"
           className={styles.textField}
@@ -350,38 +380,40 @@ export class Jobs extends Component {
       </div>
     );
 
-    return (
+    if (this.state.jobsLoading || this.state.companiesLoading || this.state.usersLoading || this.state.productsLoading) {
+      return <Spinner/>
+    } else {
+      return (
+        <div>
+          {this.state.open
+            ? <CreateJob handleSubmit={this.handleSubmit}
+                         handleEdit={this.handleEdit}
+                         handleRemove={this.handleRemove}
+                         isEditting={this.state.isEditting}
+                         handleInputChange={this.handleInputChange}
+                         {...this.state.currentJob}
+                         {...this.state.formErrors}
+                         availableCompanies={this.state.availableCompanies}
+                         availableUsers={filteredClients}
+                         availableProducts={filteredProducts}
+                         open={this.state.open}
+                         handleRequestClose={this.handleRequestClose}
+                         addSelectedChip={this.addSelectedChip}
+                         handleRequestDeleteChip={this.handleRequestDeleteChip}
+                         handleFileUpload={this.handleFileUpload}
+                         uploadLoading={this.state.uploadLoading}
+            />
+            : <JobsMainPage/>
 
-      <div>
-        <h1>Jobs</h1>
-        {this.state.open
-          ? <CreateJob handleSubmit={this.handleSubmit}
-                       handleEdit={this.handleEdit}
-                       handleRemove={this.handleRemove}
-                       isEditting={this.state.isEditting}
-                       handleInputChange={this.handleInputChange}
-                       {...this.state.currentJob}
-                       {...this.state.formErrors}
-                       availableCompanies={this.state.availableCompanies}
-                       availableUsers={this.state.availableUsers}
-                       availableProducts={this.state.availableProducts}
-                       open={this.state.open}
-                       handleRequestClose={this.handleRequestClose}
-                       addSelectedChip={this.addSelectedChip}
-                       handleRequestDeleteChip={this.handleRequestDeleteChip}
-                       handleFileUpload={this.handleFileUpload}
-                       uploadLoading={this.state.uploadLoading}
+          }
+
+          <SimpleSnackbar showSnackbar={this.state.showSnackbar}
+                          handleSnackbarClose={this.handleSnackbarClose}
+                          snackbarMsg={this.state.snackbarMsg}
           />
-          : <JobsMainPage />
-
-        }
-
-        <SimpleSnackbar showSnackbar={this.state.showSnackbar}
-                        handleSnackbarClose={this.handleSnackbarClose}
-                        snackbarMsg={this.state.snackbarMsg}
-        />
-      </div>
-    );
+        </div>
+      );
+    }
   }
 }
 

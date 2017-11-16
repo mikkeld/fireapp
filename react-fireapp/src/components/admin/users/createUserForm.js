@@ -4,31 +4,35 @@ import Button from 'material-ui/Button';
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
 import { MenuItem } from 'material-ui/Menu';
 import { withStyles } from 'material-ui/styles';
-import NoteAddIcon from 'material-ui-icons/NoteAdd';
 import { FormControlLabel } from 'material-ui/Form';
 import Switch from 'material-ui/Switch';
+import PropTypes from 'prop-types';
 
 
-const styles = () => ({
+const styles = theme => ({
   container: {
     display: 'flex',
     flexWrap: 'wrap',
   },
-  textField: {
-    marginLeft: 0,
-    marginRight: 20,
-    width: 200,
+  textFieldFirst: {
+    marginRight: "4%",
+    width: "48%",
   },
-  textFieldSelect: {
-    marginLeft: 0,
-    marginRight: 20,
-    width: 200,
-    marginTop: 25
+  textFieldSecond: {
+    width: "48%",
+  },
+  textFieldSelectFirst: {
+    marginRight: "4%",
+    marginTop: theme.spacing.unit,
+    width: "48%",
+  },
+  textFieldSelectSecond: {
+    marginTop: theme.spacing.unit,
+    width: "48%",
   },
   menu: {
     width: 200,
@@ -36,9 +40,6 @@ const styles = () => ({
   contentStyle: {
     width: '90%',
     height: '90%'
-  },
-  createNewMenuItem: {
-    color: "green"
   },
   dialogContent: {
     overflow: "scroll",
@@ -48,18 +49,6 @@ const styles = () => ({
     float: 'right'
   }
 });
-
-const companies = [
-  {
-    name: "siac",
-    value: "SIAC" ,
-  },
-  {
-    name: "dunwoody",
-    value: "Dunwoody & Dobson",
-  }
-
-];
 
 const roles = [
   {
@@ -72,16 +61,12 @@ const roles = [
   }
 ];
 
-
-
-
 export const CreateUserForm = (props) => {
   const { classes } = props;
   let confirmDelete = () => {
     const r = window.confirm("Confirm deletion of user");
     return r === true;
   };
-
   return (
     <div>
     <Dialog open={props.open}
@@ -89,9 +74,6 @@ export const CreateUserForm = (props) => {
       <form onSubmit={props.isEditting ? props.handleEdit : props.handleSubmit}  noValidate autoComplete="off">
         <DialogTitle>{props.isEditting ? "Edit user " + props.username : "Create new user"}</DialogTitle>
         <DialogContent className={classes.dialogContent}>
-          <DialogContentText>
-            Update user details
-          </DialogContentText>
           {props.isEditting &&
             <FormControlLabel
               className={classes.rightElement}
@@ -108,6 +90,7 @@ export const CreateUserForm = (props) => {
             error={props.usernameError !== ''}
             helperText={props.usernameError || "Example: markgram"}
             autoFocus
+            required
             margin="dense"
             id="username"
             label="Username"
@@ -119,20 +102,22 @@ export const CreateUserForm = (props) => {
             error={props.firstNameError !== ''}
             helperText={props.firstNameError || "Example: Mark"}
             margin="dense"
+            required
             id="firstName"
             label="First Name"
             name="firstName"
-            className={classes.textField}
+            className={classes.textFieldFirst}
             onChange={props.handleInputChange('firstName')}
             value={props.firstName} />
           <TextField
             error={props.lastNameError !== ''}
             helperText={props.lastNameError || "Example: Gram"}
             margin="dense"
+            required
             id="lastName"
             label="Last Name"
             name="lastName"
-            className={classes.textField}
+            className={classes.textFieldSecond}
             onChange={props.handleInputChange('lastName')}
             value={props.lastName} />
           <TextField
@@ -140,9 +125,10 @@ export const CreateUserForm = (props) => {
             helperText={props.emailError || "Example: mark@gram.com"}
             margin="dense"
             id="email"
+            required
             label="Email"
             name="email"
-            className={classes.textField}
+            className={classes.textFieldFirst}
             type="email"
             onChange={props.handleInputChange('email')}
             value={props.email} />
@@ -152,15 +138,16 @@ export const CreateUserForm = (props) => {
             id="contactNumber"
             label="Phone Number"
             name="contactNumber"
-            className={classes.textField}
+            className={classes.textFieldSecond}
             onChange={props.handleInputChange('contactNumber')}
             value={props.contactNumber} />
           <TextField
             id="company"
             select
+            required
             error={props.companyError !== ''}
             label="Select Company Name"
-            className={classes.textFieldSelect}
+            className={classes.textFieldSelectFirst}
             value={props.company}
             onChange={props.handleInputChange('company')}
             SelectProps={{
@@ -175,9 +162,9 @@ export const CreateUserForm = (props) => {
             <MenuItem key="none" value="none">
               <em>None</em>
             </MenuItem>
-            {companies.map(option => (
-              <MenuItem key={option.name} value={option.name}>
-                {option.value}
+            {props.companies.map(company => (
+              <MenuItem key={company.name} value={company.name}>
+                {company.name}
               </MenuItem>
             ))}
           </TextField>
@@ -185,8 +172,9 @@ export const CreateUserForm = (props) => {
             id="role"
             select
             label="Select a role"
+            required
             margin="normal"
-            className={classes.textFieldSelect}
+            className={classes.textFieldSelectSecond}
             value={props.role}
             onChange={props.handleInputChange('role')}
             SelectProps={{
@@ -208,6 +196,7 @@ export const CreateUserForm = (props) => {
             helperText={props.passwordError || "Example: password123"}
             margin="dense"
             id="password"
+            required
             label="Password"
             name="password"
             type="password"
@@ -227,7 +216,9 @@ export const CreateUserForm = (props) => {
         </DialogContent>
         <DialogActions>
           {props.isEditting
-            ? <Button onClick={() => { if(confirmDelete()) {props.handleRemove(props.id)}}}>⚠️ Delete</Button>
+            ? <Button onClick={() => { if(confirmDelete()) {props.handleRemove(props.id)}}}>
+                ⚠️ Delete
+              </Button>
             : null
           }
           <Button color="primary" onClick={props.handleRequestClose}>
@@ -240,6 +231,24 @@ export const CreateUserForm = (props) => {
     </Dialog>
   </div>
   )
+};
+
+CreateUserForm.propTypes = {
+  isEditing: PropTypes.bool,
+  isActive: PropTypes.bool.isRequired,
+  handleEdit: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  toggleUserActive: PropTypes.func.isRequired,
+  handleRequestClose: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  username: PropTypes.string.isRequired,
+  firstName: PropTypes.string.isRequired,
+  lastName: PropTypes.string.isRequired,
+  email: PropTypes.string.isRequired,
+  contactNumber: PropTypes.string,
+  password: PropTypes.string.isRequired,
+  notes: PropTypes.string,
+  companies: PropTypes.array.isRequired
 };
 
 export default withStyles(styles)(CreateUserForm);

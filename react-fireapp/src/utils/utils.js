@@ -29,6 +29,7 @@ export const snapshotToArray = (snapshot) => {
   let items = [];
   snapshot.forEach(function(item) {
     let itemVal = item.val();
+    item["id"] = item.key;
     items.push(itemVal);
   });
   return items

@@ -36,3 +36,4 @@ export const deleteProduct = (id) => {
     }
   })
 };
+

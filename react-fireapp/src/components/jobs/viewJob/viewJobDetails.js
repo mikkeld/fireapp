@@ -2,6 +2,7 @@ import React from 'react';
 import Paper from 'material-ui/Paper';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
+import {formatTimestamp} from "../../../utils/utils";
 
 
 const styles = theme => ({
@@ -46,7 +47,7 @@ export const ViewJobDetails = (props) => {
         </div>
         <div className={classes.inline}>
           <span className={classes.textHeader}>Start Date</span>
-          <span>2017-10-01</span>
+          <span>{props.currentJob.startDate || "N/A"}</span>
         </div>
         <div className={classes.inline}>
           <span className={classes.textHeader}>Last Updated</span>
@@ -54,7 +55,7 @@ export const ViewJobDetails = (props) => {
         </div>
         <div className={classes.inline}>
           <span className={classes.textHeader}>Last Pushed to Client</span>
-          <span>2017-10-03</span>
+          <span>{props.currentJob.lastPushedToClient ? formatTimestamp(props.currentJob.lastPushedToClient) : "N/A"}</span>
         </div>
         <div className={classes.clearBoth} />
         <div className={classes.wrapper}>

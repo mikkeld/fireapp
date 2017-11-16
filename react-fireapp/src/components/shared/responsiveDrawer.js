@@ -62,7 +62,7 @@ const styles = theme => ({
       width: drawerWidth,
       position: 'relative',
       height: '100%',
-    },
+    }
   },
   nested: {
     paddingLeft: theme.spacing.unit * 4,
@@ -87,12 +87,21 @@ const styles = theme => ({
 
 });
 
+// const StyledNavLink = props => (
+//   <NavLink className={props.classes.subLink} to={{ pathname: props.to }}>
+//     <ListItem button className={props.classes.nested}>
+//       <ListItemText disableTypography={props.to===props.match.location.path} inset primary="Users" />
+//     </ListItem>
+//   </NavLink>
+// );
+
 class ResponsiveDrawer extends React.Component {
   state = {
     mobileOpen: false,
     adminOpen: true,
     jobsOpen: false,
-    reportsOpen: false
+    reportsOpen: false,
+    activePath: undefined
   };
 
   handleClick = state => {
@@ -112,19 +121,17 @@ class ResponsiveDrawer extends React.Component {
   };
 
   isActiveFunc = (match, location) => {
-    console.log(match);
-    console.log(location);
+    // this.setState({activePath: match.path});
     return match
   };
 
   render() {
     const { classes, theme } = this.props;
-
     const drawer = (
       <div>
-        <div className={classes.drawerHeader} />
+        <div className={classes.drawerHeader}>
+        </div>
         <Divider />
-        {this.props.Navigation}
         <List className={classes.root} subheader={<ListSubheader>Nested List Items</ListSubheader>}>
           <ListItem button onClick={() => this.handleClick("admin")}>
             <ListItemIcon>
@@ -133,8 +140,9 @@ class ResponsiveDrawer extends React.Component {
             <ListItemText inset primary="Admin" />
             {this.state.adminOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
+          {this.props.location.pathname}
           <Collapse in={this.state.adminOpen} transitionDuration="auto" unmountOnExit>
-            <NavLink isActive={this.isActiveFunc} className={classes.subLink} to={{ pathname: "/admin/users" }}>
+            <NavLink className={classes.subLink} to={{ pathname: "/admin/users" }}>
               <ListItem button className={classes.nested}>
                 <ListItemText inset primary="Users" />
               </ListItem>
@@ -175,12 +183,20 @@ class ResponsiveDrawer extends React.Component {
             {this.state.reportsOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
           <Collapse in={this.state.reportsOpen} transitionDuration="auto" unmountOnExit>
-            <Link to={{ pathname: "/jobs" }}>
+            <Link to={{ pathname: "/reports" }}>
               <ListItem button className={classes.nested}>
                 <ListItemIcon>
                   <StarBorder />
                 </ListItemIcon>
-                <ListItemText inset primary="Starred" />
+                <ListItemText inset primary="Job Reports" />
+              </ListItem>
+            </Link>
+            <Link to={{ pathname: "/reports/activity" }}>
+              <ListItem button className={classes.nested}>
+                <ListItemIcon>
+                  <StarBorder />
+                </ListItemIcon>
+                <ListItemText inset primary="User Activity" />
               </ListItem>
             </Link>
           </Collapse>
@@ -202,7 +218,7 @@ class ResponsiveDrawer extends React.Component {
                 <MenuIcon />
               </IconButton>
               <Typography type="title" color="inherit" noWrap>
-                Responsive drawer
+                {this.props.componentTitle}
               </Typography>
             </Toolbar>
           </AppBar>

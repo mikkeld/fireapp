@@ -13,6 +13,11 @@ import ViewAttachmentDetails from "../../components/jobs/viewJob/viewAttachmentD
 import ViewEventLogDetails from "../../components/jobs/viewJob/viewEventLogDetails";
 import ViewSummaryDetails from "../../components/jobs/viewJob/viewSummary";
 import {FirebaseList} from "../../utils/firebase/firebaseList";
+import SimpleSnackbar from "../../components/shared/snackbar";
+import {calculateTotalPerProduct} from "../../utils/jobsService";
+import BasicDialog from "../../components/shared/dialog";
+import ImageGrid from "../../components/shared/imageGrid";
+import ViewPinnedImageDialog from "../../components/jobs/viewEntry/viewPinnedImage";
 
 const styles = theme => ({
   wrapper: {
@@ -22,6 +27,19 @@ const styles = theme => ({
     float: 'right'
   }
 });
+
+const ImageGridDialog = (props) => {
+  return (
+    <BasicDialog open={!!props.selectedImageGrid}
+                 handleRequestClose={props.handleRequestClose}
+                 fullScreen={props.fullScreen}
+                 title={props.title}
+    >
+      <ImageGrid selectedUploads={props.selectedImageGrid}
+                     handleClickOpen={props.handleClickOpen}/>
+    </BasicDialog>
+  )
+};
 
 class ViewJob extends Component {
   constructor() {
@@ -33,11 +51,21 @@ class ViewJob extends Component {
       promiseResolved: false,
       attachmentDialogOpen: false,
       openAttachment: null,
+      selectedImageGrid: false,
+      selectedPinnedImage: false,
+      showSnackbar: false,
+      snackbarMsg: '',
+      markedImageLoaded: false
     };
 
     this.firebase = new FirebaseList('jobs');
 
-    this.handleJobStatusChange = this.handleJobStatusChange.bind(this)
+    this.handleJobStatusChange = this.handleJobStatusChange.bind(this);
+    this.handleImageGridShow = this.handleImageGridShow.bind(this);
+    this.handleImageGridClose = this.handleImageGridClose.bind(this);
+    this.handlePinnedImageClose = this.handlePinnedImageClose.bind(this);
+    this.handlePinnedImageShow = this.handlePinnedImageShow.bind(this);
+    this.handleMarkedImageLoaded = this.handleMarkedImageLoaded.bind(this);
   }
 
 
@@ -79,6 +107,15 @@ class ViewJob extends Component {
     });
   };
 
+  pushLiveToClient() {
+    const updatedJob = {
+      ...this.state.currentJob,
+      'lastPushedToClient': Date.now()
+    };
+    this.firebase.update(this.state.currentJob.id, updatedJob)
+      .then(() => this.handleSnackbarShow("Job pushed live to client"))
+  }
+
   handleJobStatusChange() {
     const newState = !this.state.currentJob.completed;
     const updatedJob = {
@@ -88,10 +125,45 @@ class ViewJob extends Component {
     this.firebase.update(this.state.currentJob.id, updatedJob)
   }
 
+  handleSnackbarShow = (msg) => {
+    this.setState({
+      showSnackbar: true,
+      snackbarMsg: msg
+    });
+  };
+
+  handleSnackbarClose= (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    this.setState({ showSnackbar: false });
+  };
+
+  handleImageGridShow(imageGrid) {
+    this.setState({selectedImageGrid: imageGrid})
+  }
+
+  handleImageGridClose() {
+    this.setState({selectedImageGrid: false})
+  }
+
+  handlePinnedImageShow(pinnedImage) {
+    this.setState({selectedPinnedImage: pinnedImage})
+  }
+
+  handlePinnedImageClose() {
+    this.setState({selectedPinnedImage: false})
+  }
+
+  handleMarkedImageLoaded() {
+    this.setState({markedImageLoaded: true})
+  }
+
   render() {
     const { classes } = this.props;
-    let confirmDelete = () => {
-      const r = window.confirm("Confirm deletion of job");
+    let {costPerProduct, costPerItem} = calculateTotalPerProduct(this.state.entries);
+    let confirmDelete = (msg) => {
+      const r = window.confirm(msg);
       return r === true;
     };
     return (
@@ -99,8 +171,8 @@ class ViewJob extends Component {
         {this.state.currentJob &&
           <div>
             <div className={classes.wrapper}>
-              <Button raised color="primary" >push live to client</Button>
-              <Button onClick={() => { if(confirmDelete()) {this.state.handleRemove()}}}>⚠️ Delete</Button>
+              <Button raised color="primary" onClick={() => { if(confirmDelete("Confirm push live to client")) {this.pushLiveToClient()}}}>push live to client</Button>
+              <Button onClick={() => { if(confirmDelete()) {this.handleRemove("Confirm deletion of job")}}}>⚠️ Delete</Button>
               <FormControlLabel
                 className={classes.rightElement}
                 control={
@@ -116,15 +188,37 @@ class ViewJob extends Component {
             <ViewCompanyDetails currentJob={this.state.currentJob}/>
             <ViewClientsDetails currentJob={this.state.currentJob}/>
             <ViewProductsDetails currentJob={this.state.currentJob}/>
-            {this.state.currentJob.selectedUploads.length > 0
+            {this.state.currentJob.selectedUploads && this.state.currentJob.selectedUploads.length > 0
               ? <ViewAttachmentDetails currentJob={this.state.currentJob} handleClickOpen={this.handleClickOpen}/>
               : null}
-            <ViewEventLogDetails jobId={this.state.currentJob.jobId} jobKey={this.state.currentJob.id} entries={this.state.entries}/>
-            <ViewSummaryDetails currentJob={this.state.currentJob}/>
+            <ViewEventLogDetails jobId={this.state.currentJob.jobId}
+                                 jobKey={this.state.currentJob.id}
+                                 entries={this.state.entries}
+                                 handlePinnedImageShow={this.handlePinnedImageShow}
+                                 handleImageGridShow={this.handleImageGridShow} />
+            <ViewSummaryDetails stats={costPerItem}/>
             <ViewJobAttachment open={this.state.attachmentDialogOpen}
                                handleRequestClose={this.handleAttachmentDialogClose}
                                attachment={this.state.openAttachment}
             />
+            {this.state.selectedImageGrid &&
+              <ImageGridDialog selectedImageGrid={this.state.selectedImageGrid}
+                               handleRequestClose={this.handleImageGridClose}
+                               handleClickOpen={this.handleClickOpen}
+                               title="Pictures for job"
+                               fullScreen={false} />}
+            {this.state.selectedPinnedImage &&
+              <ViewPinnedImageDialog attachment={this.state.selectedPinnedImage}
+                                     open={!!this.state.selectedPinnedImage}
+                                     markedImageLoaded={this.state.markedImageLoaded}
+                                     handleMarkedImageLoaded={this.handleMarkedImageLoaded}
+                                     handleRequestClose={this.handlePinnedImageClose}
+              />
+            }
+
+            <SimpleSnackbar showSnackbar={this.state.showSnackbar}
+                            handleSnackbarClose={this.handleSnackbarClose}
+                            snackbarMsg={this.state.snackbarMsg} />
 
         </div>}
       </div>

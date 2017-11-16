@@ -28,7 +28,7 @@ export const ListProductsTable = (props) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {props.products.map(product => <ListProductTableRow key={product.jobId} {...product} />)}
+        {props.products.map(product => <ListProductTableRow key={product.id} {...product} />)}
       </TableBody>
     </Table>
   )

@@ -1,16 +1,14 @@
 import React, { Component } from 'react';
 
-import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
-
 import ListProductsTable from "../../components/admin/products/listProductsTable";
 import CreateProductForm from "../../components/admin/products/createProductForm";
 import {findItemById, updatedItems, removeItem} from "../../utils/utils";
-import SimpleSnackbar from '../../components/snackbar';
+import SimpleSnackbar from '../../components/shared/snackbar';
 import {FirebaseList} from "../../utils/firebase/firebaseList";
-import Typography from 'material-ui/Typography';
 import { withStyles } from 'material-ui/styles';
-
+import AddButton from "../../components/shared/addButton";
+import Spinner from "../../components/shared/spinner";
 
 const initialFormState = {
   name: '',
@@ -58,7 +56,8 @@ class Products extends Component {
       search: '',
       isEditting: false,
       currentProduct: initialFormState,
-      formErrors: initialFormErrorState
+      formErrors: initialFormErrorState,
+      loading: true
     };
 
     this.firebase = new FirebaseList('products');
@@ -67,6 +66,8 @@ class Products extends Component {
     this.toggleEdit = this.toggleEdit.bind(this);
     this.handleEdit= this.handleEdit.bind(this);
     this.handleRemove= this.handleRemove.bind(this);
+    this.updateSearch = this.updateSearch.bind(this);
+    this.handleClickOpen = this.handleClickOpen.bind(this);
   }
 
   componentDidMount() {
@@ -79,7 +80,8 @@ class Products extends Component {
       });
 
       this.setState({
-        products: previousProducts
+        products: previousProducts,
+        loading: false
       })
     });
 
@@ -157,10 +159,10 @@ class Products extends Component {
 
   toggleEdit(id){
     const editingProduct = findItemById(this.state.products, id);
-    this.handleClickOpen();
     this.setState({
       currentProduct: editingProduct,
-      isEditting: true
+      isEditting: true,
+      open: true
     });
   }
 
@@ -171,7 +173,8 @@ class Products extends Component {
 
   handleClickOpen = () => {
     this.setState({
-      open: true
+      open: true,
+      isEditting: false
     });
   };
 
@@ -207,43 +210,42 @@ class Products extends Component {
       }
     );
 
-    return (
-      <div>
-        <Typography type="title" gutterBottom>
-          Products
-        </Typography>
-        <div className={classes.container}>
-          <Button color="primary"
-                  onClick={() => {this.handleClickOpen(); this.setState({isEditting: false})}}>
-            Create Product
-          </Button>
-          <TextField
-            value={this.state.search}
-            onChange={this.updateSearch.bind(this)}
-            id="search"
-            label="Search product"
-            className={classes.textField}
-            type="search"
-            margin="normal"/>
-        </div>
-        <ListProductsTable products={filteredProducts} toggleEdit={this.toggleEdit}/>
-        <CreateProductForm handleSubmit={this.handleSubmit}
-                           handleEdit={this.handleEdit}
-                           handleRemove={this.handleRemove}
-                           isEditting={this.state.isEditting}
-                           handleInputChange={this.handleInputChange}
-                           {...this.state.currentProduct}
-                           {...this.state.formErrors}
-                           open={this.state.open}
-                           handleRequestClose={this.handleRequestClose}
-        />
+    if (this.state.loading) {
+      return <Spinner />
+    } else {
+      return (
 
-        <SimpleSnackbar showSnackbar={this.state.showSnackbar}
-                        handleSnackbarClose={this.handleSnackbarClose}
-                        snackbarMsg={this.state.snackbarMsg}
-        />
-      </div>
-    );
+        <div>
+          <div className={classes.container}>
+            <AddButton tooltip="Create new product" handleClick={this.handleClickOpen}/>
+            <TextField
+              value={this.state.search}
+              onChange={this.updateSearch}
+              id="search"
+              label="Search products"
+              className={classes.textField}
+              type="search"
+              margin="normal"/>
+          </div>
+          <ListProductsTable products={filteredProducts} toggleEdit={this.toggleEdit}/>
+          <CreateProductForm handleSubmit={this.handleSubmit}
+                             handleEdit={this.handleEdit}
+                             handleRemove={this.handleRemove}
+                             isEditting={this.state.isEditting}
+                             handleInputChange={this.handleInputChange}
+                             {...this.state.currentProduct}
+                             {...this.state.formErrors}
+                             open={this.state.open}
+                             handleRequestClose={this.handleRequestClose}
+          />
+
+          <SimpleSnackbar showSnackbar={this.state.showSnackbar}
+                          handleSnackbarClose={this.handleSnackbarClose}
+                          snackbarMsg={this.state.snackbarMsg}
+          />
+        </div>
+      );
+    }
   }
 }
 

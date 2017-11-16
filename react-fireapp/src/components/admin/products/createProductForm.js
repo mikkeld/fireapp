@@ -4,11 +4,11 @@ import Button from 'material-ui/Button';
 import Dialog, {
   DialogActions,
   DialogContent,
-  DialogContentText,
   DialogTitle,
 } from 'material-ui/Dialog';
 import { MenuItem } from 'material-ui/Menu';
 import { withStyles } from 'material-ui/styles';
+import PropTypes from 'prop-types';
 
 const styles = () => ({
   container: {
@@ -64,9 +64,6 @@ export const CreateProductForm = (props) => {
         <form onSubmit={props.isEditting ? props.handleEdit : props.handleSubmit}  noValidate autoComplete="off">
           <DialogTitle>{props.isEditting ? "Edit product " + props.name : "Create new product"}</DialogTitle>
           <DialogContent>
-            <DialogContentText>
-              Update product details
-            </DialogContentText>
             <TextField
               error={props.nameError !== ''}
               helperText={props.nameError || "Example: Nullifire"}
@@ -75,6 +72,7 @@ export const CreateProductForm = (props) => {
               id="name"
               label="Name"
               name="name"
+              required
               fullWidth
               onChange={props.handleInputChange('name')}
               value={props.name} />
@@ -126,6 +124,16 @@ export const CreateProductForm = (props) => {
       </Dialog>
     </div>
   )
+};
+
+CreateProductForm.propTypes = {
+  isEditing: PropTypes.bool,
+  handleEdit: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  handleRequestClose: PropTypes.func.isRequired,
+  open: PropTypes.bool.isRequired,
+  name: PropTypes.string.isRequired,
+  description: PropTypes.string
 };
 
 export default withStyles(styles)(CreateProductForm);

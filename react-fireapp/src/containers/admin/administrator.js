@@ -25,7 +25,6 @@ export class Administrator extends Component {
         <Route path="/admin/users" component={User} />
         <Route path="/admin/companies" component={Companies} />
         <Route path="/admin/products" component={Products} />
-
       </div>
     );
   }

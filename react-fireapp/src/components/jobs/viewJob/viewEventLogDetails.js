@@ -23,7 +23,11 @@ export const ViewEventLogDetails = (props) => {
         Event log
       </Typography>
       <Paper className={classes.root}>
-        <EntriesTable jobId={props.jobId} jobKey={props.jobKey} entries={props.entries}/>
+        <EntriesTable jobId={props.jobId}
+                      jobKey={props.jobKey}
+                      entries={props.entries}
+                      handleImageGridShow={props.handleImageGridShow}
+                      handlePinnedImageShow={props.handlePinnedImageShow}/>
       </Paper>
     </div>
   )

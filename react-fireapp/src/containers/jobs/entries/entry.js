@@ -3,11 +3,11 @@ import { withStyles } from 'material-ui/styles';
 
 import {FirebaseList} from "../../../utils/firebase/firebaseList";
 import ViewEntryDetails from "../../../components/jobs/viewEntry/viewEntryDetails";
-import Spinner from "../../../components/spinner";
+import Spinner from "../../../components/shared/spinner";
 import ViewJobAttachment from "../../../components/jobs/viewJobAttachment";
 import ViewPinnedImageDialog from "../../../components/jobs/viewEntry/viewPinnedImage";
 import Button from 'material-ui/Button';
-import {findItemById, removeItem, snapshotToArray} from "../../../utils/utils";
+import {findItemById, removeItem, snapshotToArray, updatedItems} from "../../../utils/utils";
 import {uploadFile} from "../../../utils/jobsService";
 import CreateProductForm from "../../../components/jobs/viewEntry/createProductForm";
 import IconButton from 'material-ui/IconButton';
@@ -15,6 +15,8 @@ import ArrowBackIcon from 'material-ui-icons/ArrowBack';
 import ViewImageGrid from "../../../components/jobs/viewEntry/viewImageGrid";
 import ViewUpdateLog from "../../../components/jobs/viewEntry/viewUpdateLog";
 import ViewProducts from "../../../components/jobs/viewEntry/viewProducts";
+import SimpleSnackbar from "../../../components/shared/snackbar";
+import { Link } from 'react-router-dom';
 
 const styles = theme => ({
   wrapper: {
@@ -56,7 +58,9 @@ class Entry extends Component {
       previousMarkedImage: null,
       uploadLoading: false,
       productDialogOpen: false,
-      availableProducts: []
+      availableProducts: [],
+      showSnackbar: false,
+      snackbarMsg: '',
     };
 
     this.firebase = new FirebaseList('entries');
@@ -68,6 +72,7 @@ class Entry extends Component {
     this.handleMarkedImageClose = this.handleMarkedImageClose.bind(this);
     this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleProductFormSubmit = this.handleProductFormSubmit.bind(this);
+    this.handleProductFormEdit = this.handleProductFormEdit.bind(this);
     this.toggleProductFormOpen = this.toggleProductFormOpen.bind(this);
     this.toggleProductFormClose = this.toggleProductFormClose.bind(this);
     this.toggleProductEdit = this.toggleProductEdit.bind(this);
@@ -86,7 +91,6 @@ class Entry extends Component {
     const previousLogs = this.state.updateLog;
 
     this.firebase.db().ref(`log/${this.props.jobId}/${this.props.entryId}`).on('child_added', snap => {
-      console.log(snap.val());
       previousLogs.push({
         id: snap.key,
         ...snap.val()
@@ -111,6 +115,15 @@ class Entry extends Component {
 
     this.setState({ currentEntry: { ...this.state.currentEntry, [name]: value } });
   };
+
+  handleEdit() {
+    const path = `${this.props.jobId}/${this.props.entryId}`;
+    this.firebase.update(path, this.state.currentEntry)
+      .then(() => {
+        this.toggleEdit();
+        this.handleSnackbarShow("Entry updated");
+      })
+  }
 
   handleProductFormInputChange = name => e => {
     e.preventDefault();
@@ -154,20 +167,17 @@ class Entry extends Component {
     e.preventDefault();
     const err = this.validateProductForm();
     if(!err) {
+      const updatedProducts = updatedItems(this.state.currentEntry.selectedProducts, this.state.currentProduct);
+      const updatedEntry = {
+        ...this.state.currentEntry,
+        'selectedProducts': updatedProducts
+      };
       this.setState({
-
-      })
+        currentEntry: updatedEntry
+      });
+      this.toggleProductFormClose();
     }
   }
-
-  handleProductRemove = (id) => {
-    this.setState({currentProduct: initialProductFormState});
-    this.firebase.remove(id)
-      .then(() => {
-        this.toggleProductFormClose();
-        this.handleSnackbarShow("Product deleted");
-      })
-  };
 
   validateProductForm() {
     const errors = {...initialProductFormErrorState};
@@ -288,6 +298,20 @@ class Entry extends Component {
     this.setState({markedImageLoaded: true})
   }
 
+  handleSnackbarShow = (msg) => {
+    this.setState({
+      showSnackbar: true,
+      snackbarMsg: msg
+    });
+  };
+
+  handleSnackbarClose= (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    this.setState({ showSnackbar: false });
+  };
+
   render() {
     const { classes } = this.props;
     const lastUpdatedSorted = this.state.updateLog.sort((a, b) => b.lastUpated - a.lastUpdated);
@@ -301,10 +325,18 @@ class Entry extends Component {
           ? <Spinner/>
           : <div>
             {this.state.isEditing
-              ? <IconButton color="primary" onClick={() => this.toggleEdit()}>
-                  <ArrowBackIcon/>
-                </IconButton>
-              : <Button color="primary" onClick={() => this.toggleEdit()}>Edit entry</Button>}
+              ? <div>
+                  <Button color="primary" onClick={() => this.handleEdit()}>Save edits</Button>
+                  <Button color="primary" onClick={() => this.toggleEdit()}>Cancel</Button>
+                </div>
+              : <div>
+                  <Link to={{ pathname: `/jobs/${this.props.jobId}` }} style={{textDecoration: 'none'}}>
+                    <IconButton color="primary">
+                      <ArrowBackIcon/>
+                    </IconButton>
+                  </Link>
+                  <Button style={{float:'right'}} color="primary" onClick={() => this.toggleEdit()}>Edit entry</Button>
+                </div>}
               <ViewEntryDetails {...this.state.currentEntry}
                                 handleMarkedImageClickOpen={this.handleMarkedImageClickOpen}
                                 isEditing={this.state.isEditing}
@@ -332,6 +364,7 @@ class Entry extends Component {
                            handleInputChange={this.handleProductFormInputChange}
                            handleSubmit={this.handleProductFormSubmit}
                            handleEdit={this.handleProductFormEdit}
+                           isEditing={this.state.isEditing}
                            {...this.state.currentProduct} />
         {this.state.currentEntry &&
           <ViewPinnedImageDialog open={this.state.markedImageOpen}
@@ -344,6 +377,10 @@ class Entry extends Component {
                                  isEditing={this.state.isEditing}
                                  previous={this.state.previousMarkedImage}
           />}
+          <SimpleSnackbar showSnackbar={this.state.showSnackbar}
+                          handleSnackbarClose={this.handleSnackbarClose}
+                          snackbarMsg={this.state.snackbarMsg}
+          />
       </div>
     );
   }

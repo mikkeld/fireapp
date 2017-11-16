@@ -15,12 +15,12 @@ export const ListEntryTableRow = (props) => {
       <TableCell>{formatTimestamp(props.creationDate)}</TableCell>
       <TableCell>{props.username}</TableCell>
       <TableCell>
-        <IconButton onClick={() => console.log("test")}>
+        <IconButton onClick={() => props.handleImageGridShow(props.selectedUploads)}>
           <CollectionsIcon/>
         </IconButton>
       </TableCell>
       <TableCell>
-        <IconButton onClick={() => console.log("test")}>
+        <IconButton onClick={() => props.handlePinnedImageShow(props.selectedMarkedImage)}>
           <PlaceIcon/>
         </IconButton>
       </TableCell>

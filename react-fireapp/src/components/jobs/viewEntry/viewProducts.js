@@ -5,6 +5,7 @@ import Typography from 'material-ui/Typography';
 import ListProductsTable from "./listProductsTable";
 import {calculateTotalCost} from "../../../utils/jobsService";
 import Button from 'material-ui/Button';
+import SummaryField from '../../shared/summaryField';
 
 const styles = theme => ({
   root: {
@@ -42,22 +43,12 @@ export const ViewProducts = (props) => {
         <ListProductsTable products={props.products}
                            isEditing={props.isEditing}
                            toggleEdit={props.toggleEdit} />
-        <div className={classes.inline}>
-          <span className={classes.textHeader}>Total Product Cost</span>
-          <span>
-            <Typography type="display1">
-              {calculateTotalCost(props.products, "product")}
-            </Typography>
-          </span>
-        </div>
-        <div className={classes.inline}>
-          <span className={classes.textHeader}>Total Client Cost</span>
-          <div>
-            <Typography type="display1">
-              {calculateTotalCost(props.products, "client")}
-            </Typography>
-          </div>
-        </div>
+        <SummaryField classes={classes}
+                      title="Total Product Cost"
+                      metric={calculateTotalCost(props.products, "product")} />
+        <SummaryField classes={classes}
+                      title="Total Client Cost"
+                      metric={calculateTotalCost(props.products, "client")} />
       </Paper>
     </div>
   )

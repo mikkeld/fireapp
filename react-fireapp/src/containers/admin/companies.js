@@ -4,11 +4,12 @@ import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 
 import ListCompaniesTable from "../../components/admin/companies/listCompaniesTable";
-import {createCompany, deleteCompany, loadCompanies, updateCompany} from "../../utils/companyService";
 import CreateCompanyForm from "../../components/admin/companies/createCompanyForm";
 import {findItemById, updatedItems, removeItem} from "../../utils/utils";
-import SimpleSnackbar from '../../components/snackbar';
+import SimpleSnackbar from '../../components/shared/snackbar';
 import {FirebaseList} from "../../utils/firebase/firebaseList";
+import AddButton from "../../components/shared/addButton";
+import Spinner from "../../components/shared/spinner";
 
 const initialFormState = {
   name: '',
@@ -58,7 +59,8 @@ export class Companies extends Component {
       search: '',
       isEditting: false,
       currentCompany: initialFormState,
-      formErrors: initialFormErrorState
+      formErrors: initialFormErrorState,
+      loading: true
     };
 
     this.firebase = new FirebaseList('companies');
@@ -68,6 +70,8 @@ export class Companies extends Component {
     this.toggleEdit = this.toggleEdit.bind(this);
     this.handleEdit= this.handleEdit.bind(this);
     this.handleRemove= this.handleRemove.bind(this);
+    this.updateSearch = this.updateSearch.bind(this);
+    this.handleClickOpen = this.handleClickOpen.bind(this);
   }
 
   componentDidMount() {
@@ -80,7 +84,8 @@ export class Companies extends Component {
       });
 
       this.setState({
-        companies: previousCompanies
+        companies: previousCompanies,
+        loading: false
       })
     });
 
@@ -166,10 +171,10 @@ export class Companies extends Component {
 
   toggleEdit(id){
     const editingCompany = findItemById(this.state.companies, id);
-    this.handleClickOpen();
     this.setState({
       currentCompany: editingCompany,
-      isEditting: true
+      isEditting: true,
+      open: true
     });
   }
 
@@ -180,7 +185,8 @@ export class Companies extends Component {
 
   handleClickOpen = () => {
     this.setState({
-      open: true
+      open: true,
+      isEditting: false
     });
   };
 
@@ -216,29 +222,16 @@ export class Companies extends Component {
           this.state.search.toLowerCase()) !== -1;
       }
     );
-
-    return (
-      <div>
-        <CreateCompanyForm handleSubmit={this.handleSubmit}
-                           handleEdit={this.handleEdit}
-                           handleRemove={this.handleRemove}
-                           isEditting={this.state.isEditting}
-                           handleInputChange={this.handleInputChange}
-                           {...this.state.currentCompany}
-                           {...this.state.formErrors}
-                           open={this.state.open}
-                           handleRequestClose={this.handleRequestClose}
-        />
+    if (this.state.loading) {
+      return <Spinner />
+    } else {
+      return (
         <div>
-          <h1>Companies</h1>
           <div>
-            <Button color="primary"
-                    onClick={() => {this.handleClickOpen(); this.setState({isEditting: false})}}>
-              Create Company
-            </Button>
+            <AddButton tooltip="Create new user" handleClick={this.handleClickOpen}/>
             <TextField
               value={this.state.search}
-              onChange={this.updateSearch.bind(this)}
+              onChange={this.updateSearch}
               id="search"
               label="Search companies"
               className={styles.textField}
@@ -250,9 +243,19 @@ export class Companies extends Component {
                           handleSnackbarClose={this.handleSnackbarClose}
                           snackbarMsg={this.state.snackbarMsg}
           />
+          <CreateCompanyForm handleSubmit={this.handleSubmit}
+                             handleEdit={this.handleEdit}
+                             handleRemove={this.handleRemove}
+                             isEditting={this.state.isEditting}
+                             handleInputChange={this.handleInputChange}
+                             {...this.state.currentCompany}
+                             {...this.state.formErrors}
+                             open={this.state.open}
+                             handleRequestClose={this.handleRequestClose}
+          />
         </div>
-      </div>
-    );
+      );
+    }
   }
 }
 
