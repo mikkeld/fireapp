@@ -3,7 +3,6 @@ import {TableCell, TableRow } from 'material-ui/Table';
 import { Link } from 'react-router-dom';
 import {formatTimestamp} from "../../utils/utils";
 
-
 export const ListJobTableRow = (props) => {
   return (
     <TableRow>
@@ -13,9 +12,9 @@ export const ListJobTableRow = (props) => {
       <TableCell>{props.completed ? "Completed" : "In Progress"}</TableCell>
       <TableCell>{props.selectedCompany.name}</TableCell>
       <TableCell>Client (should we show all?)</TableCell>
-      <TableCell>Last update (need to build)</TableCell>
+      <TableCell>{props.latestEntry ? formatTimestamp(props.latestEntry) : "N/A"}</TableCell>
       <TableCell>{props.lastPushedToClient ? formatTimestamp(props.lastPushedToClient) : "N/A"}</TableCell>
-      <TableCell>Cost To Date (need to build)</TableCell>
+      <TableCell>{props.totalCost}</TableCell>
     </TableRow>
   )
 };

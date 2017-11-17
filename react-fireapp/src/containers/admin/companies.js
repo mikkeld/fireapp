@@ -77,6 +77,12 @@ export class Companies extends Component {
   componentDidMount() {
     const previousCompanies = this.state.companies;
 
+    this.firebase.databaseSnapshot('companies').then((snap) => {
+      if (snap.val() === null) {
+        this.setState({loading: false})
+      }
+    });
+
     this.firebase.database.on('child_added', snap => {
       previousCompanies.push({
         id: snap.key,

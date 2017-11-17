@@ -17,6 +17,7 @@ import SimpleSnackbar from "../../components/shared/snackbar";
 import {calculateTotalPerProduct} from "../../utils/jobsService";
 import BasicDialog from "../../components/shared/dialog";
 import ImageGrid from "../../components/shared/imageGrid";
+import Spinner from "../../components/shared/spinner";
 import ViewPinnedImageDialog from "../../components/jobs/viewEntry/viewPinnedImage";
 
 const styles = theme => ({
@@ -55,7 +56,8 @@ class ViewJob extends Component {
       selectedPinnedImage: false,
       showSnackbar: false,
       snackbarMsg: '',
-      markedImageLoaded: false
+      markedImageLoaded: false,
+      loading: true
     };
 
     this.firebase = new FirebaseList('jobs');
@@ -75,7 +77,10 @@ class ViewJob extends Component {
         id: snap.key,
         ...snap.val()
       };
-      this.setState({currentJob: job})
+      this.setState({
+        currentJob: job,
+        loading: false
+      })
     });
 
     const previousEntries = this.state.entries;
@@ -166,13 +171,24 @@ class ViewJob extends Component {
       const r = window.confirm(msg);
       return r === true;
     };
-    return (
-      <div className={styles.wrapper}>
-        {this.state.currentJob &&
+    if (this.state.loading) {
+      return <Spinner />
+    } else {
+      return (
+        <div className={styles.wrapper}>
+          {this.state.currentJob &&
           <div>
             <div className={classes.wrapper}>
-              <Button raised color="primary" onClick={() => { if(confirmDelete("Confirm push live to client")) {this.pushLiveToClient()}}}>push live to client</Button>
-              <Button onClick={() => { if(confirmDelete()) {this.handleRemove("Confirm deletion of job")}}}>⚠️ Delete</Button>
+              <Button raised color="primary" onClick={() => {
+                if (confirmDelete("Confirm push live to client")) {
+                  this.pushLiveToClient()
+                }
+              }}>push live to client</Button>
+              <Button onClick={() => {
+                if (confirmDelete()) {
+                  this.handleRemove("Confirm deletion of job")
+                }
+              }}>⚠️ Delete</Button>
               <FormControlLabel
                 className={classes.rightElement}
                 control={
@@ -195,34 +211,35 @@ class ViewJob extends Component {
                                  jobKey={this.state.currentJob.id}
                                  entries={this.state.entries}
                                  handlePinnedImageShow={this.handlePinnedImageShow}
-                                 handleImageGridShow={this.handleImageGridShow} />
+                                 handleImageGridShow={this.handleImageGridShow}/>
             <ViewSummaryDetails stats={costPerItem}/>
             <ViewJobAttachment open={this.state.attachmentDialogOpen}
                                handleRequestClose={this.handleAttachmentDialogClose}
                                attachment={this.state.openAttachment}
             />
             {this.state.selectedImageGrid &&
-              <ImageGridDialog selectedImageGrid={this.state.selectedImageGrid}
-                               handleRequestClose={this.handleImageGridClose}
-                               handleClickOpen={this.handleClickOpen}
-                               title="Pictures for job"
-                               fullScreen={false} />}
+            <ImageGridDialog selectedImageGrid={this.state.selectedImageGrid}
+                             handleRequestClose={this.handleImageGridClose}
+                             handleClickOpen={this.handleClickOpen}
+                             title="Pictures for job"
+                             fullScreen={false}/>}
             {this.state.selectedPinnedImage &&
-              <ViewPinnedImageDialog attachment={this.state.selectedPinnedImage}
-                                     open={!!this.state.selectedPinnedImage}
-                                     markedImageLoaded={this.state.markedImageLoaded}
-                                     handleMarkedImageLoaded={this.handleMarkedImageLoaded}
-                                     handleRequestClose={this.handlePinnedImageClose}
-              />
+            <ViewPinnedImageDialog attachment={this.state.selectedPinnedImage}
+                                   open={!!this.state.selectedPinnedImage}
+                                   markedImageLoaded={this.state.markedImageLoaded}
+                                   handleMarkedImageLoaded={this.handleMarkedImageLoaded}
+                                   handleRequestClose={this.handlePinnedImageClose}
+            />
             }
 
             <SimpleSnackbar showSnackbar={this.state.showSnackbar}
                             handleSnackbarClose={this.handleSnackbarClose}
-                            snackbarMsg={this.state.snackbarMsg} />
+                            snackbarMsg={this.state.snackbarMsg}/>
 
-        </div>}
-      </div>
-    );
+          </div>}
+        </div>
+      );
+    }
   }
 }
 

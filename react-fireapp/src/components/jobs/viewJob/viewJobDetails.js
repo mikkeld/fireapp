@@ -50,10 +50,6 @@ export const ViewJobDetails = (props) => {
           <span>{props.currentJob.startDate || "N/A"}</span>
         </div>
         <div className={classes.inline}>
-          <span className={classes.textHeader}>Last Updated</span>
-          <span>2017-10-02</span>
-        </div>
-        <div className={classes.inline}>
           <span className={classes.textHeader}>Last Pushed to Client</span>
           <span>{props.currentJob.lastPushedToClient ? formatTimestamp(props.currentJob.lastPushedToClient) : "N/A"}</span>
         </div>

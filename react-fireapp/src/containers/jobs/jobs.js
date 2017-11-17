@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
-import {uploadFile} from "../../utils/jobsService";
+import {calculateCost, uploadFile} from "../../utils/jobsService";
 import {findItemById, updatedItems, removeItem, snapshotToArray} from "../../utils/utils";
 import SimpleSnackbar from '../../components/shared/snackbar';
 import CreateJob from "../../components/jobs/createJob";
@@ -94,16 +94,28 @@ export class Jobs extends Component {
   componentDidMount() {
     const previousJobs = this.state.jobs;
 
+    this.firebase.databaseSnapshot('jobs').then((snap) => {
+      if (snap.val() === null) {
+        this.setState({jobsLoading: false})
+      }
+    });
+
     this.firebase.database.on('child_added', snap => {
-      previousJobs.push({
-        id: snap.key,
-        ...snap.val()
+      this.firebase.databaseSnapshot(`entries/${snap.key}`).then((entrySnap) => {
+        const entries = snapshotToArray(entrySnap);
+        const jobStats = this.calculateCostPerJob(snap.val(), entries);
+        previousJobs.push({
+          id: snap.key,
+          ...jobStats,
+          ...snap.val()
+        });
+        this.setState({
+          jobs: previousJobs,
+          jobsLoading: false
+        })
       });
 
-      this.setState({
-        jobs: previousJobs,
-        jobsLoading: false
-      })
+
     });
 
     this.firebase.database.on('child_changed', snap => {
@@ -121,6 +133,9 @@ export class Jobs extends Component {
     });
 
     this.firebase.databaseSnapshot('companies').then((snap) => {
+      if (snap.val() === null) {
+        this.setState({companiesLoading: false})
+      }
       const companies = snapshotToArray(snap);
       this.setState({
         availableCompanies: companies,
@@ -128,6 +143,9 @@ export class Jobs extends Component {
       })
     });
     this.firebase.databaseSnapshot('users').then((snap) => {
+      if (snap.val() === null) {
+        this.setState({usersLoading: false})
+      }
       const users = snapshotToArray(snap);
       this.setState({
         availableUsers: users,
@@ -135,6 +153,9 @@ export class Jobs extends Component {
       })
     });
     this.firebase.databaseSnapshot('products').then((snap) => {
+      if (snap.val() === null) {
+        this.setState({productsLoading: false})
+      }
       const products = snapshotToArray(snap);
       this.setState({
         availableProducts: products,
@@ -354,6 +375,26 @@ export class Jobs extends Component {
       return available.filter(client => !selectedClientNames.includes(client.name))
     }
   }
+
+  calculateCostPerJob = (job, entries) => {
+    let jobStats = {
+      totalCost: 0,
+      latestEntry: null
+    };
+    for (let entry of entries) {
+      if (entry.creationDate > jobStats.latestEntry) {
+        jobStats.latestEntry = entry.creationDate;
+      }
+      if (entry && entry.selectedProducts) {
+        if (entry.creationDate < job.lastPushedToClient) {
+          for (let product of entry.selectedProducts) {
+            jobStats.totalCost += calculateCost(product, "client");
+          }
+        }
+      }
+    }
+    return jobStats
+  };
 
   render() {
     let filteredJobs = this.state.jobs.filter(

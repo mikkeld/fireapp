@@ -21,10 +21,6 @@ const styles = theme => ({
   wrapper: {
     marginBottom: theme.spacing.unit*2,
   },
-  inline: {
-    float: 'right',
-    paddingRight: theme.spacing.unit*2,
-  },
   clearBoth: {
     clear: 'both',
     marginBottom: theme.spacing.unit*2,
@@ -44,11 +40,11 @@ export const ViewProducts = (props) => {
                            isEditing={props.isEditing}
                            toggleEdit={props.toggleEdit} />
         <SummaryField classes={classes}
-                      title="Total Product Cost"
-                      metric={calculateTotalCost(props.products, "product")} />
-        <SummaryField classes={classes}
                       title="Total Client Cost"
                       metric={calculateTotalCost(props.products, "client")} />
+        <SummaryField classes={classes}
+                      title="Total Product Cost"
+                      metric={calculateTotalCost(props.products, "product")} />
       </Paper>
     </div>
   )

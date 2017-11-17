@@ -3,6 +3,8 @@ import {ListJobTableRow} from "./listJobTableRow";
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Paper from 'material-ui/Paper';
+import HelpIcon from 'material-ui-icons/Help';
+import Tooltip from 'material-ui/Tooltip';
 
 const styles = theme => ({
   root: {
@@ -28,9 +30,14 @@ export const ListJobsTable = (props) => {
             <TableCell>Job Status</TableCell>
             <TableCell>Company Name</TableCell>
             <TableCell>Client Name</TableCell>
-            <TableCell>Last Update</TableCell>
+            <TableCell>Latest Entry</TableCell>
             <TableCell>Last Pushed to Client</TableCell>
-            <TableCell>Cost To Date</TableCell>
+            <TableCell>
+              Cost To Date
+              <Tooltip id="tooltip-top" title="Cost up to the latest push to client" placement="top">
+                <HelpIcon style={{width: "50%"}}/>
+              </Tooltip>
+            </TableCell>
           </TableRow>
         </TableHead>
         <TableBody>

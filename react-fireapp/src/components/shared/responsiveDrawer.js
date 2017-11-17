@@ -18,11 +18,9 @@ import MenuIcon from 'material-ui-icons/Menu';
 import Collapse from 'material-ui/transitions/Collapse';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
-import StarBorder from 'material-ui-icons/StarBorder';
 import BusinessIcon from 'material-ui-icons/Business';
 import EventIcon from 'material-ui-icons/Event';
 import DashboardIcon from 'material-ui-icons/Dashboard';
-
 import {
   Link,
   NavLink
@@ -81,28 +79,34 @@ const styles = theme => ({
   subLink: {
     textDecoration: 'none'
   },
-  active: {
-    color: 'green'
+  text: {
+    color: theme.palette.primary.A400,
+    fontWeight: 'bold'
   }
 
 });
 
-// const StyledNavLink = props => (
-//   <NavLink className={props.classes.subLink} to={{ pathname: props.to }}>
-//     <ListItem button className={props.classes.nested}>
-//       <ListItemText disableTypography={props.to===props.match.location.path} inset primary="Users" />
-//     </ListItem>
-//   </NavLink>
-// );
+const CustomNavLink = (props) => (
+  <NavLink  className={props.classes.subLink} to={{ pathname: props.to }}>
+    <ListItem button className={props.classes.nested}>
+      <ListItemText classes={props.pathname === props.to ? {text: props.classes.text} : null}
+                    inset
+                    primary={props.displayName} />
+    </ListItem>
+  </NavLink>
+);
 
 class ResponsiveDrawer extends React.Component {
-  state = {
-    mobileOpen: false,
-    adminOpen: true,
-    jobsOpen: false,
-    reportsOpen: false,
-    activePath: undefined
-  };
+  constructor() {
+    super();
+    this.state = {
+      mobileOpen: false,
+      adminOpen: true,
+      jobsOpen: false,
+      reportsOpen: false,
+      activePath: "/admin"
+    };
+  }
 
   handleClick = state => {
     if(state === "admin") {
@@ -120,11 +124,6 @@ class ResponsiveDrawer extends React.Component {
     this.setState({ mobileOpen: !this.state.mobileOpen });
   };
 
-  isActiveFunc = (match, location) => {
-    // this.setState({activePath: match.path});
-    return match
-  };
-
   render() {
     const { classes, theme } = this.props;
     const drawer = (
@@ -140,41 +139,28 @@ class ResponsiveDrawer extends React.Component {
             <ListItemText inset primary="Admin" />
             {this.state.adminOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
-          {this.props.location.pathname}
           <Collapse in={this.state.adminOpen} transitionDuration="auto" unmountOnExit>
-            <NavLink className={classes.subLink} to={{ pathname: "/admin/users" }}>
-              <ListItem button className={classes.nested}>
-                <ListItemText inset primary="Users" />
-              </ListItem>
-            </NavLink>
-            <Link className={classes.subLink} to={{ pathname: "/admin/companies" }}>
-              <ListItem button className={classes.nested}>
-                <ListItemText inset primary="Companies" />
-              </ListItem>
-            </Link>
-            <Link className={classes.subLink} to={{ pathname: "/admin/products" }}>
-              <ListItem button className={classes.nested}>
-                <ListItemText inset primary="Products" />
-              </ListItem>
-            </Link>
+            <CustomNavLink to="/admin/users"
+                           classes={classes}
+                           pathname={this.props.location.pathname}
+                           displayName="Users" />
+            <CustomNavLink to="/admin/companies"
+                           classes={classes}
+                           pathname={this.props.location.pathname}
+                           displayName="Companies" />
+            <CustomNavLink to="/admin/products"
+                           classes={classes}
+                           pathname={this.props.location.pathname}
+                           displayName="Products" />
           </Collapse>
-          <ListItem button onClick={() => this.handleClick("jobs")}>
-            <ListItemIcon>
-              <EventIcon />
-            </ListItemIcon>
-            <ListItemText inset primary="Jobs" />
-            {this.state.jobsOpen ? <ExpandLess /> : <ExpandMore />}
-          </ListItem>
-          <Collapse in={this.state.jobsOpen} transitionDuration="auto" unmountOnExit>
-            <Link to={{ pathname: "/jobs" }}>
-              <ListItem button className={classes.nested}>
-                <ListItemIcon>
-                  <StarBorder />
-                </ListItemIcon>
-                <ListItemText inset primary="Starred" />
-              </ListItem>
-            </Link>
-          </Collapse>
+          <Link className={classes.subLink} to={{ pathname: "/jobs" }}>
+            <ListItem button>
+              <ListItemIcon>
+                <EventIcon />
+              </ListItemIcon>
+              <ListItemText classes={this.props.location.pathname === "/jobs" ? {text: classes.text} : null} inset primary="Jobs" />
+            </ListItem>
+          </Link>
           <ListItem button onClick={() => this.handleClick("reports")}>
             <ListItemIcon>
               <DashboardIcon />
@@ -183,22 +169,14 @@ class ResponsiveDrawer extends React.Component {
             {this.state.reportsOpen ? <ExpandLess /> : <ExpandMore />}
           </ListItem>
           <Collapse in={this.state.reportsOpen} transitionDuration="auto" unmountOnExit>
-            <Link to={{ pathname: "/reports" }}>
-              <ListItem button className={classes.nested}>
-                <ListItemIcon>
-                  <StarBorder />
-                </ListItemIcon>
-                <ListItemText inset primary="Job Reports" />
-              </ListItem>
-            </Link>
-            <Link to={{ pathname: "/reports/activity" }}>
-              <ListItem button className={classes.nested}>
-                <ListItemIcon>
-                  <StarBorder />
-                </ListItemIcon>
-                <ListItemText inset primary="User Activity" />
-              </ListItem>
-            </Link>
+            <CustomNavLink to="/reports"
+                           classes={classes}
+                           pathname={this.props.location.pathname}
+                           displayName="Job Reports" />
+            <CustomNavLink to="/reports/activity"
+                           classes={classes}
+                           pathname={this.props.location.pathname}
+                           displayName="Activity Reports" />
           </Collapse>
         </List>
       </div>

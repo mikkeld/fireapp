@@ -73,6 +73,12 @@ class Products extends Component {
   componentDidMount() {
     const previousProducts = this.state.products;
 
+    this.firebase.databaseSnapshot('products').then((snap) => {
+      if (snap.val() === null) {
+        this.setState({loading: false})
+      }
+    });
+
     this.firebase.database.on('child_added', snap => {
       previousProducts.push({
         id: snap.key,

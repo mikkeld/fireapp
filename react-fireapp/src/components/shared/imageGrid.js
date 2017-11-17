@@ -14,7 +14,8 @@ const styles = theme => ({
   },
   gridList: {
     width: 500,
-    display: 'relative'
+    display: 'relative',
+    padding: theme.spacing.unit,
   },
   subheader: {
     width: '100%',

@@ -94,6 +94,12 @@ export class User extends Component {
       })
     });
 
+    this.firebase.databaseSnapshot('users').then((snap) => {
+      if (snap.val() === null) {
+        this.setState({usersLoading: false})
+      }
+    });
+
     this.firebase.database.on('child_changed', snap => {
       const updatedUsers = updatedItems(this.state.users, this.state.currentUser);
       this.setState({
@@ -109,6 +115,9 @@ export class User extends Component {
     });
 
     this.firebase.databaseSnapshot('companies').then((snap) => {
+      if (snap.val() === null) {
+        this.setState({companiesLoading: false})
+      }
       const companies = snapshotToArray(snap);
       this.setState({
         availableCompanies: companies,
@@ -210,7 +219,7 @@ export class User extends Component {
 
   handleClickOpen = () => {
     this.setState({
-      isEditing: false,
+      isEditting: false,
       open: true
     });
   };
