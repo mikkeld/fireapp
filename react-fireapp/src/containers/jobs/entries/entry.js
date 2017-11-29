@@ -7,8 +7,7 @@ import Spinner from "../../../components/shared/spinner";
 import ViewJobAttachment from "../../../components/jobs/viewJobAttachment";
 import ViewPinnedImageDialog from "../../../components/jobs/viewEntry/viewPinnedImage";
 import Button from 'material-ui/Button';
-import {findItemById, removeItem, snapshotToArray, updatedItems} from "../../../utils/utils";
-import {uploadFile} from "../../../utils/jobsService";
+import {findItemById, generateFilename, removeItem, snapshotToArray, updatedItems} from "../../../utils/utils";
 import CreateProductForm from "../../../components/jobs/viewEntry/createProductForm";
 import IconButton from 'material-ui/IconButton';
 import ArrowBackIcon from 'material-ui-icons/ArrowBack';
@@ -17,6 +16,7 @@ import ViewUpdateLog from "../../../components/jobs/viewEntry/viewUpdateLog";
 import ViewProducts from "../../../components/jobs/viewEntry/viewProducts";
 import SimpleSnackbar from "../../../components/shared/snackbar";
 import { Link } from 'react-router-dom';
+import firebase from 'firebase';
 
 const styles = theme => ({
   wrapper: {
@@ -61,6 +61,9 @@ class Entry extends Component {
       availableProducts: [],
       showSnackbar: false,
       snackbarMsg: '',
+      productsLoading: true,
+      progress: 0,
+      otherMarkedEntries: []
     };
 
     this.firebase = new FirebaseList('entries');
@@ -70,12 +73,15 @@ class Entry extends Component {
     this.setMarker = this.setMarker.bind(this);
     this.saveMarkedImage = this.saveMarkedImage.bind(this);
     this.handleMarkedImageClose = this.handleMarkedImageClose.bind(this);
-    this.handleFileUpload = this.handleFileUpload.bind(this);
     this.handleProductFormSubmit = this.handleProductFormSubmit.bind(this);
     this.handleProductFormEdit = this.handleProductFormEdit.bind(this);
     this.toggleProductFormOpen = this.toggleProductFormOpen.bind(this);
     this.toggleProductFormClose = this.toggleProductFormClose.bind(this);
     this.toggleProductEdit = this.toggleProductEdit.bind(this);
+    this.handleUploadStart = this.handleUploadStart.bind(this);
+    this.handleProgress = this.handleProgress.bind(this);
+    this.handleUploadError = this.handleUploadError.bind(this);
+    this.handleUploadSuccess = this.handleUploadSuccess.bind(this);
   }
 
 
@@ -105,6 +111,11 @@ class Entry extends Component {
     this.firebase.databaseSnapshot(`jobs/${this.props.jobId}/selectedProducts`).then((snap) => {
       const products = snapshotToArray(snap);
       this.setState({availableProducts: products})
+    });
+    this.firebase.databaseSnapshot(`entries/${this.props.jobId}`).then((snap) => {
+      const entries = snapshotToArray(snap);
+      const otherMarkedEntries = entries.filter(entry => entry.id !== this.props.entryId);
+      this.setState({otherMarkedEntries: otherMarkedEntries})
     });
   }
 
@@ -237,33 +248,6 @@ class Entry extends Component {
     this.setState({currentEntry: updatedEntryStatus});
   };
 
-
-  handleFileUpload(e) {
-    this.setState({uploadLoading: true});
-    e.preventDefault();
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("image", file);
-    uploadFile(formData)
-      .then(publicUrl => {
-        if(publicUrl.status === 200) {
-          const uploadItem = {"name": file.name, "url": publicUrl.data};
-          const updatedSelectedUploads = [...this.state.currentEntry.selectedUploads, uploadItem];
-          const updatedJobStatus = {
-            ...this.state.currentEntry,
-            selectedUploads: updatedSelectedUploads
-          };
-          this.setState({
-            uploadLoading: false,
-            currentEntry: updatedJobStatus
-          })
-        } else {
-          console.log("error uploading image");
-        }
-      });
-  }
-
-
   handleAttachmentDialogClose =() => {
     this.setState({attachmentDialogOpen: false})
   };
@@ -312,6 +296,32 @@ class Entry extends Component {
     this.setState({ showSnackbar: false });
   };
 
+  handleUploadStart = () => this.setState({uploadLoading: true, progress: 0});
+  handleProgress = (progress) => this.setState({progress});
+  handleUploadError = (error) => {
+    this.setState({uploadLoading: false});
+    console.error(error);
+  };
+  handleUploadSuccess = (filename) => {
+    firebase.storage().ref('images').child(filename).getDownloadURL().then(url => {
+      const getNameString = (f) => f.substring(0,f.lastIndexOf("_"))+f.substring(f.lastIndexOf("."));
+      const uploadItem = {"name": getNameString(filename), "url": url, "id": this.generateRandom()};
+      const updatedSelectedUploads = [...this.state.currentEntry.selectedUploads, uploadItem];
+      const updatedEntryStatus = {
+        ...this.state.currentEntry,
+        selectedUploads: updatedSelectedUploads
+      };
+      this.setState({
+        uploadLoading: false,
+        currentEntry: updatedEntryStatus
+      });
+    });
+  };
+
+  generateRandom() {
+    return parseInt(Math.random());
+  }
+
   render() {
     const { classes } = this.props;
     const lastUpdatedSorted = this.state.updateLog.sort((a, b) => b.lastUpated - a.lastUpdated);
@@ -321,7 +331,7 @@ class Entry extends Component {
     };
     return (
       <div className={classes.wrapper}>
-        {this.state.loading
+        {this.state.loading || this.state.currentEntry === null
           ? <Spinner/>
           : <div>
             {this.state.isEditing
@@ -336,24 +346,33 @@ class Entry extends Component {
                     </IconButton>
                   </Link>
                   <Button style={{float:'right'}} color="primary" onClick={() => this.toggleEdit()}>Edit entry</Button>
-                </div>}
+                </div>
+            }
               <ViewEntryDetails {...this.state.currentEntry}
                                 handleMarkedImageClickOpen={this.handleMarkedImageClickOpen}
                                 isEditing={this.state.isEditing}
                                 handleInputChange={this.handleInputChange}
               />
               <ViewUpdateLog updateLog={this.state.updateLog} lastUpdate={lastUpdatedSorted[0]} />
+              {this.state.currentEntry.hasOwnProperty('selectedUploads') &&
               <ViewImageGrid selectedUploads={this.state.currentEntry.selectedUploads}
                              isEditing={this.state.isEditing}
                              handleClickOpen={this.handleClickOpen}
-                             uploadLoading={this.state.uploadLoading}
                              handleRequestDeleteChip={this.handleRequestDeleteChip}
-                             handleFileUpload={this.handleFileUpload} />
-              <ViewProducts products={this.state.currentEntry.selectedProducts}
-                            isEditing={this.state.isEditing}
-                            toggleProductFormOpen={this.toggleProductFormOpen}
-                            toggleEdit={this.toggleProductEdit} />
-          </div>}
+                             uploadLoading={this.state.uploadLoading}
+                             handleUploadStart={this.handleUploadStart}
+                             handleProgress={this.handleProgress}
+                             handleUploadError={this.handleUploadError}
+                             handleUploadSuccess={this.handleUploadSuccess}
+                             firebaseStorage={firebase.storage().ref('images')}
+                             filename={file => generateFilename(file)}
+                />}
+                <ViewProducts products={this.state.currentEntry.selectedProducts}
+                              isEditing={this.state.isEditing}
+                              toggleProductFormOpen={this.toggleProductFormOpen}
+                              toggleEdit={this.toggleProductEdit} />
+               </div>
+        }
 
         <ViewJobAttachment open={this.state.attachmentDialogOpen}
                            handleRequestClose={this.handleAttachmentDialogClose}
@@ -376,6 +395,7 @@ class Entry extends Component {
                                  saveMarkedImage={this.saveMarkedImage}
                                  isEditing={this.state.isEditing}
                                  previous={this.state.previousMarkedImage}
+                                 otherMarkedEntries={this.state.otherMarkedEntries}
           />}
           <SimpleSnackbar showSnackbar={this.state.showSnackbar}
                           handleSnackbarClose={this.handleSnackbarClose}

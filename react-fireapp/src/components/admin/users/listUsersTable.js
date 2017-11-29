@@ -6,12 +6,14 @@ import Paper from 'material-ui/Paper';
 
 const styles = theme => ({
   root: {
-    width: '100%',
+    [theme.breakpoints.up('md')]: {
+      width: `calc(100%)`,
+    },
     marginTop: theme.spacing.unit * 3,
     overflowX: 'auto',
   },
   table: {
-    minWidth: 700,
+    width: '100%',
   },
 });
 
@@ -37,7 +39,6 @@ export const ListUsersTable = (props) => {
         </TableBody>
       </Table>
     </Paper>
-
   )
 };
 

@@ -3,20 +3,40 @@ import './App.css';
 import {
   BrowserRouter as Router,
   Route,
-  Link
 } from 'react-router-dom';
 
 import {Administrator} from './containers/admin/administrator';
-import {Jobs} from "./containers/jobs/jobs";
+import Jobs from "./containers/jobs/jobs";
 import {Reports} from "./containers/reports/reports";
 import {ActivityReport} from "./containers/reports/activityReport";
 import ResponsiveDrawer from "./components/shared/responsiveDrawer";
 import ViewJob from "./containers/jobs/viewJob";
 import Entry from "./containers/jobs/entries/entry";
 import {JobReport} from "./containers/reports/jobReport";
+import {firebaseAuth} from "./utils/firebase/firebase";
+import {login, logout} from "./utils/authService";
+import Login from "./containers/auth/login";
 
 
 class App extends Component {
+  constructor() {
+    super();
+    this.state = {
+      user: null
+    };
+  }
+
+  componentDidMount() {
+    firebaseAuth.onAuthStateChanged(user => {
+      console.log(user);
+      if (user) {
+        this.setState({user: user})
+      } else {
+        this.setState({user: null})
+      }
+    });
+  }
+
   findComponent = (location) => {
     switch (location.pathname) {
       case '/admin':
@@ -35,27 +55,36 @@ class App extends Component {
   };
 
   render() {
-
-    return (
-      <Router>
-        <Route render={({ location }) => (
-          <ResponsiveDrawer componentTitle={this.findComponent(location)} location={location}>
-            <div className="App">
-              <Route exact path="/" component={Administrator} />
-              <Route path="/admin" component={Administrator} />
-              <Route exact path="/jobs" component={Jobs} />
-              <Route path="/jobs/:id" render={({match}) => <ViewJob id={match.params.id} />} />
-              <Route path="/entries/:jobId/:entryId" render={({match}) => <Entry jobId={match.params.jobId} entryId={match.params.entryId} />} />
-              <Route exact path="/reports" component={Reports} />
-              <Route path="/reports/:jobId" render={({match}) => <JobReport id={match.params.jobId} />} />
-              <Route path="/reports/activity" component={ActivityReport} />
-            </div>
-           </ResponsiveDrawer>
+    if(!this.state.user) {
+      return (
+        <Login />
+      )
+    } else {
+      return (
+        <Router>
+          <Route render={({location}) => (
+            <ResponsiveDrawer componentTitle={this.findComponent(location)}
+                              location={location}
+                              handleLogin={login}
+                              handleLogout={logout}
+                              user={this.state.user}>
+              <div className="App">
+                <Route exact path="/" component={Administrator}/>
+                <Route path="/admin" component={Administrator}/>
+                <Route exact path="/jobs" component={Jobs}/>
+                <Route path="/jobs/:id" render={({match}) => <ViewJob id={match.params.id}/>}/>
+                <Route path="/entries/:jobId/:entryId"
+                       render={({match}) => <Entry jobId={match.params.jobId} entryId={match.params.entryId}/>}/>
+                <Route exact path="/reports" component={Reports}/>
+                <Route path="/reports/:jobId" render={({match}) => <JobReport id={match.params.jobId}/>}/>
+                <Route path="/reports/activity" component={ActivityReport}/>
+              </div>
+            </ResponsiveDrawer>
           )}
-        />
-     </Router>
-
-    );
+          />
+        </Router>
+      );
+    }
   }
 }
 

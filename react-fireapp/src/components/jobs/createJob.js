@@ -12,6 +12,7 @@ import Avatar from 'material-ui/Avatar';
 import { CircularProgress } from 'material-ui/Progress';
 import Paper from 'material-ui/Paper';
 import PropTypes from 'prop-types';
+import FileUploader from 'react-firebase-file-uploader';
 
 const styles = theme => ({
   container: {
@@ -383,7 +384,16 @@ const AttachmentFormGroup = (props) => (
         )
       })}
     </div>
-    <input type="file" id="myFile" onChange={props.handleFileUpload} />
+    <FileUploader
+      accept="image/*"
+      name="image"
+      filename={props.filename}
+      storageRef={props.firebaseStorage}
+      onUploadStart={props.handleUploadStart}
+      onUploadError={props.handleUploadError}
+      onUploadSuccess={props.handleUploadSuccess}
+      onProgress={props.handleProgress}
+    />
     {
       props.uploadLoading
         ? <CircularProgress/>
@@ -436,7 +446,6 @@ CreateJob.propTypes = {
   handleEdit: PropTypes.func.isRequired,
   handleSubmit: PropTypes.func.isRequired,
   handleRequestClose: PropTypes.func.isRequired,
-  handleFileUpload: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
   uploadLoading: PropTypes.bool.isRequired,
   jobId: PropTypes.string.isRequired,

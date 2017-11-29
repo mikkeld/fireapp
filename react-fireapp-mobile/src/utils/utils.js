@@ -25,3 +25,15 @@ export const removeItem = (items, id) => {
     ...items.slice(removedIndex+1)
   ]
 };
+
+export const generateFilename = (file) => file.name.split('.')[0] + '_' + Date.now() + file.name.split('.')[1];
+
+export const snapshotToArray = (snapshot) => {
+  let items = [];
+  snapshot.forEach(function(item) {
+    let itemVal = item.val();
+    itemVal["id"] = item.key;
+    items.push(itemVal);
+  });
+  return items
+};

@@ -1,5 +1,6 @@
 import React from 'react';
 import marker from "../../assets/images/marker.png";
+import black_marker from "../../assets/images/black_marker.png";
 
 export const Marker = (props) => {
   const markerStyle = {
@@ -10,9 +11,9 @@ export const Marker = (props) => {
     maxHeight: 50,
     maxWidth: 50
   };
-
+  const markerType = props.blackMarker ? black_marker : marker;
   return (
-    <img src={marker} style={markerStyle}/>
+    <img src={markerType} style={markerStyle}/>
   )
 };
 

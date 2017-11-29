@@ -36,8 +36,9 @@ const ListProductsTableItemized = (props) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {props.entries.map(entry => <ListProductTableItemizedRow key={entry.id}
-                                                                 {...entry}
+        {props.entries.map((entry, index) => <ListProductTableItemizedRow key={entry.id}
+                                                                          index={index}
+                                                                          {...entry}
         />)}
       </TableBody>
     </Table>

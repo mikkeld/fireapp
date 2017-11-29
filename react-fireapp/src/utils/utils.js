@@ -29,8 +29,10 @@ export const snapshotToArray = (snapshot) => {
   let items = [];
   snapshot.forEach(function(item) {
     let itemVal = item.val();
-    item["id"] = item.key;
+    itemVal["id"] = item.key;
     items.push(itemVal);
   });
   return items
 };
+
+export const generateFilename = (file) => file.name.split('.')[0] + '_' + Date.now() + file.name.split('.')[1];

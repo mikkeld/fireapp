@@ -52,6 +52,12 @@ class Entries extends Component {
     this.firebase.path = `entries/${this.jobKey}`;
     const previousEntries = this.state.entries;
 
+    this.firebase.databaseSnapshot(this.firebase.path).then((snap) => {
+      if (snap.val() === null) {
+        this.setState({loading: false})
+      }
+    });
+
     this.firebase.database.on('child_added', snap => {
       previousEntries.push({
         id: snap.key,

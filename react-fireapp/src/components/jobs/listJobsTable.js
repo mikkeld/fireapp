@@ -6,9 +6,14 @@ import Paper from 'material-ui/Paper';
 import HelpIcon from 'material-ui-icons/Help';
 import Tooltip from 'material-ui/Tooltip';
 
+const drawerWidth = 140;
+
 const styles = theme => ({
   root: {
-    width: '100%',
+    width: "100%",
+    // [theme.breakpoints.up('md')]: {
+    //   width: `calc(100% - ${drawerWidth}px)`,
+    // },
     marginTop: theme.spacing.unit * 3,
     overflowX: 'auto',
   },

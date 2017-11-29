@@ -56,7 +56,9 @@ export class ViewPinnedImageDialog extends Component {
                            attachment={this.props.attachment.attachment}
                            imageLoaded={this.props.markedImageLoaded}
                            handleImageLoaded={this.props.handleMarkedImageLoaded}
-                           setMarker={this.props.isEditing && this.props.setMarker} />
+                           setMarker={this.props.isEditing && this.props.setMarker}
+                           otherMarkedEntries={this.props.otherMarkedEntries}
+              />
             </div>
           }
         </Dialog>

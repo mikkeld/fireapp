@@ -26,7 +26,6 @@ export const ViewAttachmentDetails = (props) => {
       </Typography>
       <Paper className={classes.root}>
         {props.currentJob.selectedUploads.map(file => {
-          // When this is clicked, should open dialog with image in large. This dialog should have a download option
           return (
             <Chip
               onClick={() => props.handleClickOpen(file)}

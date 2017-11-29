@@ -52,9 +52,11 @@ export class ViewImageDialog extends Component {
             <DialogTitle>{this.props.attachment.name}</DialogTitle>
             <MarkedImage setMarker={this.props.setMarker}
                          markerPosition={this.props.markerPosition}
-                         attachment={this.props.attachment}
+                         selectedMarkedImage={this.props.selectedMarkedImage}
+                         currentUpload={this.props.attachment}
                          imageLoaded={this.props.markedImageLoaded}
-                         handleImageLoaded={this.props.handleMarkedImageLoaded}
+                         handleMarkedImageLoaded={this.props.handleMarkedImageLoaded}
+                         otherMarkedEntries={this.props.otherMarkedEntries}
             />
           </div>
           }

@@ -7,13 +7,13 @@ import Drawer from 'material-ui/Drawer';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
-import ListSubheader from 'material-ui/List/ListSubheader';
 
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
 import Hidden from 'material-ui/Hidden';
 import Divider from 'material-ui/Divider';
 import MenuIcon from 'material-ui-icons/Menu';
+import Button from 'material-ui/Button';
 
 import Collapse from 'material-ui/transitions/Collapse';
 import ExpandLess from 'material-ui-icons/ExpandLess';
@@ -82,7 +82,10 @@ const styles = theme => ({
   text: {
     color: theme.palette.primary.A400,
     fontWeight: 'bold'
-  }
+  },
+  flex: {
+    flex: 1,
+  },
 
 });
 
@@ -131,7 +134,7 @@ class ResponsiveDrawer extends React.Component {
         <div className={classes.drawerHeader}>
         </div>
         <Divider />
-        <List className={classes.root} subheader={<ListSubheader>Nested List Items</ListSubheader>}>
+        <List className={classes.root}>
           <ListItem button onClick={() => this.handleClick("admin")}>
             <ListItemIcon>
               <BusinessIcon />
@@ -195,9 +198,15 @@ class ResponsiveDrawer extends React.Component {
               >
                 <MenuIcon />
               </IconButton>
-              <Typography type="title" color="inherit" noWrap>
+              <Typography type="title" color="inherit" noWrap className={classes.flex}>
                 {this.props.componentTitle}
               </Typography>
+              {this.props.user ?
+                <Button color="contrast" onClick={this.props.handleLogout}>Logout</Button>
+                :
+                <Button color="contrast" onClick={this.props.handleLogin}>Login</Button>
+              }
+
             </Toolbar>
           </AppBar>
           <Hidden mdUp>

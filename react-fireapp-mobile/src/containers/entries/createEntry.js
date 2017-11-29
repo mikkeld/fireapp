@@ -1,15 +1,15 @@
 import React, { Component } from 'react';
 import CreateEntryForm from "../../components/entries/createEntryForm";
 import { withStyles } from 'material-ui/styles';
-import {uploadFile} from "../../utils/jobsService";
 import ViewImageDialog from "../../components/entries/viewImageDialog";
 import {FirebaseList} from "../../utils/firebase/firebaseList";
-import {removeItem} from "../../utils/utils";
+import {generateFilename, removeItem, snapshotToArray} from "../../utils/utils";
 import {
   Redirect
 } from 'react-router-dom';
 import AppBar from "../../components/appBar";
 import Spinner from "../../components/shared/spinner";
+import firebase from 'firebase';
 
 const styles = theme => ({
   root: {
@@ -39,27 +39,33 @@ class CreateEntry extends Component {
     this.state = {
       products: [],
       job: null,
-      currentEntry: initialFormState,
+      currentEntry: {...initialFormState},
       formErrors: initialFormErrorState,
       uploadLoading: false,
       markedImageLoaded: false,
       attachmentDialogOpen: false,
       openAttachment: null,
       markerPosition: null,
+      availableAttachments: [],
+      entries: [],
       redirect: false,
       loading: true,
-      isEditing: false
+      isEditing: false,
+      otherMarkedEntries: []
     };
 
     this.firebase = new FirebaseList('entries');
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleFileUpload = this.handleFileUpload.bind(this);
     this.setMarker = this.setMarker.bind(this);
     this.handleAttachmentDialogOpen = this.handleAttachmentDialogOpen.bind(this);
     this.saveMarkedImage = this.saveMarkedImage.bind(this);
     this.handleMarkedImageLoaded = this.handleMarkedImageLoaded.bind(this);
+    this.handleUploadStart = this.handleUploadStart.bind(this);
+    this.handleProgress = this.handleProgress.bind(this);
+    this.handleUploadError = this.handleUploadError.bind(this);
+    this.handleUploadSuccess = this.handleUploadSuccess.bind(this);
   }
 
   componentDidMount() {
@@ -76,9 +82,18 @@ class CreateEntry extends Component {
         loading: false,
       })
     });
+    this.firebase.databaseSnapshot(`attachments/${this.jobId}`).then((snap) => {
+      const attachments = snapshotToArray(snap);
+      this.setState({availableAttachments: attachments})
+    });
+    this.firebase.databaseSnapshot(`entries/${this.jobId}`).then((snap) => {
+      const entries = snapshotToArray(snap);
+      const otherMarkedEntries = entries.filter(entry => entry.id !== this.entryId);
+      this.setState({otherMarkedEntries: otherMarkedEntries})
+    });
     if (this.entryId) {
       this.firebase.databaseSnapshot(`entries/${this.jobId}/${this.entryId}`).then((entry) => {
-        const updatedEntry = Object.assign(initialFormState, entry.val());
+        const updatedEntry = Object.assign({...initialFormState}, entry.val());
         this.setState({
           currentEntry: updatedEntry,
           isEditing: !!this.entryId
@@ -110,8 +125,13 @@ class CreateEntry extends Component {
             ...this.state.currentEntry,
             'creationDate': Date.now()
           };
-          this.firebase.push(newEntry)
-            .then(() => this.setState({redirect: 'create'}));
+          let newEntryRef = this.firebase.db().ref(`entries/${this.jobId}`).push();
+          newEntryRef.set(newEntry);
+          if (this.state.currentEntry.selectedMarkedImage !== null) {
+            this.firebase.db().ref(`attachments/${this.jobId}/${newEntry.currentUpload.id}/markings/${newEntryRef.key}`)
+              .set(this.state.currentEntry.selectedMarkedImage)
+          }
+          this.setState({redirect: 'create'});
         } else {
           const updatedEntry = {
             ...this.state.currentEntry
@@ -168,32 +188,6 @@ class CreateEntry extends Component {
     this.setState({currentEntry: updatedEntryStatus});
   };
 
-
-  handleFileUpload(e) {
-    this.setState({uploadLoading: true});
-    e.preventDefault();
-    const file = e.target.files[0];
-    const formData = new FormData();
-    formData.append("image", file);
-    uploadFile(formData)
-      .then(publicUrl => {
-        if(publicUrl.status === 200) {
-          const uploadItem = {"name": file.name, "url": publicUrl.data};
-          const updatedSelectedUploads = [...this.state.currentEntry.selectedUploads, uploadItem];
-          const updatedJobStatus = {
-            ...this.state.currentEntry,
-            selectedUploads: updatedSelectedUploads
-          };
-          this.setState({
-            uploadLoading: false,
-            currentEntry: updatedJobStatus
-          })
-        } else {
-          console.log("error uploading image");
-        }
-      });
-  }
-
   handleAttachmentDialogOpen = (attachment) => {
     this.setState({
       attachmentDialogOpen: true,
@@ -241,6 +235,32 @@ class CreateEntry extends Component {
     }
   }
 
+  handleUploadStart = () => this.setState({uploadLoading: true, progress: 0});
+  handleProgress = (progress) => this.setState({progress});
+  handleUploadError = (error) => {
+    this.setState({uploadLoading: false});
+    console.error(error);
+  };
+  handleUploadSuccess = (filename) => {
+    firebase.storage().ref('images').child(filename).getDownloadURL().then(url => {
+      const getNameString = (f) => f.substring(0,f.lastIndexOf("_"))+f.substring(f.lastIndexOf("."));
+      const uploadItem = {"name": getNameString(filename), "url": url, "id": this.generateRandom()};
+      const updatedSelectedUploads = [...this.state.currentEntry.selectedUploads, uploadItem];
+      const updatedEntryStatus = {
+        ...this.state.currentEntry,
+        selectedUploads: updatedSelectedUploads
+      };
+      this.setState({
+        uploadLoading: false,
+        currentEntry: updatedEntryStatus
+      });
+    });
+  };
+
+  generateRandom() {
+    return parseInt(Math.random());
+  }
+
   render() {
     const {classes} = this.props;
     const filteredProducts = this.filterProducts(this.state.currentEntry.selectedProducts, this.state.job && this.state.job.selectedProducts);
@@ -258,27 +278,30 @@ class CreateEntry extends Component {
                                handleRequestClose={this.handleAttachmentDialogClose}
                                attachment={this.state.currentEntry.currentUpload}
                                setMarker={this.setMarker}
-                               markerPosition={this.state.markerPosition}
+                               markerPosition={this.state.markerPosition || this.state.currentEntry.selectedMarkedImage && this.state.currentEntry.selectedMarkedImage.position}
                                saveMarkedImage={this.saveMarkedImage}
                                markedImageLoaded={this.state.markedImageLoaded}
                                handleMarkedImageLoaded={this.handleMarkedImageLoaded}
+                               otherMarkedEntries={this.state.otherMarkedEntries}
               />
-
               <CreateEntryForm handleInputChange={this.handleInputChange}
                                handleSubmit={this.handleSubmit}
                                availableProducts={filteredProducts}
-                               currentEntry={this.state.currentEntry}
                                addSelectedChip={this.addSelectedChip}
                                handleRequestDeleteChip={this.handleRequestDeleteChip}
-                               handleFileUpload={this.handleFileUpload}
                                job={this.state.job}
+                               availableAttachments={this.state.availableAttachments}
                                uploadLoading={this.state.uploadLoading}
                                handleAttachmentDialogOpen={this.handleAttachmentDialogOpen}
-                               markerPosition={this.props.markerPosition}
-                               attachment={this.props.attachment}
                                markedImageLoaded={this.state.markedImageLoaded}
                                handleMarkedImageLoaded={this.handleMarkedImageLoaded}
                                isEditing={this.state.isEditing}
+                               handleProgress={this.handleProgress}
+                               handleUploadError={this.handleUploadError}
+                               handleUploadSuccess={this.handleUploadSuccess}
+                               firebaseStorage={firebase.storage().ref('images')}
+                               filename={file => generateFilename(file)}
+                               otherMarkedEntries={this.state.otherMarkedEntries}
                                {...this.state.currentEntry}
                                {...this.state.formErrors}
               />

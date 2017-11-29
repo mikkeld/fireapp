@@ -1,23 +1,23 @@
 import React from 'react';
-import { CircularProgress } from 'material-ui/Progress';
+import Spinner from '../shared/spinner';
 import {Marker} from "./marker";
 
 export const MarkedImage = (props) => {
   return (
-    <div>
-      {props.imageLoaded
-        ? null
-        : <CircularProgress />
-      }
-      <div style={{position: 'relative'}}>
-        <img
-          src={props.attachment.url}
-          onClick={props.setMarker && props.setMarker}
-          onLoad={() => props.handleImageLoaded()}
-        />
-        {props.markerPosition && <Marker position={props.markerPosition}/>}
-      </div>
+    <div style={{position: 'relative'}}>
+      <img
+        src={props.currentUpload.url}
+        onClick={props.setMarker && props.setMarker}
+        onLoad={() => props.handleMarkedImageLoaded()}
+      />
+    {props.imageLoaded
+      ? <div>
+          {props.markerPosition && <Marker position={props.markerPosition}/>}
+          {props.otherMarkedEntries && props.otherMarkedEntries
+            .map((entry, index) => <Marker key={entry.id} position={entry.selectedMarkedImage.position} blackMarker/>)}
+        </div>
+      : <Spinner />
+    }
     </div>
   )
-
 };

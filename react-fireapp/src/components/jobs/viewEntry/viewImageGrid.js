@@ -4,6 +4,7 @@ import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
 import { CircularProgress } from 'material-ui/Progress';
 import ImageGrid from "../../shared/imageGrid";
+import FileUploader from 'react-firebase-file-uploader';
 
 const styles = theme => ({
   root: {
@@ -27,7 +28,17 @@ export const ViewImageGrid = (props) => {
       </Typography>
       <Paper className={classes.root}>
         <ImageGrid {...props}/>
-        {props.isEditing && <input type="file" id="myFile" onChange={props.handleFileUpload} />}
+        {props.isEditing &&
+        <FileUploader
+          accept="image/*"
+          name="image"
+          filename={props.filename}
+          storageRef={props.firebaseStorage}
+          onUploadStart={props.handleUploadStart}
+          onUploadError={props.handleUploadError}
+          onUploadSuccess={props.handleUploadSuccess}
+          onProgress={props.handleProgress}
+        />}
         {props.uploadLoading
           ? <CircularProgress/>
           : null}

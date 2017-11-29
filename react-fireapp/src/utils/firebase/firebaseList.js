@@ -27,8 +27,8 @@ export class FirebaseList {
 
   push(value) {
     return new Promise((resolve, reject) => {
-      firebaseDb.ref(this._path)
-        .push(value, error => error ? reject(error) : resolve());
+      let ref = firebaseDb.ref(this._path).push();
+      ref.set(value, error => error ? reject(error) : resolve(ref.key));
     });
   }
 
@@ -53,9 +53,8 @@ export class FirebaseList {
     });
   }
 
-
-
-
-
+  // storage() {
+  //   firebaseDb.storage().ref('images')
+  // }
 
   }

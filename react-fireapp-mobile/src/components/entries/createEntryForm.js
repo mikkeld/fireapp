@@ -8,7 +8,7 @@ import Typography from 'material-ui/Typography';
 import { CircularProgress } from 'material-ui/Progress';
 import EntryImageView from "./entryImageView";
 import {MarkedImage} from "./markedImage";
-
+import FileUploader from 'react-firebase-file-uploader';
 
 const styles = theme => ({
   button: {
@@ -30,7 +30,7 @@ const styles = theme => ({
     margin: theme.spacing.unit / 2,
   },
   wrapper: {
-    marginTop: theme.spacing.unit*2
+    marginTop: theme.spacing.unit*2,
   },
 });
 
@@ -45,7 +45,7 @@ const ProductFormGroup = (props) => (
       error={props.selectProductError !== ''}
       margin="normal"
       fullWidth
-      value={(props.currentEntry.currentProduct === undefined || props.currentEntry.currentProduct === null) ? "" : props.currentEntry.currentProduct}
+      value={(props.currentProduct === undefined || props.currentProduct === null) ? "" : props.currentProduct}
       onChange={props.handleInputChange('currentProduct')}
       SelectProps={{
         MenuProps: {
@@ -72,7 +72,7 @@ const ProductFormGroup = (props) => (
       value={props.productQuantity} />
     <Button color="primary"
             onClick={() => props.addSelectedChip()}
-            disabled={(props.productQuantity === '' || props.currentEntry.currentProduct === null)}>
+            disabled={(props.productQuantity === '' || props.currentProduct === null)}>
       add product
     </Button>
   </div>
@@ -95,21 +95,23 @@ const MarkImageView = (props) => (
         name: "currentUpload"
       }}
     >
-      {props.job.selectedUploads.map((file, index) => (
+      {props.availableAttachments.map((file, index) => (
         <MenuItem key={index} value={file}>
           {file.name}
         </MenuItem>
       ))}
     </TextField>
     {props.currentUpload &&
-    <Button color="primary" onClick={() => props.handleAttachmentDialogOpen(props.job.selectedUploads)}>
+    <Button color="primary" onClick={() => props.handleAttachmentDialogOpen(props.availableAttachments)}>
       Edit marker on image
     </Button>}
     {props.selectedMarkedImage &&
     <MarkedImage markerPosition={props.selectedMarkedImage.position}
-                 attachment={props.selectedMarkedImage.attachment}
+                 selectedMarkedImage={props.selectedMarkedImage}
+                 currentUpload={props.currentUpload}
                  imageLoaded={props.markedImageLoaded}
-                 handleImageLoaded={props.handleMarkedImageLoaded}
+                 handleMarkedImageLoaded={props.handleMarkedImageLoaded}
+                 otherMarkedEntries={props.otherMarkedEntries}
     />}
   </div>
 );
@@ -139,7 +141,16 @@ const SelectedImagesView = (props) => (
     <Typography type="subheading" gutterBottom>
       Selected images
     </Typography>
-    <input type="file" id="myFile" onChange={props.handleFileUpload} />
+    <FileUploader
+      accept="image/*"
+      name="image"
+      filename={props.filename}
+      storageRef={props.firebaseStorage}
+      onUploadStart={props.handleUploadStart}
+      onUploadError={props.handleUploadError}
+      onUploadSuccess={props.handleUploadSuccess}
+      onProgress={props.handleProgress}
+    />
     {props.uploadLoading
       ? <CircularProgress/>
       : null}

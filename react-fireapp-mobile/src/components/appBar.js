@@ -54,7 +54,7 @@ const FireAppBar = (props) => {
       </AppBar>
     </div>
   );
-}
+};
 
 
 export default withStyles(styles)(FireAppBar);

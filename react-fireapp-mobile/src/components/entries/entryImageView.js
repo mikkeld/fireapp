@@ -6,8 +6,6 @@ import IconButton from 'material-ui/IconButton';
 
 const styles = theme => ({
   root: {
-    display: 'flex',
-    flexWrap: 'wrap',
     justifyContent: 'space-around',
     overflow: 'hidden',
     background: theme.palette.background.paper,
