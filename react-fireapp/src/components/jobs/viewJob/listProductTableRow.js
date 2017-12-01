@@ -1,5 +1,6 @@
 import React  from 'react';
 import {TableCell, TableRow } from 'material-ui/Table';
+import {formatCurrency} from "../../../utils/utils";
 
 
 export const ListProductTableRow = (props) => {
@@ -7,8 +8,8 @@ export const ListProductTableRow = (props) => {
     <TableRow>
       <TableCell>{props.name}</TableCell>
       <TableCell>{props.pricing}</TableCell>
-      <TableCell>{props.productPrice}</TableCell>
-      <TableCell>{props.clientPrice}</TableCell>
+      <TableCell>{formatCurrency(props.productPrice)}</TableCell>
+      <TableCell>{formatCurrency(props.clientPrice)}</TableCell>
     </TableRow>
   )
 };

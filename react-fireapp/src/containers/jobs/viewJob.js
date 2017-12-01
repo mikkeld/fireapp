@@ -166,7 +166,7 @@ class ViewJob extends Component {
 
   render() {
     const { classes } = this.props;
-    let {costPerProduct, costPerItem} = calculateTotalPerProduct(this.state.entries);
+    let {_, costPerItem} = calculateTotalPerProduct(this.state.entries);
     let confirmDelete = (msg) => {
       const r = window.confirm(msg);
       return r === true;

@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import Dialog, { DialogTitle } from 'material-ui/Dialog';
-import { CircularProgress } from 'material-ui/Progress';
+import Spinner from '../shared/spinner';
 import { withStyles } from 'material-ui/styles';
 
 const styles = theme => ({
@@ -29,7 +29,7 @@ export class ViewJobAttachment extends Component {
           <DialogTitle>{this.props.attachment.name}</DialogTitle>
           {this.state.imageLoaded
             ? null
-            : <CircularProgress />
+            : <Spinner />
           }
 
           <img

@@ -7,6 +7,7 @@ import Drawer from 'material-ui/Drawer';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
+import logo_long from '../../assets/images/logo_long.png';
 
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
@@ -33,7 +34,6 @@ const styles = theme => ({
     width: '100%',
     height: '100%',
     zIndex: 1,
-    overflow: 'hidden',
   },
   appFrame: {
     position: 'relative',
@@ -71,6 +71,8 @@ const styles = theme => ({
     padding: theme.spacing.unit * 3,
     height: 'calc(100% - 56px)',
     marginTop: 56,
+    overflowX: 'auto',
+    overflowY: 'visible',
     [theme.breakpoints.up('sm')]: {
       height: 'calc(100% - 64px)',
       marginTop: 64,
@@ -132,6 +134,7 @@ class ResponsiveDrawer extends React.Component {
     const drawer = (
       <div>
         <div className={classes.drawerHeader}>
+          {/*<img src={logo_long} style={{top:5}} />*/}
         </div>
         <Divider />
         <List className={classes.root}>

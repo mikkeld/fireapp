@@ -78,7 +78,7 @@ export const ViewEntryDetails = (props) => {
         <div className={classes.wrapper}>
           <span className={classes.textHeader}>Tag location</span>
           <Tooltip id="tooltip-icon" title="View Pins" placement="bottom">
-            <IconButton onClick={() => props.handleMarkedImageClickOpen()}>
+            <IconButton disabled={!props.selectedMarkedImage} onClick={() => props.handleMarkedImageClickOpen()}>
               <PlaceIcon />
             </IconButton>
           </Tooltip>

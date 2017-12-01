@@ -44,7 +44,7 @@ const reportCardContent = [
   {
     title: "Itemised Client Invoice",
     content: "Customer invoice listing client costs for all products used on the job",
-    link: "invoice"
+    link: "client"
   }
 ];
 
@@ -64,7 +64,7 @@ const ReportCard = (props) => {
           </Typography>
         </CardContent>
         <CardActions className={props.classes.cardActions}>
-          <Link to={{ pathname: `/reports/${props.jobId}` }}>
+          <Link to={{ pathname: `/reports/${props.jobId}/${props.link}` }}>
             <Button dense>View report</Button>
           </Link>
         </CardActions>

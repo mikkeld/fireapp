@@ -58,6 +58,10 @@ const roles = [
   {
     name: "client",
     value: "Client" ,
+  },
+  {
+    name: "admin",
+    value: "Admin"
   }
 ];
 

@@ -1,9 +1,9 @@
 import React  from 'react';
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-import {ListProductTableRow} from "./listProductTableRow";
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
+import {ListClientTableRow} from "./listClientTableRow";
 import {formatCurrency, formatNumber} from "../../../utils/utils";
 
 const styles = theme => ({
@@ -27,12 +27,11 @@ const TotalRow = (props) => (
     <TableCell className={props.classes.boldRow}>Totals</TableCell>
     <TableCell className={props.classes.boldRow}>{""}</TableCell>
     <TableCell className={props.classes.boldRow}>{formatNumber(props.totalMeasurement)}</TableCell>
-    <TableCell className={props.classes.boldRow}>{formatCurrency(props.productCost)}</TableCell>
     <TableCell className={props.classes.boldRow}>{formatCurrency(props.clientCost)}</TableCell>
   </TableRow>
 );
 
-const ListProductsTable = (props) => {
+const ListClientTable = (props) => {
   const productNames = Object.keys(props.products);
   return (
     <Table className={props.classes.table}>
@@ -41,14 +40,13 @@ const ListProductsTable = (props) => {
           <TableCell>Product Name</TableCell>
           <TableCell>Measurement</TableCell>
           <TableCell>Total Measurement</TableCell>
-          <TableCell>Product Cost</TableCell>
           <TableCell>Client Cost</TableCell>
         </TableRow>
       </TableHead>
       <TableBody>
-        {productNames.map(productName => <ListProductTableRow key={productName}
-                                                              name={productName}
-                                                              {...props.products[productName]}
+        {productNames.map(productName => <ListClientTableRow key={productName}
+                                                             name={productName}
+                                                             {...props.products[productName]}
         />)}
         <TotalRow classes={props.classes} {...props.total}/>
       </TableBody>
@@ -57,7 +55,7 @@ const ListProductsTable = (props) => {
 };
 
 
-export const ViewTotalProductTable = (props) => {
+export const ViewTotalClientTable = (props) => {
   const { classes } = props;
   return (
     <div className={classes.wrapper}>
@@ -65,13 +63,13 @@ export const ViewTotalProductTable = (props) => {
         Products Used Total
       </Typography>
       <Paper className={classes.root}>
-        <ListProductsTable products={props.products} total={props.total} classes={classes}/>
+        <ListClientTable products={props.products} total={props.total} classes={classes}/>
       </Paper>
     </div>
   )
 };
 
-export default withStyles(styles)(ViewTotalProductTable);
+export default withStyles(styles)(ViewTotalClientTable);
 
 
 

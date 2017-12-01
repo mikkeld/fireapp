@@ -2,8 +2,6 @@ import React, {Component}  from 'react';
 import {ListClientTableRow} from "./listClientTableRow";
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
-import Paper from 'material-ui/Paper';
-
 
 const styles = theme => ({
   root: {

@@ -5,9 +5,7 @@ import Typography from 'material-ui/Typography';
 import SummaryField from '../../shared/summaryField';
 const styles = theme => ({
   root: {
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100% - 240px)`,
-    },
+    width: '100%',
     padding: theme.spacing.unit,
     overflowX: 'auto',
   },

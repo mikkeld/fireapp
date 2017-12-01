@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import {FirebaseList} from "../../utils/firebase/firebaseList";
 import ViewTotalProductTable from "../../components/reports/products/listProductsTable";
 import ViewItemizedTable from "../../components/reports/products/listProductsTableItemized";
+import ViewClientTable from "../../components/reports/client/listClientTable";
 import {calculateTotalPerProduct} from "../../utils/jobsService";
 
 export class JobReport extends Component {
@@ -33,12 +34,20 @@ export class JobReport extends Component {
 
   render() {
     let {costPerProduct, costPerItem} = calculateTotalPerProduct(this.state.entries);
-    return (
-      <div>
-        <ViewTotalProductTable products={costPerProduct} total={costPerItem}/>
-        <ViewItemizedTable entries={this.state.entries}/>
-      </div>
-    );
+    if (this.props.report === 'product') {
+      return (
+        <div>
+          <ViewTotalProductTable products={costPerProduct} total={costPerItem}/>
+          <ViewItemizedTable entries={this.state.entries}/>
+        </div>
+      );
+    } else if (this.props.report === 'client') {
+      return (
+        <div>
+          <ViewClientTable products={costPerProduct} total={costPerItem}/>
+        </div>
+      )
+    }
   }
 }
 

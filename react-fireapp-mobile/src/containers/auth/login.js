@@ -16,6 +16,7 @@ const styles = theme => ({
     marginTop: theme.spacing.unit * 2,
     width: "100%",
     position: 'relative',
+    top: '50%',
     left: '50%',
     marginLeft: '-150px',
   },
@@ -58,19 +59,8 @@ class Login extends React.Component {
 
   handleLogin() {
     this.setState({loading: true});
-    this.firebase.databaseSnapshot('users').then((snap) => {
-      const users = snap.val() ? snapshotToArray(snap) : null;
-      const matchUser = users && users.filter(user => user.email === this.state.email);
-      const role = matchUser.length > 0 ? matchUser[0].role : null;
-      if (role === 'admin') {
-        firebaseAuth.signInWithEmailAndPassword(this.state.email, this.state.password).catch((error) => {
-          this.outputLoginError("Incorrect password")
-        });
-      } else if (role && role !== 'admin') {
-        this.outputLoginError("User is not admin")
-      } else {
-        this.outputLoginError("Unknown error")
-      }
+    firebaseAuth.signInWithEmailAndPassword(this.state.email, this.state.password).catch((error) => {
+      this.outputLoginError("Incorrect password")
     });
   }
 
@@ -125,7 +115,7 @@ class Login extends React.Component {
       <div className={classes.root}>
         <Paper className={classes.container}>
           {this.state.loading && <LinearProgress/>}
-            <div className={classes.content}>
+          <div className={classes.content}>
             <Typography type="headline">
               Login
             </Typography>

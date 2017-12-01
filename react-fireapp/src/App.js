@@ -28,7 +28,6 @@ class App extends Component {
 
   componentDidMount() {
     firebaseAuth.onAuthStateChanged(user => {
-      console.log(user);
       if (user) {
         this.setState({user: user})
       } else {
@@ -76,7 +75,7 @@ class App extends Component {
                 <Route path="/entries/:jobId/:entryId"
                        render={({match}) => <Entry jobId={match.params.jobId} entryId={match.params.entryId}/>}/>
                 <Route exact path="/reports" component={Reports}/>
-                <Route path="/reports/:jobId" render={({match}) => <JobReport id={match.params.jobId}/>}/>
+                <Route path="/reports/:jobId/:report" render={({match}) => <JobReport id={match.params.jobId} report={match.params.report}/>}/>
                 <Route path="/reports/activity" component={ActivityReport}/>
               </div>
             </ResponsiveDrawer>

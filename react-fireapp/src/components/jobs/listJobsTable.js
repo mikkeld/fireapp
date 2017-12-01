@@ -6,14 +6,9 @@ import Paper from 'material-ui/Paper';
 import HelpIcon from 'material-ui-icons/Help';
 import Tooltip from 'material-ui/Tooltip';
 
-const drawerWidth = 140;
-
 const styles = theme => ({
   root: {
     width: "100%",
-    // [theme.breakpoints.up('md')]: {
-    //   width: `calc(100% - ${drawerWidth}px)`,
-    // },
     marginTop: theme.spacing.unit * 3,
     overflowX: 'auto',
   },
@@ -30,7 +25,6 @@ export const ListJobsTable = (props) => {
         <TableHead>
           <TableRow>
             <TableCell>View</TableCell>
-            <TableCell>Job Reports</TableCell>
             <TableCell>Job Name</TableCell>
             <TableCell>Job Status</TableCell>
             <TableCell>Company Name</TableCell>
@@ -38,9 +32,9 @@ export const ListJobsTable = (props) => {
             <TableCell>Latest Entry</TableCell>
             <TableCell>Last Pushed to Client</TableCell>
             <TableCell>
-              Cost To Date
+              Cost To Date<br />
               <Tooltip id="tooltip-top" title="Cost up to the latest push to client" placement="top">
-                <HelpIcon style={{width: "50%"}}/>
+                <HelpIcon style={{width: "30%"}}/>
               </Tooltip>
             </TableCell>
           </TableRow>

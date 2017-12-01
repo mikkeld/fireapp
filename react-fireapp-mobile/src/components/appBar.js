@@ -3,11 +3,12 @@ import { withStyles } from 'material-ui/styles';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import Typography from 'material-ui/Typography';
-import Avatar from 'material-ui/Avatar';
+import Button from 'material-ui/Button';
 import deepOrange from 'material-ui/colors/deepOrange';
 import IconButton from 'material-ui/IconButton';
 import ArrowBackIcon from 'material-ui-icons/ArrowBack';
 import { Link } from 'react-router-dom';
+import {logout} from "../utils/authService";
 
 const styles = theme => ({
   root: {
@@ -49,7 +50,8 @@ const FireAppBar = (props) => {
           </Typography>
           {props.rightIcon
             ? props.rightIcon
-            : <Avatar className={classes.orangeAvatar}>M</Avatar>}
+            : <Button color="contrast" onClick={logout}>Logout</Button>
+          }
         </Toolbar>
       </AppBar>
     </div>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import Typography from 'material-ui/Typography';
+import {formatCurrency} from "../../utils/utils";
 
 const styles = theme => ({
   root: {
@@ -29,7 +30,7 @@ const SummaryField = (props) => {
       <span className={props.classes.textHeader}>{props.title}</span>
       <span>
             <Typography type="display1" style={{color: "black"}}>
-              {props.metric}
+              {formatCurrency(props.metric)}
             </Typography>
           </span>
     </div>

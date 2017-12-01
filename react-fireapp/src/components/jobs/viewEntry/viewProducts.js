@@ -5,7 +5,6 @@ import Typography from 'material-ui/Typography';
 import ListProductsTable from "./listProductsTable";
 import {calculateTotalCost} from "../../../utils/jobsService";
 import Button from 'material-ui/Button';
-import SummaryField from '../../shared/summaryField';
 
 const styles = theme => ({
   root: {
@@ -38,13 +37,9 @@ export const ViewProducts = (props) => {
         {props.isEditing && <Button color="primary" onClick={() => props.toggleProductFormOpen()}>Add product</Button>}
         <ListProductsTable products={props.products}
                            isEditing={props.isEditing}
+                           clientCost={calculateTotalCost(props.products, "client")}
+                           productCost={calculateTotalCost(props.products, "product")}
                            toggleEdit={props.toggleEdit} />
-        <SummaryField classes={classes}
-                      title="Total Client Cost"
-                      metric={calculateTotalCost(props.products, "client")} />
-        <SummaryField classes={classes}
-                      title="Total Product Cost"
-                      metric={calculateTotalCost(props.products, "product")} />
       </Paper>
     </div>
   )

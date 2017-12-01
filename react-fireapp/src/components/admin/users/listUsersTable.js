@@ -6,14 +6,14 @@ import Paper from 'material-ui/Paper';
 
 const styles = theme => ({
   root: {
-    [theme.breakpoints.up('md')]: {
-      width: `calc(100%)`,
-    },
+    width: '100%',
+    maxWidth: '100%',
     marginTop: theme.spacing.unit * 3,
     overflowX: 'auto',
+    // flex: 1,
   },
   table: {
-    width: '100%',
+    width: '100%'
   },
 });
 

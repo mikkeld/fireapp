@@ -7,6 +7,7 @@ import SimpleSnackbar from '../../components/shared/snackbar';
 import {FirebaseList} from "../../utils/firebase/firebaseList";
 import AddButton from "../../components/shared/addButton";
 import Spinner from "../../components/shared/spinner";
+import {secondaryApp} from "../../utils/firebase/firebase";
 
 const initialFormState = {
   username: '',
@@ -130,12 +131,22 @@ export class User extends Component {
     e.preventDefault();
     const err = this.validate();
     if(!err) {
-      this.firebase.push(this.state.currentUser)
+      secondaryApp.auth().createUserWithEmailAndPassword(this.state.currentUser.email, this.state.currentUser.password)
+        .then(user => this.firebase.set(user.uid, this.state.currentUser))
         .then(() => {
-          this.handleRequestClose();
-          this.handleSnackbarShow("User created");
-          this.setState({currentUser: initialFormState})
-        })
+            this.handleRequestClose();
+            this.handleSnackbarShow("User created");
+            this.setState({currentUser: initialFormState})
+          })
+        .catch(error => console.log(error))
+        // });
+
+      // this.firebase.push(this.state.currentUser)
+      //   .then(() => {
+      //     this.handleRequestClose();
+      //     this.handleSnackbarShow("User created");
+      //     this.setState({currentUser: initialFormState})
+      //   })
     }
   };
 

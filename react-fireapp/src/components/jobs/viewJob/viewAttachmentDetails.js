@@ -14,10 +14,18 @@ const styles = theme => ({
   },
   wrapper: {
     marginTop: theme.spacing.unit*2
-  }
+  },
+  chipContainer: {
+    padding: theme.spacing.unit,
+    display: 'flex',
+    flexWrap: 'wrap',
+  },
+  chip: {
+    margin: theme.spacing.unit / 2,
+  },
 });
 
-export const ViewAttachmentDetails = (props) => {
+const ViewAttachmentDetails = (props) => {
   const { classes } = props;
   return (
     <div className={classes.wrapper}>
@@ -25,20 +33,23 @@ export const ViewAttachmentDetails = (props) => {
         Attachments for job
       </Typography>
       <Paper className={classes.root}>
-        {props.currentJob.selectedUploads.map(file => {
-          return (
-            <Chip
-              onClick={() => props.handleClickOpen(file)}
-              avatar={
-                <Avatar>
-                  <ContentCopyIcon />
-                </Avatar>
-              }
-              label={file.name}
-              key={file.name}
-            />
-          )
-        })}
+        <div className={classes.chipContainer}>
+          {props.currentJob.selectedUploads.map(file => {
+            return (
+              <Chip
+                onClick={() => props.handleClickOpen(file)}
+                className={classes.chip}
+                avatar={
+                  <Avatar>
+                    <ContentCopyIcon />
+                  </Avatar>
+                }
+                label={file.name}
+                key={file.name}
+              />
+            )
+          })}
+        </div>
       </Paper>
     </div>
   )

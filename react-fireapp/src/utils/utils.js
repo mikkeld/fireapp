@@ -36,3 +36,11 @@ export const snapshotToArray = (snapshot) => {
 };
 
 export const generateFilename = (file) => file.name.split('.')[0] + '_' + Date.now() + file.name.split('.')[1];
+
+export const formatCurrency = (number) => {
+  return number.toLocaleString('ie-EN', { style: 'currency', currency: 'EUR' })
+};
+
+export const formatNumber = (number) => {
+  return number.toLocaleString('ie-EN')
+};
