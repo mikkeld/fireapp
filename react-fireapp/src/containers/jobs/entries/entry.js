@@ -24,6 +24,9 @@ const styles = theme => ({
   },
   rightElement: {
     float: 'right'
+  },
+  actions: {
+    marginBottom: theme.spacing.unit*2
   }
 });
 
@@ -52,6 +55,7 @@ class Entry extends Component {
       updateLog: [],
       markedImageOpen: false,
       isEditing: false,
+      productIsEditing: false,
       loading: true,
       openAttachment: null,
       markedImageLoading: false,
@@ -91,7 +95,10 @@ class Entry extends Component {
         id: snap.key,
         ...snap.val()
       };
-      this.setState({currentEntry: entry})
+      this.setState({
+        currentEntry: entry,
+        loading: false
+      })
     });
 
     const previousLogs = this.state.updateLog;
@@ -103,8 +110,7 @@ class Entry extends Component {
       });
 
       this.setState({
-        updateLog: previousLogs,
-        loading: false
+        updateLog: previousLogs
       })
     });
 
@@ -167,11 +173,10 @@ class Entry extends Component {
 
   toggleProductEdit(id){
     const editingProduct = findItemById(this.state.currentEntry.selectedProducts, id);
-    this.toggleProductFormOpen();
     this.setState({
       currentProduct: editingProduct
     });
-    this.toggleProductFormOpen()
+    this.toggleProductFormOpen(true)
   }
 
   handleProductFormEdit(e) {
@@ -208,9 +213,18 @@ class Entry extends Component {
     this.setState({isEditing: !this.state.isEditing});
   }
 
-  toggleProductFormOpen() {
-    this.setState({productDialogOpen: true})
-  }
+  toggleProductFormOpen = edit => {
+    edit
+      ? this.setState({
+          productDialogOpen: true,
+          productIsEditing: true
+        })
+      : this.setState({
+          productDialogOpen: true,
+          productIsEditing: false,
+          currentProduct: initialProductFormState
+        })
+  };
 
   toggleProductFormClose() {
     this.setState({productDialogOpen: false})
@@ -289,7 +303,7 @@ class Entry extends Component {
     });
   };
 
-  handleSnackbarClose= (event, reason) => {
+  handleSnackbarClose = (event, reason) => {
     if (reason === 'clickaway') {
       return;
     }
@@ -335,8 +349,8 @@ class Entry extends Component {
           ? <Spinner/>
           : <div>
             {this.state.isEditing
-              ? <div>
-                  <Button color="primary" onClick={() => this.handleEdit()}>Save edits</Button>
+              ? <div className={classes.actions}>
+                  <Button raised color="primary" onClick={() => this.handleEdit()} style={{marginRight: 5}}>Save edits</Button>
                   <Button color="primary" onClick={() => this.toggleEdit()}>Cancel</Button>
                 </div>
               : <div>
@@ -383,7 +397,7 @@ class Entry extends Component {
                            handleInputChange={this.handleProductFormInputChange}
                            handleSubmit={this.handleProductFormSubmit}
                            handleEdit={this.handleProductFormEdit}
-                           isEditing={this.state.isEditing}
+                           isEditing={this.state.productIsEditing}
                            {...this.state.currentProduct} />
         {this.state.currentEntry &&
           <ViewPinnedImageDialog open={this.state.markedImageOpen}

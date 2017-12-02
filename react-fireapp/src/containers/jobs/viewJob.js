@@ -19,6 +19,9 @@ import BasicDialog from "../../components/shared/dialog";
 import ImageGrid from "../../components/shared/imageGrid";
 import Spinner from "../../components/shared/spinner";
 import ViewPinnedImageDialog from "../../components/jobs/viewEntry/viewPinnedImage";
+import {
+  Redirect
+} from 'react-router-dom';
 
 const styles = theme => ({
   wrapper: {
@@ -57,7 +60,8 @@ class ViewJob extends Component {
       showSnackbar: false,
       snackbarMsg: '',
       markedImageLoaded: false,
-      loading: true
+      loading: true,
+      redirect: false
     };
 
     this.firebase = new FirebaseList('jobs');
@@ -68,6 +72,7 @@ class ViewJob extends Component {
     this.handlePinnedImageClose = this.handlePinnedImageClose.bind(this);
     this.handlePinnedImageShow = this.handlePinnedImageShow.bind(this);
     this.handleMarkedImageLoaded = this.handleMarkedImageLoaded.bind(this);
+    this.handleRemove = this.handleRemove.bind(this);
   }
 
 
@@ -98,8 +103,11 @@ class ViewJob extends Component {
   }
 
   handleRemove() {
-    console.log("should remove job")
-  }
+    this.firebase.remove(this.props.id)
+      .then(() => {
+        this.setState({redirect: true})
+      })
+  };
 
   handleAttachmentDialogClose =() => {
     this.setState({attachmentDialogOpen: false})
@@ -165,80 +173,83 @@ class ViewJob extends Component {
   }
 
   render() {
-    const { classes } = this.props;
+    const {classes} = this.props;
     let {_, costPerItem} = calculateTotalPerProduct(this.state.entries);
     let confirmDelete = (msg) => {
       const r = window.confirm(msg);
       return r === true;
     };
-    if (this.state.loading) {
-      return <Spinner />
+    if (this.state.redirect) {
+      return <Redirect to='/jobs' push/>
     } else {
-      return (
-        <div className={styles.wrapper}>
-          {this.state.currentJob &&
-          <div>
-            <div className={classes.wrapper}>
-              <Button raised color="primary" onClick={() => {
-                if (confirmDelete("Confirm push live to client")) {
-                  this.pushLiveToClient()
-                }
-              }}>push live to client</Button>
-              <Button onClick={() => {
-                if (confirmDelete()) {
-                  this.handleRemove("Confirm deletion of job")
-                }
-              }}>⚠️ Delete</Button>
-              <FormControlLabel
-                className={classes.rightElement}
-                control={
-                  <Switch
-                    checked={this.state.currentJob.completed}
-                    onChange={this.handleJobStatusChange}
-                  />
-                }
-                label="Completed"
+      if (this.state.loading) {
+        return <Spinner/>
+      } else {
+        return (
+          <div className={styles.wrapper}>
+            {this.state.currentJob &&
+            <div>
+              <div className={classes.wrapper}>
+                <Button raised color="primary" onClick={() => {
+                  if (confirmDelete("Confirm push live to client")) {
+                    this.pushLiveToClient()
+                  }
+                }}>push live to client</Button>
+                <Button disabled onClick={() => {
+                  if (confirmDelete("Confirm deletion of job")) {
+                    this.handleRemove()
+                  }
+                }}>⚠️ Delete</Button>
+                <FormControlLabel
+                  className={classes.rightElement}
+                  control={
+                    <Switch
+                      checked={this.state.currentJob.completed}
+                      onChange={this.handleJobStatusChange}
+                    />
+                  }
+                  label="Completed"
+                />
+              </div>
+              <ViewJobDetails currentJob={this.state.currentJob}/>
+              <ViewCompanyDetails currentJob={this.state.currentJob}/>
+              <ViewClientsDetails currentJob={this.state.currentJob}/>
+              <ViewProductsDetails currentJob={this.state.currentJob}/>
+              {this.state.currentJob.selectedUploads && this.state.currentJob.selectedUploads.length > 0
+                ? <ViewAttachmentDetails currentJob={this.state.currentJob} handleClickOpen={this.handleClickOpen}/>
+                : null}
+              <ViewEventLogDetails jobId={this.state.currentJob.jobId}
+                                   jobKey={this.state.currentJob.id}
+                                   entries={this.state.entries}
+                                   handlePinnedImageShow={this.handlePinnedImageShow}
+                                   handleImageGridShow={this.handleImageGridShow}/>
+              <ViewSummaryDetails stats={costPerItem}/>
+              <ViewJobAttachment open={this.state.attachmentDialogOpen}
+                                 handleRequestClose={this.handleAttachmentDialogClose}
+                                 attachment={this.state.openAttachment}
               />
-            </div>
-            <ViewJobDetails currentJob={this.state.currentJob}/>
-            <ViewCompanyDetails currentJob={this.state.currentJob}/>
-            <ViewClientsDetails currentJob={this.state.currentJob}/>
-            <ViewProductsDetails currentJob={this.state.currentJob}/>
-            {this.state.currentJob.selectedUploads && this.state.currentJob.selectedUploads.length > 0
-              ? <ViewAttachmentDetails currentJob={this.state.currentJob} handleClickOpen={this.handleClickOpen}/>
-              : null}
-            <ViewEventLogDetails jobId={this.state.currentJob.jobId}
-                                 jobKey={this.state.currentJob.id}
-                                 entries={this.state.entries}
-                                 handlePinnedImageShow={this.handlePinnedImageShow}
-                                 handleImageGridShow={this.handleImageGridShow}/>
-            <ViewSummaryDetails stats={costPerItem}/>
-            <ViewJobAttachment open={this.state.attachmentDialogOpen}
-                               handleRequestClose={this.handleAttachmentDialogClose}
-                               attachment={this.state.openAttachment}
-            />
-            {this.state.selectedImageGrid &&
-            <ImageGridDialog selectedImageGrid={this.state.selectedImageGrid}
-                             handleRequestClose={this.handleImageGridClose}
-                             handleClickOpen={this.handleClickOpen}
-                             title="Pictures for job"
-                             fullScreen={false}/>}
-            {this.state.selectedPinnedImage &&
-            <ViewPinnedImageDialog attachment={this.state.selectedPinnedImage}
-                                   open={!!this.state.selectedPinnedImage}
-                                   markedImageLoaded={this.state.markedImageLoaded}
-                                   handleMarkedImageLoaded={this.handleMarkedImageLoaded}
-                                   handleRequestClose={this.handlePinnedImageClose}
-            />
-            }
+              {this.state.selectedImageGrid &&
+              <ImageGridDialog selectedImageGrid={this.state.selectedImageGrid}
+                               handleRequestClose={this.handleImageGridClose}
+                               handleClickOpen={this.handleClickOpen}
+                               title="Pictures for job"
+                               fullScreen={false}/>}
+              {this.state.selectedPinnedImage &&
+              <ViewPinnedImageDialog attachment={this.state.selectedPinnedImage}
+                                     open={!!this.state.selectedPinnedImage}
+                                     markedImageLoaded={this.state.markedImageLoaded}
+                                     handleMarkedImageLoaded={this.handleMarkedImageLoaded}
+                                     handleRequestClose={this.handlePinnedImageClose}
+              />
+              }
+              <SimpleSnackbar showSnackbar={this.state.showSnackbar}
+                              handleSnackbarClose={this.handleSnackbarClose}
+                              snackbarMsg={this.state.snackbarMsg}/>
 
-            <SimpleSnackbar showSnackbar={this.state.showSnackbar}
-                            handleSnackbarClose={this.handleSnackbarClose}
-                            snackbarMsg={this.state.snackbarMsg}/>
-
-          </div>}
-        </div>
-      );
+            </div>}
+          </div>
+        );
+      }
     }
   }
 }

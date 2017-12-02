@@ -26,6 +26,11 @@ const styles = theme => ({
     display: 'flex',
     flexWrap: 'wrap',
   },
+  imageView: {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    overflow: 'auto'
+  },
   chip: {
     margin: theme.spacing.unit / 2,
   },
@@ -66,6 +71,7 @@ const ProductFormGroup = (props) => (
       id="productQuantity"
       label="Product Quantity"
       fullWidth
+      type="number"
       className={props.classes.wrapper}
       name="productQuantity"
       onChange={props.handleInputChange('productQuantity')}
@@ -106,13 +112,16 @@ const MarkImageView = (props) => (
       Edit marker on image
     </Button>}
     {props.selectedMarkedImage &&
-    <MarkedImage markerPosition={props.selectedMarkedImage.position}
-                 selectedMarkedImage={props.selectedMarkedImage}
-                 currentUpload={props.currentUpload}
-                 imageLoaded={props.markedImageLoaded}
-                 handleMarkedImageLoaded={props.handleMarkedImageLoaded}
-                 otherMarkedEntries={props.otherMarkedEntries}
-    />}
+      <div className={props.classes.imageView}>
+        <MarkedImage markerPosition={props.selectedMarkedImage.position}
+                     selectedMarkedImage={props.selectedMarkedImage}
+                     currentUpload={props.currentUpload}
+                     imageLoaded={props.markedImageLoaded}
+                     handleMarkedImageLoaded={props.handleMarkedImageLoaded}
+                     otherMarkedEntries={props.otherMarkedEntries}
+        />
+      </div>
+    }
   </div>
 );
 
@@ -197,7 +206,7 @@ export const CreateEntryForm = (props) => {
       <SelectedImagesView {...props} classes={classes} />
       <LocationDescriptionTextField {...props} />
       <CommentsTextField {...props} />
-      <Button color="primary" style={{float: 'right'}} onClick={props.handleSubmit}>{ buttonTitle }</Button>
+      <Button raised color="primary" style={{float: 'right'}} onClick={props.handleSubmit}>{ buttonTitle }</Button>
     </div>
   )
 };

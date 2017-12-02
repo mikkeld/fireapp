@@ -3,6 +3,7 @@ import { withStyles } from 'material-ui/styles';
 import { GridList, GridListTile } from 'material-ui/GridList';
 import RemoveCircle from 'material-ui-icons/RemoveCircle';
 import IconButton from 'material-ui/IconButton';
+import { CircularProgress } from 'material-ui/Progress';
 
 const styles = theme => ({
   root: {
@@ -36,6 +37,8 @@ const styles = theme => ({
 
 export const ImageGrid = (props) => {
   const { classes } = props;
+  const toggleImageLoading = () => imageLoading = false;
+  let imageLoading = true;
   return (
     <GridList cellHeight={160} className={classes.gridList} cols={3}>
       {props.selectedUploads.map(file => (
@@ -44,6 +47,10 @@ export const ImageGrid = (props) => {
                alt={file.name}
                onClick={() => props.handleClickOpen(file)}
                className={classes.clickable}/>
+          {imageLoading
+            ? <CircularProgress/>
+            : null
+          }
           {props.isEditing
             ? <IconButton className={classes.deleteIcon}
                           onClick={() => props.handleRequestDeleteChip(file, "upload")}

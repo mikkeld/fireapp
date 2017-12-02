@@ -16,15 +16,14 @@ const styles = theme => ({
     zIndex: 0
   },
   content: {
-    margin: theme.spacing.unit*3,
-  }
+  },
 });
 
 const NoEntriesView = (classes) => {
   return (
     <div className={classes.content}>
       <Typography type="display1" gutterBottom>
-        No entries for the job. Add an entry below.
+        No entries for the job. <br/> Add an entry below.
       </Typography>
     </div>
   )

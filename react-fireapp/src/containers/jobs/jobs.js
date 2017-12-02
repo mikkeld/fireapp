@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
-import {calculateCost, uploadFile} from "../../utils/jobsService";
+import {calculateCost} from "../../utils/jobsService";
 import {findItemById, updatedItems, removeItem, snapshotToArray, generateFilename} from "../../utils/utils";
 import SimpleSnackbar from '../../components/shared/snackbar';
 import CreateJob from "../../components/jobs/createJob";
@@ -284,10 +284,6 @@ class Jobs extends Component {
 		});
 	}
 
-	generateRandom() {
-		return parseInt(Math.random());
-	}
-
 	updateSearch(e) {
 		e.preventDefault();
 		this.setState({search: e.target.value});
@@ -346,7 +342,9 @@ class Jobs extends Component {
 				const updatedJobStatus = {
 					...this.state.currentJob,
 					selectedProducts: updatedSelectedProducts,
-					currentProduct: null
+          currentProduct: null,
+					'productPrice': '',
+					'clientPrice': '',
 				};
 				this.setState({currentJob: updatedJobStatus});
 			}

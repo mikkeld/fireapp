@@ -46,6 +46,10 @@ const pricingMethods = [
   {
     name: "unit",
     value: "Per Unit" ,
+  },
+  {
+    name: "linear",
+    value: "Per Linear Meter" ,
   }
 ];
 

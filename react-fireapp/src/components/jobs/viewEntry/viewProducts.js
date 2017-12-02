@@ -34,7 +34,7 @@ export const ViewProducts = (props) => {
         Products
       </Typography>
       <Paper className={classes.root}>
-        {props.isEditing && <Button color="primary" onClick={() => props.toggleProductFormOpen()}>Add product</Button>}
+        {props.isEditing && <Button color="primary" onClick={() => props.toggleProductFormOpen(false)}>Add product</Button>}
         <ListProductsTable products={props.products}
                            isEditing={props.isEditing}
                            clientCost={calculateTotalCost(props.products, "client")}

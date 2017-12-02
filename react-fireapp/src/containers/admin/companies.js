@@ -1,6 +1,4 @@
 import React, { Component } from 'react';
-
-import Button from 'material-ui/Button';
 import TextField from 'material-ui/TextField';
 
 import ListCompaniesTable from "../../components/admin/companies/listCompaniesTable";

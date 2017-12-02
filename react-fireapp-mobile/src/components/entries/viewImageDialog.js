@@ -17,6 +17,11 @@ const styles = {
   flex: {
     flex: 1,
   },
+  imageView: {
+    maxWidth: '100%',
+    maxHeight: '100%',
+    overflow: 'auto'
+  }
 };
 
 function Transition(props) {
@@ -48,7 +53,7 @@ export class ViewImageDialog extends Component {
             </Toolbar>
           </AppBar>
           {this.props.attachment &&
-          <div>
+          <div className={classes.imageView}>
             <DialogTitle>{this.props.attachment.name}</DialogTitle>
             <MarkedImage setMarker={this.props.setMarker}
                          markerPosition={this.props.markerPosition}

@@ -26,7 +26,7 @@ const initialFormState = {
   locationDescription: '',
   comments: '',
   currentUpload: null,
-  username: 'emoore'
+  username: ''
 };
 
 const initialFormErrorState = {
@@ -100,6 +100,12 @@ class CreateEntry extends Component {
         })
       });
     }
+
+    const entryWithUser = {
+      ...this.state.currentEntry,
+      'username': firebase.auth().currentUser.email
+    };
+    this.setState({currentEntry: entryWithUser})
   }
 
   validate() {
@@ -138,7 +144,7 @@ class CreateEntry extends Component {
           };
           const newLogEntry = {
             'lastUpdated': Date.now(),
-            'updatedBy': 'emoore'
+            'updatedBy': this.state.currentEntry.username
           };
           this.firebase.db().ref(`log/${this.jobId}/${this.entryId}`).push(newLogEntry);
           this.firebase.update(this.entryId, updatedEntry)
