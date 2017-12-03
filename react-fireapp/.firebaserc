@@ -1,7 +1,5 @@
 {
   "projects": {
-    "default": "fire-app-9c904",
-    "project1": "fire-app-9c904-admin",
-    "project2": "fire-app-9c904-mobile"
+    "default": "fire-app-9c904"
   }
 }

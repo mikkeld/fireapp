@@ -43,6 +43,8 @@ class App extends Component {
         return 'Administrator';
       case '/admin/products':
         return 'Products';
+      case '/admin/companies':
+        return 'Companies';
       case '/admin/users':
         return 'Users';
       case '/jobs':

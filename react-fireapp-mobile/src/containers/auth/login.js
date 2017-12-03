@@ -133,6 +133,7 @@ class Login extends React.Component {
               id="email"
               label="Email"
               name="email"
+              type="email"
               fullWidth
               onChange={this.handleInputChange}
               value={this.state.email} />

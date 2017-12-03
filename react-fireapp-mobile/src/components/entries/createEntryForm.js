@@ -207,6 +207,7 @@ export const CreateEntryForm = (props) => {
       <LocationDescriptionTextField {...props} />
       <CommentsTextField {...props} />
       <Button raised color="primary" style={{float: 'right'}} onClick={props.handleSubmit}>{ buttonTitle }</Button>
+      <br />
     </div>
   )
 };
