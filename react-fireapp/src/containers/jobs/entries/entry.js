@@ -51,6 +51,7 @@ class Entry extends Component {
 
     this.state = {
       currentEntry: null,
+      originalCurrentEntry: null,
       currentProduct: initialProductFormState,
       updateLog: [],
       markedImageOpen: false,
@@ -97,6 +98,7 @@ class Entry extends Component {
       };
       this.setState({
         currentEntry: entry,
+        originalCurrentEntry: {...entry},
         loading: false
       })
     });
@@ -209,9 +211,12 @@ class Entry extends Component {
     return isError
   }
 
-  toggleEdit() {
+  toggleEdit = cancel => {
     this.setState({isEditing: !this.state.isEditing});
-  }
+    if (cancel) {
+      this.setState({currentEntry: this.state.originalCurrentEntry})
+    }
+  };
 
   toggleProductFormOpen = edit => {
     edit
@@ -351,7 +356,7 @@ class Entry extends Component {
             {this.state.isEditing
               ? <div className={classes.actions}>
                   <Button raised color="primary" onClick={() => this.handleEdit()} style={{marginRight: 5}}>Save edits</Button>
-                  <Button color="primary" onClick={() => this.toggleEdit()}>Cancel</Button>
+                  <Button color="primary" onClick={() => this.toggleEdit(true)}>Cancel</Button>
                 </div>
               : <div>
                   <Link to={{ pathname: `/jobs/${this.props.jobId}` }} style={{textDecoration: 'none'}}>

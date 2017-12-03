@@ -129,6 +129,7 @@ export const CreateUserForm = (props) => {
             helperText={props.emailError || "Example: mark@gram.com"}
             margin="dense"
             id="email"
+            disabled={props.isEditting}
             required
             label="Email"
             name="email"
@@ -201,6 +202,7 @@ export const CreateUserForm = (props) => {
             margin="dense"
             id="password"
             required
+            disabled={props.isEditting}
             label="Password"
             name="password"
             type="password"

@@ -34,6 +34,7 @@ export class JobReport extends Component {
 
   render() {
     let {costPerProduct, costPerItem} = calculateTotalPerProduct(this.state.entries);
+
     if (this.props.report === 'product') {
       return (
         <div>

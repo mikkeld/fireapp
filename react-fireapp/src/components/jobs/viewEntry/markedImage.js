@@ -12,7 +12,6 @@ export const MarkedImage = (props) => {
       />
       {props.imageLoaded
         ? <div>
-            {props.markerPosition && <Marker position={props.markerPosition}/>}
             {props.otherMarkedEntries && props.otherMarkedEntries
               .map(entry => {
                 return entry.hasOwnProperty("selectedMarkedImage")
@@ -20,7 +19,8 @@ export const MarkedImage = (props) => {
                   : null
               })
             }
-          </div>
+            {props.markerPosition && <Marker position={props.markerPosition}/>}
+        </div>
         : <Spinner />
       }
     </div>

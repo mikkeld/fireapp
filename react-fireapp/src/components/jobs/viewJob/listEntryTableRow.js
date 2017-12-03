@@ -24,10 +24,10 @@ export const ListEntryTableRow = (props) => {
           <PlaceIcon/>
         </IconButton>
       </TableCell>
-      <TableCell>{props.selectedProducts[0].name}</TableCell>
-      <TableCell>{formatNumber(props.selectedProducts[0].productQuantity)}</TableCell>
-      <TableCell>{formatCurrency(calculateCost(props.selectedProducts[0], "product"))}</TableCell>
-      <TableCell>{formatCurrency(calculateCost(props.selectedProducts[0], "client"))}</TableCell>
+      <TableCell>{props.product.name}</TableCell>
+      <TableCell>{formatNumber(props.product.productQuantity)}</TableCell>
+      <TableCell>{formatCurrency(calculateCost(props.product, "product"))}</TableCell>
+      <TableCell>{formatCurrency(calculateCost(props.product, "client"))}</TableCell>
     </TableRow>
   )
 };

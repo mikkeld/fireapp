@@ -16,6 +16,7 @@ import {JobReport} from "./containers/reports/jobReport";
 import {firebaseAuth} from "./utils/firebase/firebase";
 import {login, logout} from "./utils/authService";
 import Login from "./containers/auth/login";
+import Home from "./containers/home";
 
 
 class App extends Component {
@@ -68,7 +69,7 @@ class App extends Component {
                               handleLogout={logout}
                               user={this.state.user}>
               <div className="App">
-                <Route exact path="/" component={Administrator}/>
+                <Route exact path="/" component={Home}/>
                 <Route path="/admin" component={Administrator}/>
                 <Route exact path="/jobs" component={Jobs}/>
                 <Route path="/jobs/:id" render={({match}) => <ViewJob id={match.params.id}/>}/>

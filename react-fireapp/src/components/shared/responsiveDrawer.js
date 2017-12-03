@@ -7,7 +7,6 @@ import Drawer from 'material-ui/Drawer';
 import AppBar from 'material-ui/AppBar';
 import Toolbar from 'material-ui/Toolbar';
 import List, { ListItem, ListItemIcon, ListItemText } from 'material-ui/List';
-import logo_long from '../../assets/images/logo_long.png';
 
 import Typography from 'material-ui/Typography';
 import IconButton from 'material-ui/IconButton';
@@ -20,6 +19,7 @@ import Collapse from 'material-ui/transitions/Collapse';
 import ExpandLess from 'material-ui-icons/ExpandLess';
 import ExpandMore from 'material-ui-icons/ExpandMore';
 import BusinessIcon from 'material-ui-icons/Business';
+import HomeIcon from 'material-ui-icons/Home';
 import EventIcon from 'material-ui-icons/Event';
 import DashboardIcon from 'material-ui-icons/Dashboard';
 import {
@@ -27,6 +27,7 @@ import {
   NavLink
 } from 'react-router-dom';
 
+const logoPath = 'https://firebasestorage.googleapis.com/v0/b/fire-app-9c904.appspot.com/o/logo_edward_moore_clean.png?alt=media&token=d609c491-a185-4375-b3c3-08a3dad30655';
 const drawerWidth = 240;
 
 const styles = theme => ({
@@ -94,7 +95,7 @@ const styles = theme => ({
 const CustomNavLink = (props) => (
   <NavLink  className={props.classes.subLink} to={{ pathname: props.to }}>
     <ListItem button className={props.classes.nested}>
-      <ListItemText classes={props.pathname === props.to ? {text: props.classes.text} : null}
+      <ListItemText classes={props.pathname.includes(props.to) ? {text: props.classes.text} : null}
                     inset
                     primary={props.displayName} />
     </ListItem>
@@ -134,10 +135,18 @@ class ResponsiveDrawer extends React.Component {
     const drawer = (
       <div>
         <div className={classes.drawerHeader}>
-          {/*<img src={logo_long} style={{top:5}} />*/}
+          <img src={logoPath} style={{width:'80%'}}/>
         </div>
         <Divider />
         <List className={classes.root}>
+          <Link className={classes.subLink} to={{ pathname: "/" }}>
+            <ListItem button>
+              <ListItemIcon>
+                <HomeIcon />
+              </ListItemIcon>
+              <ListItemText classes={this.props.location.pathname === "/" ? {text: classes.text} : null} inset primary="Home" />
+            </ListItem>
+          </Link>
           <ListItem button onClick={() => this.handleClick("admin")}>
             <ListItemIcon>
               <BusinessIcon />
@@ -164,7 +173,9 @@ class ResponsiveDrawer extends React.Component {
               <ListItemIcon>
                 <EventIcon />
               </ListItemIcon>
-              <ListItemText classes={this.props.location.pathname === "/jobs" ? {text: classes.text} : null} inset primary="Jobs" />
+              <ListItemText classes={(this.props.location.pathname.includes("/jobs") || this.props.location.pathname.includes("/entries"))
+                ? {text: classes.text}
+                : null} inset primary="Jobs" />
             </ListItem>
           </Link>
           <ListItem button onClick={() => this.handleClick("reports")}>

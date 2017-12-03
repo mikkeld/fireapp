@@ -33,19 +33,24 @@ export const EntriesTable = (props) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {props.entries.map((entry, index) => <ListEntryTableRow key={entry.id}
-                                                                jobId={props.jobId}
-                                                                jobKey={props.jobKey}
-                                                                index={index}
-                                                                handleImageGridShow={props.handleImageGridShow}
-                                                                handlePinnedImageShow={props.handlePinnedImageShow}
-                                                                {...entry} />)}
+        {props.entries.map((entry, index) =>
+          entry.selectedProducts.map(product => {
+            const key = `${entry.id}-${product.name}`;
+            return (
+              <ListEntryTableRow key={key}
+                                 jobId={props.jobId}
+                                 jobKey={props.jobKey}
+                                 index={index}
+                                 handleImageGridShow={props.handleImageGridShow}
+                                 handlePinnedImageShow={props.handlePinnedImageShow}
+                                 {...entry}
+                                 product={product} />
+            )
+          })
+        )}
       </TableBody>
     </Table>
   )
 };
 
 export default withStyles(styles)(EntriesTable);
-
-
-

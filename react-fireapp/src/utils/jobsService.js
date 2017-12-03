@@ -62,7 +62,8 @@ export const calculateTotalPerProduct = (entries) => {
   const initialState = {
     'totalMeasurement': 0,
     'productCost': 0,
-    'clientCost': 0
+    'clientCost': 0,
+    'pricing': ''
   };
   let totalsPerGroup =  {...initialState};
   let totalsPerProduct = {};
@@ -70,9 +71,8 @@ export const calculateTotalPerProduct = (entries) => {
     if (entry && entry.selectedProducts) {
       for (let product of entry.selectedProducts) {
         if (!totalsPerProduct.hasOwnProperty(product.name)) {
-          totalsPerProduct[product.name] = initialState;
+          totalsPerProduct[product.name] = {...initialState};
         }
-
         let productCost = calculateCost(product, "product");
         let clientCost = calculateCost(product, "client");
         let totalMeasurement = Number(product.productQuantity);
@@ -80,6 +80,7 @@ export const calculateTotalPerProduct = (entries) => {
         totalsPerProduct[product.name].productCost += productCost;
         totalsPerProduct[product.name].clientCost += clientCost;
         totalsPerProduct[product.name].totalMeasurement += totalMeasurement;
+        totalsPerProduct[product.name].pricing = product.pricing;
 
         totalsPerGroup.productCost += productCost;
         totalsPerGroup.clientCost += clientCost;

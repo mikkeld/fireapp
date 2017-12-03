@@ -6,7 +6,7 @@ export const ListProductTableRow = (props) => {
   return (
     <TableRow>
       <TableCell>{props.name}</TableCell>
-      <TableCell>Measurement</TableCell>
+      <TableCell>{props.pricing}</TableCell>
       <TableCell>{formatNumber(props.totalMeasurement)}</TableCell>
       <TableCell>{formatCurrency(props.productCost)}</TableCell>
       <TableCell>{formatCurrency(props.clientCost)}</TableCell>

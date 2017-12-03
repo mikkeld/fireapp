@@ -36,10 +36,18 @@ const ListProductsTableItemized = (props) => {
         </TableRow>
       </TableHead>
       <TableBody>
-        {props.entries.map((entry, index) => <ListProductTableItemizedRow key={entry.id}
-                                                                          index={index}
-                                                                          {...entry}
-        />)}
+        {props.entries.map((entry, index) =>
+          entry.selectedProducts.map(product => {
+            const key = `${entry.id}-${product.name}`;
+            return (
+              <ListProductTableItemizedRow key={key}
+                                           index={index}
+                                           {...entry}
+                                           product={product}
+              />
+            )
+          })
+        )}
       </TableBody>
     </Table>
   )

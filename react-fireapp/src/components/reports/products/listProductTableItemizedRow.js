@@ -4,15 +4,14 @@ import {calculateCost} from "../../../utils/jobsService";
 import {formatCurrency, formatNumber} from "../../../utils/utils";
 
 export const ListProductTableItemizedRow = (props) => {
-  const product = props.selectedProducts && props.selectedProducts[0];
   return (
     <TableRow>
-      <TableCell>{product && `Entry #${props.index}`}</TableCell>
-      <TableCell>{product && product.name}</TableCell>
-      <TableCell>Measurement</TableCell>
-      <TableCell>{product && formatNumber(product.productQuantity)}</TableCell>
-      <TableCell>{product && formatCurrency(calculateCost(product, "product"))}</TableCell>
-      <TableCell>{product && formatCurrency(calculateCost(product, "client"))}</TableCell>
+      <TableCell>{props.product && `Entry #${props.index}`}</TableCell>
+      <TableCell>{props.product && props.product.name}</TableCell>
+      <TableCell>{props.product && props.product.pricing}</TableCell>
+      <TableCell>{props.product && formatNumber(props.product.productQuantity)}</TableCell>
+      <TableCell>{props.product && formatCurrency(calculateCost(props.product, "product"))}</TableCell>
+      <TableCell>{props.product && formatCurrency(calculateCost(props.product, "client"))}</TableCell>
     </TableRow>
   )
 };

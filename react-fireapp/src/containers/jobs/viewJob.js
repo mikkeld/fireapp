@@ -240,6 +240,7 @@ class ViewJob extends Component {
                                      markedImageLoaded={this.state.markedImageLoaded}
                                      handleMarkedImageLoaded={this.handleMarkedImageLoaded}
                                      handleRequestClose={this.handlePinnedImageClose}
+                                     otherMarkedEntries={this.state.entries}
               />
               }
               <SimpleSnackbar showSnackbar={this.state.showSnackbar}

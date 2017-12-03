@@ -62,14 +62,15 @@ class Login extends React.Component {
       const users = snap.val() ? snapshotToArray(snap) : null;
       const matchUser = users && users.filter(user => user.email === this.state.email);
       const role = matchUser.length > 0 ? matchUser[0].role : null;
-      if (role === 'admin') {
+      const isActive = matchUser.length > 0 ? matchUser[0].isActive : null;
+      if (role === 'admin' && isActive) {
         firebaseAuth.signInWithEmailAndPassword(this.state.email, this.state.password).catch((error) => {
           this.outputLoginError("Incorrect password")
         });
       } else if (role && role !== 'admin') {
         this.outputLoginError("User is not admin")
       } else {
-        this.outputLoginError("Unknown error")
+        this.outputLoginError("Access denied")
       }
     });
   }

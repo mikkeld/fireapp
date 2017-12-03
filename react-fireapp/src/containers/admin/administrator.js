@@ -2,22 +2,12 @@ import React, { Component } from 'react';
 import {User} from "./users";
 import {
   Route,
-  Link
 } from 'react-router-dom';
 import {Companies} from "./companies";
 import Products from "./products";
 
+
 export class Administrator extends Component {
-  constructor() {
-    super();
-
-    this.state = {
-    };
-  }
-
-  componentDidMount() {
-  }
-
   render() {
     return (
       <div>

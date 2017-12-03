@@ -59,8 +59,17 @@ class Login extends React.Component {
 
   handleLogin() {
     this.setState({loading: true});
-    firebaseAuth.signInWithEmailAndPassword(this.state.email, this.state.password).catch((error) => {
-      this.outputLoginError("Incorrect password")
+    this.firebase.databaseSnapshot('users').then((snap) => {
+      const users = snap.val() ? snapshotToArray(snap) : null;
+      const matchUser = users && users.filter(user => user.email === this.state.email);
+      const isActive = matchUser.length > 0 ? matchUser[0].isActive : null;
+      if (isActive) {
+        firebaseAuth.signInWithEmailAndPassword(this.state.email, this.state.password).catch((error) => {
+          this.outputLoginError("Incorrect password")
+        });
+      } else {
+        this.outputLoginError("Access denied")
+      }
     });
   }
 
