@@ -37,7 +37,7 @@ const ViewAttachmentDetails = (props) => {
           {props.currentJob.selectedUploads.map(file => {
             return (
               <Chip
-                onClick={() => props.handleClickOpen(file)}
+                onClick={() => props.handleDialogShow(file)}
                 className={classes.chip}
                 avatar={
                   <Avatar>

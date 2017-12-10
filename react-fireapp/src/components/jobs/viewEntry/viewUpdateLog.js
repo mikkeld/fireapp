@@ -31,6 +31,7 @@ const styles = theme => ({
 
 export const ViewUpdateLog = (props) => {
   const { classes } = props;
+  // const lastUpdatedSorted = props.updateLog.sort((a, b) => b.lastUpated - a.lastUpdated);
   return (
     <div className={classes.wrapper}>
       <Typography type="subheading" color="secondary">

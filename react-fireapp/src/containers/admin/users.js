@@ -2,12 +2,13 @@ import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
 import ListUsersTable from "../../components/admin/users/listUsersTable";
 import CreateUserForm from "../../components/admin/users/createUserForm";
-import {findItemById, updatedItems, removeItem, snapshotToArray} from "../../utils/utils";
+import {findItemById, snapshotToArray} from "../../utils/utils";
 import SimpleSnackbar from '../../components/shared/snackbar';
 import {FirebaseList} from "../../utils/firebase/firebaseList";
 import AddButton from "../../components/shared/addButton";
-import Spinner from "../../components/shared/spinner";
+import { withStyles } from 'material-ui/styles';
 import {secondaryApp} from "../../utils/firebase/firebase";
+import WithFirebaseListData from "../../HOCs/loadFirebaseListData";
 
 const initialFormState = {
   username: '',
@@ -49,7 +50,9 @@ const styles = theme => ({
   },
 });
 
-export class User extends Component {
+const LIST_NAME = 'users';
+
+class User extends Component {
   constructor() {
     super();
     this.state = {
@@ -59,7 +62,6 @@ export class User extends Component {
       open: false,
       showSnackbar: false,
       snackbarMsg: '',
-      message: '',
       search: '',
       isEditting: false,
       currentUser: initialFormState,
@@ -68,7 +70,7 @@ export class User extends Component {
       usersLoading: true
     };
 
-    this.firebase = new FirebaseList('users');
+    this.firebase = new FirebaseList(LIST_NAME);
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -81,48 +83,10 @@ export class User extends Component {
   }
 
   componentDidMount() {
-    const previousUsers = this.state.users;
-
-    this.firebase.database.on('child_added', snap => {
-      previousUsers.push({
-        id: snap.key,
-        ...snap.val()
-      });
-
-      this.setState({
-        users: previousUsers,
-        usersLoading: false
-      })
-    });
-
-    this.firebase.databaseSnapshot('users').then((snap) => {
-      if (snap.val() === null) {
-        this.setState({usersLoading: false})
-      }
-    });
-
-    this.firebase.database.on('child_changed', snap => {
-      const updatedUsers = updatedItems(this.state.users, this.state.currentUser);
-      this.setState({
-        users: updatedUsers
-      })
-    });
-
-    this.firebase.database.on('child_removed', snap => {
-      const updatedUsers = removeItem(previousUsers, snap.key);
-      this.setState({
-        users: updatedUsers
-      })
-    });
-
     this.firebase.databaseSnapshot('companies').then((snap) => {
-      if (snap.val() === null) {
-        this.setState({companiesLoading: false})
-      }
       const companies = snapshotToArray(snap);
       this.setState({
-        availableCompanies: companies,
-        companiesLoading: false
+        availableCompanies: companies
       })
     });
   }
@@ -138,15 +102,7 @@ export class User extends Component {
             this.handleSnackbarShow("User created");
             this.setState({currentUser: initialFormState})
           })
-        .catch(error => console.log(error))
-        // });
-
-      // this.firebase.push(this.state.currentUser)
-      //   .then(() => {
-      //     this.handleRequestClose();
-      //     this.handleSnackbarShow("User created");
-      //     this.setState({currentUser: initialFormState})
-      //   })
+        .catch(error => this.handleSnackbarShow("Error saving user"))
     }
   };
 
@@ -176,7 +132,7 @@ export class User extends Component {
     let isError = false;
 
     if(this.state.currentUser.username === '' ||
-      (this.state.users.findIndex(user => user.username === this.state.currentUser.username) !== -1 && !this.state.isEditting)) {
+      (this.props.users.findIndex(user => user.username === this.state.currentUser.username) !== -1 && !this.state.isEditting)) {
       errors.usernameError = "Invalid username or the username already exists";
       isError = true
     }
@@ -215,7 +171,7 @@ export class User extends Component {
   };
 
   toggleEdit(id){
-    const editingUser = findItemById(this.state.users, id);
+    const editingUser = findItemById(this.props.users, id);
     this.setState({
       currentUser: editingUser,
       isEditting: true,
@@ -271,49 +227,47 @@ export class User extends Component {
 
 
   render() {
-    let filteredUsers = this.state.users.filter(
+    const {classes} = this.props;
+    let filteredUsers = this.props.users.filter(
       (user) => {
         return user.username.toLowerCase().indexOf(
           this.state.search.toLowerCase()) !== -1;
       }
     );
 
-    if (this.state.usersLoading || this.state.companiesLoading) {
-      return <Spinner />
-    } else {
-      return (
+    return (
+      <div>
         <div>
-          <div>
-            <AddButton tooltip="Create new user" handleClick={this.handleClickOpen}/>
-            <TextField
-              value={this.state.search}
-              onChange={this.updateSearch}
-              id="search"
-              label="Search username"
-              className={styles.textField}
-              type="search"
-              margin="normal"/>
-          </div>
-          <ListUsersTable users={filteredUsers} toggleEdit={this.toggleEdit}/>
-          <CreateUserForm handleSubmit={this.handleSubmit}
-                          handleEdit={this.handleEdit}
-                          handleRemove={this.handleRemove}
-                          isEditting={this.state.isEditting}
-                          handleInputChange={this.handleInputChange}
-                          {...this.state.currentUser}
-                          {...this.state.formErrors}
-                          open={this.state.open}
-                          handleRequestClose={this.handleRequestClose}
-                          toggleUserActive={this.toggleUserActive}
-                          companies={this.state.availableCompanies}
-          />
-          <SimpleSnackbar showSnackbar={this.state.showSnackbar}
-                          handleSnackbarClose={this.handleSnackbarClose}
-                          snackbarMsg={this.state.snackbarMsg}
-          />
+          <AddButton tooltip="Create new user" handleClick={this.handleClickOpen}/>
+          <TextField
+            value={this.state.search}
+            onChange={this.updateSearch}
+            id="search"
+            label="Search username"
+            className={classes.textField}
+            type="search"
+            margin="normal"/>
         </div>
-      );
-    }
+        <ListUsersTable users={filteredUsers} toggleEdit={this.toggleEdit}/>
+        <CreateUserForm handleSubmit={this.handleSubmit}
+                        handleEdit={this.handleEdit}
+                        handleRemove={this.handleRemove}
+                        isEditting={this.state.isEditting}
+                        handleInputChange={this.handleInputChange}
+                        {...this.state.currentUser}
+                        {...this.state.formErrors}
+                        open={this.state.open}
+                        handleRequestClose={this.handleRequestClose}
+                        toggleUserActive={this.toggleUserActive}
+                        companies={this.state.availableCompanies}
+        />
+        <SimpleSnackbar showSnackbar={this.state.showSnackbar}
+                        handleSnackbarClose={this.handleSnackbarClose}
+                        snackbarMsg={this.state.snackbarMsg}
+        />
+      </div>
+    );
   }
 }
 
+export default withStyles(styles)(WithFirebaseListData(LIST_NAME)(User));

@@ -26,8 +26,7 @@ export const ViewEventLogDetails = (props) => {
         <EntriesTable jobId={props.jobId}
                       jobKey={props.jobKey}
                       entries={props.entries}
-                      handleImageGridShow={props.handleImageGridShow}
-                      handlePinnedImageShow={props.handlePinnedImageShow}/>
+                      handleDialogShow={props.handleDialogShow}/>
       </Paper>
     </div>
   )

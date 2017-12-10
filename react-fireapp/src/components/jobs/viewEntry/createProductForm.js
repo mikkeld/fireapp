@@ -82,6 +82,7 @@ export const CreateProductForm = (props) => {
               margin="dense"
               id="productQuantity"
               label="Product Quantity"
+              type="number"
               name="productQuantity"
               className={classes.textField}
               onChange={props.handleInputChange('productQuantity')}
@@ -91,6 +92,7 @@ export const CreateProductForm = (props) => {
               margin="dense"
               id="productPrice"
               label="Product Price"
+              type="number"
               name="productPrice"
               className={classes.textField}
               onChange={props.handleInputChange('productPrice')}
@@ -99,6 +101,7 @@ export const CreateProductForm = (props) => {
               helperText={"Example: €400"}
               margin="dense"
               id="clientPrice"
+              type="number"
               label="Client Price"
               name="clientPrice"
               className={classes.textField}

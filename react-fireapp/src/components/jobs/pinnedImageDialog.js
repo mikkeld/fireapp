@@ -7,8 +7,9 @@ import Typography from 'material-ui/Typography';
 import CloseIcon from 'material-ui-icons/Close';
 import CheckIcon from 'material-ui-icons/Check';
 import Slide from 'material-ui/transitions/Slide';
-import {MarkedImage} from "./markedImage";
+import {MarkedImage} from "./viewEntry/markedImage";
 import { withStyles } from 'material-ui/styles';
+import PropTypes from 'prop-types';
 
 const styles = {
   appBar: {
@@ -23,21 +24,21 @@ function Transition(props) {
   return <Slide direction="up" {...props} />;
 }
 
-export class ViewPinnedImageDialog extends Component {
+export class PinnedImageDialog extends Component {
   render() {
     const {classes} = this.props;
     const appBarTitle = this.props.isEditing ? "Place marker" : "";
     return (
       <div>
         <Dialog
-          open={this.props.open}
+          open={!!this.props.attachment}
           fullScreen
-          onRequestClose={() => this.props.handleRequestClose()}
+          onRequestClose={this.props.handleRequestClose}
           transition={Transition}
         >
           <AppBar className={classes.appBar}>
             <Toolbar>
-              <IconButton color="contrast" onClick={() =>this.props.handleRequestClose()} aria-label="Close">
+              <IconButton color="contrast" onClick={this.props.handleRequestClose} aria-label="Close">
                 <CloseIcon />
               </IconButton>
               <Typography type="title" color="inherit" className={classes.flex}>
@@ -54,9 +55,8 @@ export class ViewPinnedImageDialog extends Component {
               <DialogTitle>{this.props.attachment.name}</DialogTitle>
               <MarkedImage markerPosition={this.props.attachment.position}
                            attachment={this.props.attachment.attachment}
-                           imageLoaded={this.props.markedImageLoaded}
-                           handleImageLoaded={this.props.handleMarkedImageLoaded}
-                           setMarker={this.props.isEditing && this.props.setMarker}
+                           isEditing={this.props.isEditing}
+                           onMarkedPositionUpdate={this.props.onMarkedPositionUpdate}
                            otherMarkedEntries={this.props.otherMarkedEntries}
               />
             </div>
@@ -67,4 +67,15 @@ export class ViewPinnedImageDialog extends Component {
   }
 }
 
-export default withStyles(styles)(ViewPinnedImageDialog);
+PinnedImageDialog.propTypes = {
+  attachment: PropTypes.oneOfType([
+    PropTypes.object,
+    PropTypes.bool,
+  ]),
+  handleRequestClose: PropTypes.func.isRequired,
+  otherMarkedEntries: PropTypes.array,
+  saveMarkedImage: PropTypes.func,
+  isEditing: PropTypes.bool,
+};
+
+export default withStyles(styles)(PinnedImageDialog);

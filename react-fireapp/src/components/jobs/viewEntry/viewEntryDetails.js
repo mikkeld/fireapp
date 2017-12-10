@@ -90,7 +90,6 @@ export const ViewEntryDetails = (props) => {
               <span className={classes.textHeader}>Tag location description</span>
               <span>{props.locationDescription}</span>
             </div>}
-
         {props.isEditing
           ? <CommentsTextField {...props} />
           : <div className={classes.inline}>

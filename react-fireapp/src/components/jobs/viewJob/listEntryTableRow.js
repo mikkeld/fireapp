@@ -6,6 +6,7 @@ import IconButton from 'material-ui/IconButton';
 import CollectionsIcon from 'material-ui-icons/Collections';
 import PlaceIcon from 'material-ui-icons/Place';
 import {calculateCost} from "../../../utils/jobsService";
+import { ViewJobDialogOptions } from "../../../utils/jobs/viewJobDialogOptions";
 
 export const ListEntryTableRow = (props) => {
   return (
@@ -15,12 +16,14 @@ export const ListEntryTableRow = (props) => {
       <TableCell>{formatTimestamp(props.creationDate)}</TableCell>
       <TableCell>{props.username}</TableCell>
       <TableCell>
-        <IconButton disabled={!props.selectedUploads} onClick={() => props.handleImageGridShow(props.selectedUploads)}>
+        <IconButton disabled={!props.selectedUploads}
+                    onClick={() => props.handleDialogShow(props.selectedUploads, ViewJobDialogOptions.IMAGE_GRID)}>
           <CollectionsIcon/>
         </IconButton>
       </TableCell>
       <TableCell>
-        <IconButton disabled={!props.selectedMarkedImage} onClick={() => props.handlePinnedImageShow(props.selectedMarkedImage)}>
+        <IconButton disabled={!props.selectedMarkedImage}
+                    onClick={() => props.handleDialogShow(props.selectedMarkedImage, ViewJobDialogOptions.PINNED_IMAGE)}>
           <PlaceIcon/>
         </IconButton>
       </TableCell>

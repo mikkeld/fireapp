@@ -1,15 +1,13 @@
 import React, { Component } from 'react';
 import TextField from 'material-ui/TextField';
-import {calculateCost} from "../../utils/jobsService";
-import {findItemById, updatedItems, removeItem, snapshotToArray, generateFilename} from "../../utils/utils";
+import {findItemById, removeItem, snapshotToArray} from "../../utils/utils";
 import SimpleSnackbar from '../../components/shared/snackbar';
 import CreateJob from "../../components/jobs/createJob";
 import ListJobsTable from "../../components/jobs/listJobsTable";
 import {FirebaseList} from "../../utils/firebase/firebaseList";
 import AddButton from "../../components/shared/addButton";
-import Spinner from "../../components/shared/spinner";
-import firebase from 'firebase';
 import { withStyles } from 'material-ui/styles';
+import WithFirebaseListData from "../../HOCs/loadFirebaseListData";
 
 const initialFormState = {
 	jobId: '',
@@ -40,6 +38,8 @@ const initialFormErrorState = {
 	selectedProductsError: ''
 };
 
+const LIST_NAME = 'jobs';
+
 const JobsMainPage = (props) => (
 	<div>
 		<AddButton tooltip="Create new job" handleClick={props.handleClickOpen}/>
@@ -51,7 +51,7 @@ const JobsMainPage = (props) => (
 			className={props.classes.textField}
 			type="search"
 			margin="normal"/>
-		<ListJobsTable jobs={props.filteredJobs} toggleEdit={props.toggleEdit}/>
+		<ListJobsTable jobs={props.filteredJobs} toggleEdit={props.toggleEdit} entries={props.entries}/>
 	</div>
 );
 
@@ -81,7 +81,6 @@ class Jobs extends Component {
 					open: false,
 					showSnackbar: false,
 					snackbarMsg: '',
-					message: '',
 					search: '',
 					isEditting: false,
 					currentJob: initialFormState,
@@ -89,15 +88,10 @@ class Jobs extends Component {
 					availableCompanies: [],
 					availableUsers: [],
 					availableProducts: [],
-					uploadLoading: false,
-					jobsLoading: true,
-					usersLoading: true,
-					companiesLoading: true,
-					productsLoading: true,
-					progress: 0,
+					entries: {}
 				};
 
-		this.firebase = new FirebaseList('jobs');
+		this.firebase = new FirebaseList(LIST_NAME);
 
 		this.handleInputChange = this.handleInputChange.bind(this);
 		this.handleSubmit = this.handleSubmit.bind(this);
@@ -106,89 +100,33 @@ class Jobs extends Component {
 		this.handleRemove= this.handleRemove.bind(this);
 		this.updateSearch = this.updateSearch.bind(this);
 		this.handleClickOpen = this.handleClickOpen.bind(this);
-		this.handleUploadStart = this.handleUploadStart.bind(this);
-		this.handleProgress = this.handleProgress.bind(this);
-		this.handleUploadError = this.handleUploadError.bind(this);
-		this.handleUploadSuccess = this.handleUploadSuccess.bind(this);
 	}
 
 	componentDidMount() {
-		const previousJobs = this.state.jobs;
-
-		this.firebase.databaseSnapshot('jobs').then((snap) => {
-			if (snap.val() === null) {
-				this.setState({jobsLoading: false})
-			}
-		});
-
-		this.firebase.database.on('child_added', snap => {
-			this.firebase.databaseSnapshot(`entries/${snap.key}`).then((entrySnap) => {
-				const entries = snapshotToArray(entrySnap);
-				const jobStats = this.calculateCostPerJob(snap.val(), entries);
-				previousJobs.push({
-					id: snap.key,
-					...jobStats,
-					...snap.val()
-				});
-				this.setState({
-					jobs: previousJobs,
-					jobsLoading: false
-				})
-			});
-
-		});
-
-		this.firebase.database.on('child_changed', snap => {
-			const updatedJobs = updatedItems(this.state.jobs, this.state.currentJob);
-			this.setState({
-				jobs: updatedJobs
-			})
-		});
-
-		this.firebase.database.on('child_removed', snap => {
-			const updatedJobs = removeItem(previousJobs, snap.key);
-			this.setState({
-				jobs: updatedJobs
-			})
-		});
+    this.firebase.databaseSnapshot('entries').then((snap) => {
+      this.setState({
+        entries: snap.val()
+      })
+    });
 
 		this.firebase.databaseSnapshot('companies').then((snap) => {
-			if (snap.val() === null) {
-				this.setState({companiesLoading: false})
-			}
 			const companies = snapshotToArray(snap);
 			this.setState({
-				availableCompanies: companies,
-				companiesLoading: false
+				availableCompanies: companies
 			})
 		});
 		this.firebase.databaseSnapshot('users').then((snap) => {
-			if (snap.val() === null) {
-				this.setState({usersLoading: false})
-			}
 			const users = snapshotToArray(snap);
 			this.setState({
-				availableUsers: users,
-				usersLoading: false
+				availableUsers: users
 			})
 		});
 		this.firebase.databaseSnapshot('products').then((snap) => {
-			if (snap.val() === null) {
-				this.setState({productsLoading: false})
-			}
 			const products = snapshotToArray(snap);
 			this.setState({
-				availableProducts: products,
-				productsLoading: false
+				availableProducts: products
 			})
 		});
-	}
-
-	saveAttachments(attachments, jobId) {
-    for (let attachment of attachments) {
-      let NewAttachmentRef = this.firebase.db().ref(`attachments/${jobId}`).push();
-      NewAttachmentRef.set(attachment)
-    }
 	}
 
 	handleSubmit(e) {
@@ -196,10 +134,7 @@ class Jobs extends Component {
 		const err = this.validate();
 		if(!err) {
 			this.firebase.push(this.state.currentJob)
-				.then((key) => {
-			    if (this.state.currentJob.selectedUploads.length !== 0) {
-			      this.saveAttachments(this.state.currentJob.selectedUploads, key)
-          }
+				.then(() => {
 					this.handleRequestClose();
 					this.handleSnackbarShow("Job created");
 					this.setState({currentJob: initialFormState})
@@ -233,7 +168,7 @@ class Jobs extends Component {
 		let isError = false;
 
 		if(this.state.currentJob.jobId === '' ||
-			(this.state.jobs.findIndex(job => job.jobId === this.state.currentJob.jobId) !== -1 && !this.state.isEditting)) {
+			(this.props.jobs.findIndex(job => job.jobId === this.state.currentJob.jobId) !== -1 && !this.state.isEditting)) {
 			errors.jobIdError = "Invalid Job Id or the Job Id already exists";
 			isError = true
 		}
@@ -276,7 +211,7 @@ class Jobs extends Component {
 	};
 
 	toggleEdit(id){
-		const editingJob = findItemById(this.state.jobs, id);
+		const editingJob = findItemById(this.props.jobs, id);
 		this.setState({
 			currentJob: editingJob,
 			isEditting: true,
@@ -362,121 +297,69 @@ class Jobs extends Component {
 		this.setState({currentJob: updatedJobStatus});
 	};
 
-	filterProducts(selected, available) {
-		if(!this.state.productsLoading) {
-			const selectedProductNames = [];
-			selected.forEach(product => selectedProductNames.push(product.name));
-			return available.filter(product => !selectedProductNames.includes(product.name))
-		}
-	}
+  filterItems(selected, available, nameProp) {
+		const selectedNames = [];
+		selected.forEach(item => selectedNames.push(item[nameProp]));
+		return available.filter(item => !selectedNames.includes(item[nameProp]))
+  }
 
-	filterClients(selected, available) {
-		if(!this.state.usersLoading) {
-			const selectedClientNames = [];
-			selected.forEach(client => selectedClientNames.push(client.name));
-			return available.filter(client => !selectedClientNames.includes(client.name))
-		}
-	}
-
-	calculateCostPerJob = (job, entries) => {
-		let jobStats = {
-			totalCost: 0,
-			latestEntry: null
-		};
-		for (let entry of entries) {
-			if (entry.creationDate > jobStats.latestEntry) {
-				jobStats.latestEntry = entry.creationDate;
-			}
-			if (entry && entry.selectedProducts) {
-				if (entry.creationDate < job.lastPushedToClient) {
-					for (let product of entry.selectedProducts) {
-						jobStats.totalCost += calculateCost(product, "client");
-					}
-				}
-			}
-		}
-		return jobStats
-	};
-
-
-	handleUploadStart = () => this.setState({uploadLoading: true, progress: 0});
-	handleProgress = (progress) => this.setState({progress});
-	handleUploadError = (error) => {
-		this.setState({uploadLoading: false});
-		console.error(error);
-	};
-	handleUploadSuccess = (filename) => {
-		firebase.storage().ref('images').child(filename).getDownloadURL().then(url => {
-			const getNameString = (f) => f.substring(0,f.lastIndexOf("_"))+f.substring(f.lastIndexOf("."));
-			const uploadItem = {"name": getNameString(filename), "url": url};
-			const updatedSelectedUploads = [...this.state.currentJob.selectedUploads, uploadItem];
-			const updatedJobStatus = {
-				...this.state.currentJob,
-				selectedUploads: updatedSelectedUploads
-			};
-			this.setState({
-				uploadLoading: false,
-				currentJob: updatedJobStatus
-			});
-		});
+  onFileUploadSuccess = file => {
+    const updatedSelectedUploads = [...this.state.currentJob.selectedUploads, file];
+    const updatedJobStatus = {
+      ...this.state.currentJob,
+      selectedUploads: updatedSelectedUploads
+    };
+    this.setState({ currentJob: updatedJobStatus });
 	};
 
 	render() {
 		const {classes} = this.props;
-		let filteredJobs = this.state.jobs.filter(
+		let filteredJobs = this.props.jobs.filter(
 			(job) => {
 				return job.jobName.toLowerCase().indexOf(
 					this.state.search.toLowerCase()) !== -1;
 			}
 		);
-		let filteredProducts = this.filterProducts(this.state.currentJob.selectedProducts, this.state.availableProducts);
-		let filteredClients = this.filterClients(this.state.currentJob.selectedClients, this.state.availableUsers);
+		let filteredProducts = this.filterItems(this.state.currentJob.selectedProducts, this.state.availableProducts, 'name');
+		let filteredClients = this.filterItems(this.state.currentJob.selectedClients, this.state.availableUsers, 'username');
 
-		if (this.state.jobsLoading || this.state.companiesLoading || this.state.usersLoading || this.state.productsLoading) {
-			return <Spinner/>
-		} else {
-			return (
-				<div>
-					{this.state.open
-						? <CreateJob handleSubmit={this.handleSubmit}
-												 handleEdit={this.handleEdit}
-												 handleRemove={this.handleRemove}
-												 isEditting={this.state.isEditting}
-												 handleInputChange={this.handleInputChange}
-												 {...this.state.currentJob}
-												 {...this.state.formErrors}
-												 availableCompanies={this.state.availableCompanies}
-												 availableUsers={filteredClients}
-												 availableProducts={filteredProducts}
-												 open={this.state.open}
-												 handleRequestClose={this.handleRequestClose}
-												 addSelectedChip={this.addSelectedChip}
-												 handleRequestDeleteChip={this.handleRequestDeleteChip}
-												 uploadLoading={this.state.uploadLoading}
-												 handleUploadStart={this.handleUploadStart}
-												 handleProgress={this.handleProgress}
-												 handleUploadError={this.handleUploadError}
-												 handleUploadSuccess={this.handleUploadSuccess}
-												 firebaseStorage={firebase.storage().ref('images')}
-												 filename={file => generateFilename(file)}
-						/>
-						: <JobsMainPage search={this.state.search}
-														updateSearch={this.updateSearch}
-														handleClickOpen={this.handleClickOpen}
-														toggleEdit={this.toggleEdit}
-														filteredJobs={filteredJobs}
-														classes={classes}
-						/>
-					}
-
-					<SimpleSnackbar showSnackbar={this.state.showSnackbar}
-													handleSnackbarClose={this.handleSnackbarClose}
-													snackbarMsg={this.state.snackbarMsg}
+		return (
+			<div>
+				{this.state.open
+					? <CreateJob handleSubmit={this.handleSubmit}
+											 handleEdit={this.handleEdit}
+											 handleRemove={this.handleRemove}
+											 isEditting={this.state.isEditting}
+											 handleInputChange={this.handleInputChange}
+											 {...this.state.currentJob}
+											 {...this.state.formErrors}
+											 availableCompanies={this.state.availableCompanies}
+											 availableUsers={filteredClients}
+											 availableProducts={filteredProducts}
+											 open={this.state.open}
+											 handleRequestClose={this.handleRequestClose}
+											 addSelectedChip={this.addSelectedChip}
+											 handleRequestDeleteChip={this.handleRequestDeleteChip}
+											 onFileUploadSuccess={this.onFileUploadSuccess}
+											 onChipChange={this.onChipChange}
 					/>
-				</div>
-			);
-		}
+					: <JobsMainPage search={this.state.search}
+													updateSearch={this.updateSearch}
+													handleClickOpen={this.handleClickOpen}
+													toggleEdit={this.toggleEdit}
+													filteredJobs={filteredJobs}
+													classes={classes}
+													entries={this.state.entries}
+					/>
+				}
+
+				<SimpleSnackbar showSnackbar={this.state.showSnackbar}
+												handleSnackbarClose={this.handleSnackbarClose}
+												snackbarMsg={this.state.snackbarMsg}
+				/>
+			</div>
+		);
 	}
 }
 
-export default withStyles(styles)(Jobs);
+export default withStyles(styles)(WithFirebaseListData(LIST_NAME)(Jobs));

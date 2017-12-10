@@ -4,22 +4,15 @@ import { GridList, GridListTile } from 'material-ui/GridList';
 import RemoveCircle from 'material-ui-icons/RemoveCircle';
 import IconButton from 'material-ui/IconButton';
 import { CircularProgress } from 'material-ui/Progress';
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
-    flexWrap: 'wrap',
-    justifyContent: 'space-around',
-    width: '100%',
-    padding: theme.spacing.unit,
-    overflowX: 'auto',
   },
   gridList: {
     width: 500,
     display: 'relative',
     padding: theme.spacing.unit,
-  },
-  subheader: {
-    width: '100%',
   },
   deleteIcon: {
     position: 'absolute',
@@ -30,23 +23,22 @@ const styles = theme => ({
   wrapper: {
     marginBottom: theme.spacing.unit*2,
   },
-  clickable: {
+  clickAble: {
     cursor: 'pointer'
   }
 });
 
-export const ImageGrid = (props) => {
+const ImageGrid = (props) => {
   const { classes } = props;
-  const toggleImageLoading = () => imageLoading = false;
   let imageLoading = true;
   return (
     <GridList cellHeight={160} className={classes.gridList} cols={3}>
-      {props.selectedUploads.map(file => (
+      {props.attachment.map(file => (
         <GridListTile key={file.name} cols={file.cols || 1}>
           <img src={file.url}
                alt={file.name}
-               onClick={() => props.handleClickOpen(file)}
-               className={classes.clickable}/>
+               onClick={() => props.handleDialogShow(file)}
+               className={classes.clickAble}/>
           {imageLoading
             ? <CircularProgress/>
             : null
@@ -63,6 +55,12 @@ export const ImageGrid = (props) => {
       ))}
     </GridList>
   )
+};
+
+ImageGrid.propTypes = {
+  attachment: PropTypes.array,
+  handleRequestDeleteChip: PropTypes.func,
+  isEditing: PropTypes.bool
 };
 
 export default withStyles(styles)(ImageGrid);

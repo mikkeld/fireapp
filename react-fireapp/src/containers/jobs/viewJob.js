@@ -1,11 +1,9 @@
 import React, { Component } from 'react';
-import { FormControlLabel } from 'material-ui/Form';
-import Switch from 'material-ui/Switch';
-import { withStyles } from 'material-ui/styles';
 
-import Button from 'material-ui/Button';
-import ViewJobAttachment from "../../components/jobs/viewJobAttachment";
+import { withStyles } from 'material-ui/styles';
+import JobAttachmentDialog from "../../components/jobs/jobAttachmentDialog";
 import ViewJobDetails from "../../components/jobs/viewJob/viewJobDetails";
+import ViewJobActions from "../../components/jobs/viewJob/viewJobActions";
 import ViewCompanyDetails from "../../components/jobs/viewJob/viewCompanyDetails";
 import ViewClientsDetails from "../../components/jobs/viewJob/viewClientsDetails";
 import ViewProductsDetails from "../../components/jobs/viewJob/viewProductsDetails";
@@ -18,10 +16,11 @@ import {calculateTotalPerProduct} from "../../utils/jobsService";
 import BasicDialog from "../../components/shared/dialog";
 import ImageGrid from "../../components/shared/imageGrid";
 import Spinner from "../../components/shared/spinner";
-import ViewPinnedImageDialog from "../../components/jobs/viewEntry/viewPinnedImage";
+import PinnedImageDialog from "../../components/jobs/pinnedImageDialog";
 import {
   Redirect
 } from 'react-router-dom';
+import { ViewJobDialogOptions } from "../../utils/jobs/viewJobDialogOptions";
 
 const styles = theme => ({
   wrapper: {
@@ -34,13 +33,12 @@ const styles = theme => ({
 
 const ImageGridDialog = (props) => {
   return (
-    <BasicDialog open={!!props.selectedImageGrid}
-                 handleRequestClose={props.handleRequestClose}
+    <BasicDialog open={!!props.attachment}
+                 handleRequestClose={() => props.handleRequestClose(ViewJobDialogOptions.IMAGE_GRID)}
                  fullScreen={props.fullScreen}
-                 title={props.title}
-    >
-      <ImageGrid selectedUploads={props.selectedImageGrid}
-                     handleClickOpen={props.handleClickOpen}/>
+                 title={props.title}>
+      <ImageGrid attachment={props.attachment}
+                 handleDialogShow={(file) => props.handleDialogShow(file, ViewJobDialogOptions.ATTACHMENT)}/>
     </BasicDialog>
   )
 };
@@ -52,14 +50,13 @@ class ViewJob extends Component {
     this.state = {
       currentJob: null,
       entries: [],
-      promiseResolved: false,
-      attachmentDialogOpen: false,
-      openAttachment: null,
-      selectedImageGrid: false,
-      selectedPinnedImage: false,
       showSnackbar: false,
       snackbarMsg: '',
-      markedImageLoaded: false,
+      dialogs: {
+        pinnedImage: null,
+        attachment: null,
+        imageGrid: null
+      },
       loading: true,
       redirect: false
     };
@@ -67,14 +64,11 @@ class ViewJob extends Component {
     this.firebase = new FirebaseList('jobs');
 
     this.handleJobStatusChange = this.handleJobStatusChange.bind(this);
-    this.handleImageGridShow = this.handleImageGridShow.bind(this);
-    this.handleImageGridClose = this.handleImageGridClose.bind(this);
-    this.handlePinnedImageClose = this.handlePinnedImageClose.bind(this);
-    this.handlePinnedImageShow = this.handlePinnedImageShow.bind(this);
-    this.handleMarkedImageLoaded = this.handleMarkedImageLoaded.bind(this);
     this.handleRemove = this.handleRemove.bind(this);
+    this.pushLiveToClient = this.pushLiveToClient.bind(this);
+    this.handleDialogShow = this.handleDialogShow.bind(this);
+    this.handleDialogClose = this.handleDialogClose.bind(this);
   }
-
 
   componentDidMount() {
     this.firebase.db().ref(`jobs/${this.props.id}`).on('value', (snap) => {
@@ -109,17 +103,6 @@ class ViewJob extends Component {
       })
   };
 
-  handleAttachmentDialogClose =() => {
-    this.setState({attachmentDialogOpen: false})
-  };
-
-  handleClickOpen = (file) => {
-    this.setState({
-      attachmentDialogOpen: true,
-      openAttachment: file
-    });
-  };
-
   pushLiveToClient() {
     const updatedJob = {
       ...this.state.currentJob,
@@ -152,33 +135,25 @@ class ViewJob extends Component {
     this.setState({ showSnackbar: false });
   };
 
-  handleImageGridShow(imageGrid) {
-    this.setState({selectedImageGrid: imageGrid})
-  }
+  handleDialogShow = (item, group) => {
+    const updatedDialogState = {
+      ...this.state.dialogs,
+      [group]: item
+    };
+    this.setState({ dialogs: updatedDialogState })
+  };
 
-  handleImageGridClose() {
-    this.setState({selectedImageGrid: false})
-  }
-
-  handlePinnedImageShow(pinnedImage) {
-    this.setState({selectedPinnedImage: pinnedImage})
-  }
-
-  handlePinnedImageClose() {
-    this.setState({selectedPinnedImage: false})
-  }
-
-  handleMarkedImageLoaded() {
-    this.setState({markedImageLoaded: true})
-  }
+  handleDialogClose = group => {
+    const updatedDialogState = {
+      ...this.state.dialogs,
+      [group]: null
+    };
+    this.setState({ dialogs: updatedDialogState })
+  };
 
   render() {
     const {classes} = this.props;
     let {_, costPerItem} = calculateTotalPerProduct(this.state.entries);
-    let confirmDelete = (msg) => {
-      const r = window.confirm(msg);
-      return r === true;
-    };
     if (this.state.redirect) {
       return <Redirect to='/jobs' push/>
     } else {
@@ -186,63 +161,37 @@ class ViewJob extends Component {
         return <Spinner/>
       } else {
         return (
-          <div className={styles.wrapper}>
+          <div className={classes.wrapper}>
             {this.state.currentJob &&
             <div>
-              <div className={classes.wrapper}>
-                <Button raised color="primary" onClick={() => {
-                  if (confirmDelete("Confirm push live to client")) {
-                    this.pushLiveToClient()
-                  }
-                }}>push live to client</Button>
-                <Button disabled onClick={() => {
-                  if (confirmDelete("Confirm deletion of job")) {
-                    this.handleRemove()
-                  }
-                }}>⚠️ Delete</Button>
-                <FormControlLabel
-                  className={classes.rightElement}
-                  control={
-                    <Switch
-                      checked={this.state.currentJob.completed}
-                      onChange={this.handleJobStatusChange}
-                    />
-                  }
-                  label="Completed"
-                />
-              </div>
+              <ViewJobActions currentJob={this.state.currentJob}
+                              handleJobStatusChange={this.handleJobStatusChange}
+                              pushLiveToClient={this.pushLiveToClient}
+              />
               <ViewJobDetails currentJob={this.state.currentJob}/>
               <ViewCompanyDetails currentJob={this.state.currentJob}/>
               <ViewClientsDetails currentJob={this.state.currentJob}/>
               <ViewProductsDetails currentJob={this.state.currentJob}/>
               {this.state.currentJob.selectedUploads && this.state.currentJob.selectedUploads.length > 0
-                ? <ViewAttachmentDetails currentJob={this.state.currentJob} handleClickOpen={this.handleClickOpen}/>
+                ? <ViewAttachmentDetails currentJob={this.state.currentJob}
+                                         handleDialogShow={(file) => this.handleDialogShow(file, ViewJobDialogOptions.ATTACHMENT)}
+                  />
                 : null}
               <ViewEventLogDetails jobId={this.state.currentJob.jobId}
                                    jobKey={this.state.currentJob.id}
                                    entries={this.state.entries}
-                                   handlePinnedImageShow={this.handlePinnedImageShow}
-                                   handleImageGridShow={this.handleImageGridShow}/>
+                                   handleDialogShow={this.handleDialogShow}/>
               <ViewSummaryDetails stats={costPerItem}/>
-              <ViewJobAttachment open={this.state.attachmentDialogOpen}
-                                 handleRequestClose={this.handleAttachmentDialogClose}
-                                 attachment={this.state.openAttachment}
-              />
-              {this.state.selectedImageGrid &&
-              <ImageGridDialog selectedImageGrid={this.state.selectedImageGrid}
-                               handleRequestClose={this.handleImageGridClose}
-                               handleClickOpen={this.handleClickOpen}
+              <JobAttachmentDialog attachment={this.state.dialogs[ViewJobDialogOptions.ATTACHMENT]}
+                                   handleRequestClose={() => this.handleDialogClose(ViewJobDialogOptions.ATTACHMENT)} />
+              <ImageGridDialog attachment={this.state.dialogs[ViewJobDialogOptions.IMAGE_GRID]}
+                               handleRequestClose={this.handleDialogClose}
+                               handleDialogShow={this.handleDialogShow}
                                title="Pictures for job"
-                               fullScreen={false}/>}
-              {this.state.selectedPinnedImage &&
-              <ViewPinnedImageDialog attachment={this.state.selectedPinnedImage}
-                                     open={!!this.state.selectedPinnedImage}
-                                     markedImageLoaded={this.state.markedImageLoaded}
-                                     handleMarkedImageLoaded={this.handleMarkedImageLoaded}
-                                     handleRequestClose={this.handlePinnedImageClose}
-                                     otherMarkedEntries={this.state.entries}
-              />
-              }
+                               fullScreen={false}/>
+              <PinnedImageDialog attachment={this.state.dialogs[ViewJobDialogOptions.PINNED_IMAGE]}
+                                 handleRequestClose={() => this.handleDialogClose(ViewJobDialogOptions.PINNED_IMAGE)}
+                                 otherMarkedEntries={this.state.entries} />
               <SimpleSnackbar showSnackbar={this.state.showSnackbar}
                               handleSnackbarClose={this.handleSnackbarClose}
                               snackbarMsg={this.state.snackbarMsg}/>

@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
-import {User} from "./users";
+import User from "./users";
 import {
   Route,
 } from 'react-router-dom';
-import {Companies} from "./companies";
+import Companies from "./companies";
 import Products from "./products";
 
 

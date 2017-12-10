@@ -5,6 +5,8 @@ import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Ta
 import Paper from 'material-ui/Paper';
 import HelpIcon from 'material-ui-icons/Help';
 import Tooltip from 'material-ui/Tooltip';
+import {jobCostsPerJobSinceLastPush} from "../../utils/jobsService";
+import WithLoader from "../../HOCs/loader";
 
 const styles = theme => ({
   root: {
@@ -40,7 +42,11 @@ export const ListJobsTable = (props) => {
           </TableRow>
         </TableHead>
         <TableBody>
-          {props.jobs.map(job => <ListJobTableRow key={job.id} {...job} toggleEdit={props.toggleEdit}/>)}
+          {props.jobs.map(job => {
+            const entries = props.entries.hasOwnProperty(job.id) && Object.values(props.entries[job.id]) || [];
+            const jobStats = jobCostsPerJobSinceLastPush(job, entries);
+            return <ListJobTableRow key={job.id} {...job} {...jobStats} toggleEdit={props.toggleEdit}/>;
+          })}
         </TableBody>
       </Table>
     </Paper>
@@ -48,7 +54,7 @@ export const ListJobsTable = (props) => {
   )
 };
 
-export default withStyles(styles)(ListJobsTable);
+export default withStyles(styles)(WithLoader('jobs')(ListJobsTable));
 
 
 

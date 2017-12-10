@@ -1,4 +1,4 @@
-import React  from 'react';
+import React, { Component }  from 'react';
 import TextField from 'material-ui/TextField';
 import Button from 'material-ui/Button';
 
@@ -9,10 +9,9 @@ import ContentCopyIcon from 'material-ui-icons/ContentCopy';
 import Divider from 'material-ui/Divider';
 import Chip from 'material-ui/Chip';
 import Avatar from 'material-ui/Avatar';
-import { CircularProgress } from 'material-ui/Progress';
 import Paper from 'material-ui/Paper';
 import PropTypes from 'prop-types';
-import FileUploader from 'react-firebase-file-uploader';
+import {FirebaseUploader} from "../../utils/firebaseUploader";
 
 const styles = theme => ({
   container: {
@@ -228,62 +227,62 @@ const ClientFormGroup = (props) => (
         )
       })}
     </div>}
+    <div>
+      <TextField
+        id="selectedUser"
+        select
+        required
+        error={props.selectedClientsError !== ''}
+        label="Select a client"
+        margin="normal"
+        className={props.classes.textFieldFirst}
+        value={(props.currentClient === undefined || props.currentClient === null) ? "" : props.currentClient}
+        onChange={props.handleInputChange('currentClient')}
+        SelectProps={{
+          MenuProps: {
+            className: props.classes.menu,
+          },
+          name: "currentClient"
+        }}
+        helperText={props.selectedClientsError || "Example: Client1"}
+      >
+        {props.availableUsers.map((user, index) => (
+          <MenuItem key={index} value={user}>
+            {user.username}
+          </MenuItem>
+        ))}
+      </TextField>
+      {props.currentClient &&
+      <Button color="primary" onClick={() => props.addSelectedChip("client")}>add client</Button>}
+      <br />
+      {props.currentClient &&
       <div>
         <TextField
-          id="selectedUser"
-          select
-          required
-          error={props.selectedClientsError !== ''}
-          label="Select a client"
-          margin="normal"
+          margin="dense"
+          label="Company Name"
+          id="userCompanyName"
+          name="userCompanyName"
           className={props.classes.textFieldFirst}
-          value={(props.currentClient === undefined || props.currentClient === null) ? "" : props.currentClient}
-          onChange={props.handleInputChange('currentClient')}
-          SelectProps={{
-            MenuProps: {
-              className: props.classes.menu,
-            },
-            name: "currentClient"
-          }}
-          helperText={props.selectedClientsError || "Example: Client1"}
-        >
-          {props.availableUsers.map((user, index) => (
-            <MenuItem key={index} value={user}>
-              {user.username}
-            </MenuItem>
-          ))}
-        </TextField>
-        {props.currentClient &&
-        <Button color="primary" onClick={() => props.addSelectedChip("client")}>add client</Button>}
-        <br />
-        {props.currentClient &&
-        <div>
-          <TextField
-            margin="dense"
-            label="Company Name"
-            id="userCompanyName"
-            name="userCompanyName"
-            className={props.classes.textFieldFirst}
-            disabled
-            value={props.currentClient === null ? '' : props.currentClient.company} />
-          <TextField
-            margin="dense"
-            label="Username"
-            id="userUsername"
-            name="userUsername"
-            className={props.classes.textFieldFirst}
-            disabled
-            value={props.currentClient === null ? '' : props.currentClient.username} />
-          <TextField
-            margin="dense"
-            label="Email"
-            id="userEmail"
-            name="userEmail"
-            className={props.classes.textField}
-            disabled
-            value={props.currentClient === null ? '' : props.currentClient.email} />
-        </div>}
-      </div>
+          disabled
+          value={props.currentClient === null ? '' : props.currentClient.company} />
+        <TextField
+          margin="dense"
+          label="Username"
+          id="userUsername"
+          name="userUsername"
+          className={props.classes.textFieldFirst}
+          disabled
+          value={props.currentClient === null ? '' : props.currentClient.username} />
+        <TextField
+          margin="dense"
+          label="Email"
+          id="userEmail"
+          name="userEmail"
+          className={props.classes.textField}
+          disabled
+          value={props.currentClient === null ? '' : props.currentClient.email} />
+      </div>}
+    </div>
   </section>
 );
 
@@ -384,21 +383,7 @@ const AttachmentFormGroup = (props) => (
         )
       })}
     </div>
-    <FileUploader
-      accept="image/*"
-      name="image"
-      filename={props.filename}
-      storageRef={props.firebaseStorage}
-      onUploadStart={props.handleUploadStart}
-      onUploadError={props.handleUploadError}
-      onUploadSuccess={props.handleUploadSuccess}
-      onProgress={props.handleProgress}
-    />
-    {
-      props.uploadLoading
-        ? <CircularProgress/>
-        : null
-    }
+    <FirebaseUploader onFileUploadSuccess={props.onFileUploadSuccess}/>
 
     {props.isEditting
       ? <Button onClick={() => { if(props.confirmDelete()) {props.handleRemove(props.id)}}}>⚠️ Delete</Button>
@@ -417,7 +402,7 @@ const ActionGroup = (props) => (
 );
 
 
-export const CreateJob = (props) => {
+export const CreateJob = props => {
   const { classes } = props;
   let confirmDelete = () => {
     const r = window.confirm("Confirm deletion of job");
@@ -447,7 +432,6 @@ CreateJob.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   handleRequestClose: PropTypes.func.isRequired,
   open: PropTypes.bool.isRequired,
-  uploadLoading: PropTypes.bool.isRequired,
   jobId: PropTypes.string.isRequired,
   jobName: PropTypes.string.isRequired,
   address1: PropTypes.string,

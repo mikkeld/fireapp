@@ -46,7 +46,7 @@ export const BasicDialog = (props) => {
         </Toolbar>
       </AppBar>}
       <div>
-        {props.children}
+        {props.open && props.children}
       </div>
     </Dialog>
   )

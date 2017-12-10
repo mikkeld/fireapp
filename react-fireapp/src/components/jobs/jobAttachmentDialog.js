@@ -10,7 +10,7 @@ const styles = theme => ({
   }
 });
 
-export class ViewJobAttachment extends Component {
+export class JobAttachmentDialog extends Component {
   constructor() {
     super();
     this.state = {
@@ -22,7 +22,7 @@ export class ViewJobAttachment extends Component {
     const { classes } = this.props;
     return (
       <Dialog
-        open={this.props.open}
+        open={!!this.props.attachment}
         onRequestClose={this.props.handleRequestClose}>
         {this.props.attachment &&
         <div>
@@ -31,7 +31,6 @@ export class ViewJobAttachment extends Component {
             ? null
             : <Spinner />
           }
-
           <img
             src={this.props.attachment.url}
             className={classes.popupImg}
@@ -44,4 +43,4 @@ export class ViewJobAttachment extends Component {
   }
 }
 
-export default withStyles(styles)(ViewJobAttachment);
+export default withStyles(styles)(JobAttachmentDialog);

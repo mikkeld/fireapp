@@ -41,8 +41,7 @@ export const EntriesTable = (props) => {
                                  jobId={props.jobId}
                                  jobKey={props.jobKey}
                                  index={index}
-                                 handleImageGridShow={props.handleImageGridShow}
-                                 handlePinnedImageShow={props.handlePinnedImageShow}
+                                 handleDialogShow={props.handleDialogShow}
                                  {...entry}
                                  product={product} />
             )

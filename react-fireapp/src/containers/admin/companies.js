@@ -3,11 +3,11 @@ import TextField from 'material-ui/TextField';
 
 import ListCompaniesTable from "../../components/admin/companies/listCompaniesTable";
 import CreateCompanyForm from "../../components/admin/companies/createCompanyForm";
-import {findItemById, updatedItems, removeItem} from "../../utils/utils";
+import {findItemById} from "../../utils/utils";
 import SimpleSnackbar from '../../components/shared/snackbar';
 import {FirebaseList} from "../../utils/firebase/firebaseList";
 import AddButton from "../../components/shared/addButton";
-import Spinner from "../../components/shared/spinner";
+import WithFirebaseListData from "../../HOCs/loadFirebaseListData";
 
 const initialFormState = {
   name: '',
@@ -44,24 +44,21 @@ const styles = theme => ({
   },
 });
 
-export class Companies extends Component {
+const LIST_NAME = 'companies';
+
+class Companies extends Component {
   constructor() {
     super();
     this.state = {
-      companies: [],
       createCompanyVisible: false,
       open: false,
       showSnackbar: false,
       snackbarMsg: '',
-      message: '',
       search: '',
       isEditting: false,
       currentCompany: initialFormState,
-      formErrors: initialFormErrorState,
-      loading: true
+      formErrors: initialFormErrorState
     };
-
-    this.firebase = new FirebaseList('companies');
 
     this.handleInputChange = this.handleInputChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -70,42 +67,8 @@ export class Companies extends Component {
     this.handleRemove= this.handleRemove.bind(this);
     this.updateSearch = this.updateSearch.bind(this);
     this.handleClickOpen = this.handleClickOpen.bind(this);
-  }
 
-  componentDidMount() {
-    const previousCompanies = this.state.companies;
-
-    this.firebase.databaseSnapshot('companies').then((snap) => {
-      if (snap.val() === null) {
-        this.setState({loading: false})
-      }
-    });
-
-    this.firebase.database.on('child_added', snap => {
-      previousCompanies.push({
-        id: snap.key,
-        ...snap.val()
-      });
-
-      this.setState({
-        companies: previousCompanies,
-        loading: false
-      })
-    });
-
-    this.firebase.database.on('child_changed', snap => {
-      const updatedCompanies = updatedItems(this.state.companies, this.state.currentCompany);
-      this.setState({
-        companies: updatedCompanies
-      })
-    });
-
-    this.firebase.database.on('child_removed', snap => {
-      const updatedCompanies = removeItem(previousCompanies, snap.key);
-      this.setState({
-        companies: updatedCompanies
-      })
-    })
+    this.firebase = new FirebaseList(LIST_NAME);
   }
 
   handleSubmit(e) {
@@ -147,7 +110,7 @@ export class Companies extends Component {
     let isError = false;
 
     if(this.state.currentCompany.name === '' ||
-      (this.state.companies.findIndex(company => company.name === this.state.currentCompany.name) !== -1 && !this.state.isEditting)) {
+      (this.props.companies.findIndex(company => company.name === this.state.currentCompany.name) !== -1 && !this.state.isEditting)) {
       errors.nameError = "Invalid company name or the company already exists";
       isError = true
     }
@@ -174,7 +137,7 @@ export class Companies extends Component {
   };
 
   toggleEdit(id){
-    const editingCompany = findItemById(this.state.companies, id);
+    const editingCompany = findItemById(this.props.companies, id);
     this.setState({
       currentCompany: editingCompany,
       isEditting: true,
@@ -200,7 +163,6 @@ export class Companies extends Component {
       currentCompany: initialFormState,
       formErrors: initialFormErrorState
     });
-    this.props.toggleCreateCompanyOpen && this.props.toggleCreateCompanyOpen()
   };
 
   handleSnackbarShow = (msg) => {
@@ -214,52 +176,50 @@ export class Companies extends Component {
     if (reason === 'clickaway') {
       return;
     }
-
     this.setState({ showSnackbar: false });
   };
 
 
   render() {
-    let filteredCompanies = this.state.companies.filter(
+    let filteredCompanies = this.props.companies.filter(
       (company) => {
         return company.name.toLowerCase().indexOf(
           this.state.search.toLowerCase()) !== -1;
       }
     );
-    if (this.state.loading) {
-      return <Spinner />
-    } else {
-      return (
+
+    return (
+      <div>
         <div>
-          <div>
-            <AddButton tooltip="Create new user" handleClick={this.handleClickOpen}/>
-            <TextField
-              value={this.state.search}
-              onChange={this.updateSearch}
-              id="search"
-              label="Search companies"
-              className={styles.textField}
-              type="search"
-              margin="normal"/>
-          </div>
-          <ListCompaniesTable companies={filteredCompanies} toggleEdit={this.toggleEdit}/>
-          <SimpleSnackbar showSnackbar={this.state.showSnackbar}
-                          handleSnackbarClose={this.handleSnackbarClose}
-                          snackbarMsg={this.state.snackbarMsg}
-          />
-          <CreateCompanyForm handleSubmit={this.handleSubmit}
-                             handleEdit={this.handleEdit}
-                             handleRemove={this.handleRemove}
-                             isEditting={this.state.isEditting}
-                             handleInputChange={this.handleInputChange}
-                             {...this.state.currentCompany}
-                             {...this.state.formErrors}
-                             open={this.state.open}
-                             handleRequestClose={this.handleRequestClose}
-          />
+          <AddButton tooltip="Create new user" handleClick={this.handleClickOpen}/>
+          <TextField
+            value={this.state.search}
+            onChange={this.updateSearch}
+            id="search"
+            label="Search companies"
+            className={styles.textField}
+            type="search"
+            margin="normal"/>
         </div>
-      );
-    }
+        <ListCompaniesTable companies={filteredCompanies} toggleEdit={this.toggleEdit}/>
+        <SimpleSnackbar showSnackbar={this.state.showSnackbar}
+                        handleSnackbarClose={this.handleSnackbarClose}
+                        snackbarMsg={this.state.snackbarMsg}
+        />
+        <CreateCompanyForm handleSubmit={this.handleSubmit}
+                           handleEdit={this.handleEdit}
+                           handleRemove={this.handleRemove}
+                           isEditting={this.state.isEditting}
+                           handleInputChange={this.handleInputChange}
+                           {...this.state.currentCompany}
+                           {...this.state.formErrors}
+                           open={this.state.open}
+                           handleRequestClose={this.handleRequestClose}
+        />
+      </div>
+    );
   }
 }
+
+export default WithFirebaseListData(LIST_NAME)(Companies);
 

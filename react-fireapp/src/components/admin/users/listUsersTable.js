@@ -3,6 +3,7 @@ import {ListUsersTableRow} from "./listUserTableRow";
 import { withStyles } from 'material-ui/styles';
 import Table, { TableBody, TableCell, TableHead, TableRow } from 'material-ui/Table';
 import Paper from 'material-ui/Paper';
+import WithLoader from "../../../HOCs/loader";
 
 const styles = theme => ({
   root: {
@@ -42,4 +43,4 @@ export const ListUsersTable = (props) => {
   )
 };
 
-export default withStyles(styles)(ListUsersTable);
+export default withStyles(styles)(WithLoader('users')(ListUsersTable));

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const markers = {
   marker: "https://firebasestorage.googleapis.com/v0/b/fire-app-9c904.appspot.com/o/marker.png?alt=media&token=6311c4d8-58dd-4edf-838e-6b63b96ecb8f",
@@ -20,5 +21,8 @@ export const Marker = (props) => {
   )
 };
 
+Marker.propTypes = {
+  blackMarker: PropTypes.bool
+};
 
 

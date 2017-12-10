@@ -91,6 +91,26 @@ export const calculateTotalPerProduct = (entries) => {
   return {costPerProduct: totalsPerProduct, costPerItem: totalsPerGroup}
 };
 
+export const jobCostsPerJobSinceLastPush = (job, entries) => {
+  let jobStats = {
+    totalCost: 0,
+    latestEntry: null
+  };
+  for (let entry of entries) {
+    if (entry.creationDate > jobStats.latestEntry) {
+      jobStats.latestEntry = entry.creationDate;
+    }
+    if (entry && entry.selectedProducts) {
+      if (entry.creationDate < job.lastPushedToClient) {
+        for (let product of entry.selectedProducts) {
+          jobStats.totalCost += calculateCost(product, "client");
+        }
+      }
+    }
+  }
+  return jobStats
+};
+
 export const uploadFile = (data) => {
   return axios.post('http://localhost:8000/upload', data)
 };

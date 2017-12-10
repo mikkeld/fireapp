@@ -2,9 +2,9 @@ import React from 'react';
 import { withStyles } from 'material-ui/styles';
 import Paper from 'material-ui/Paper';
 import Typography from 'material-ui/Typography';
-import { CircularProgress } from 'material-ui/Progress';
 import ImageGrid from "../../shared/imageGrid";
-import FileUploader from 'react-firebase-file-uploader';
+import {FirebaseUploader} from "../../../utils/firebaseUploader";
+import PropTypes from 'prop-types';
 
 const styles = theme => ({
   root: {
@@ -28,23 +28,16 @@ export const ViewImageGrid = (props) => {
       </Typography>
       <Paper className={classes.root}>
         <ImageGrid {...props}/>
-        {props.isEditing &&
-        <FileUploader
-          accept="image/*"
-          name="image"
-          filename={props.filename}
-          storageRef={props.firebaseStorage}
-          onUploadStart={props.handleUploadStart}
-          onUploadError={props.handleUploadError}
-          onUploadSuccess={props.handleUploadSuccess}
-          onProgress={props.handleProgress}
-        />}
-        {props.uploadLoading
-          ? <CircularProgress/>
-          : null}
+        {props.isEditing && <FirebaseUploader onFileUploadSuccess={props.onFileUploadSuccess}/>}
       </Paper>
     </div>
   )
+};
+
+ViewImageGrid.propTypes = {
+  ...ImageGrid.propTypes,
+  isEditing: PropTypes.bool,
+  onFileUploadSuccess: PropTypes.func
 };
 
 export default withStyles(styles)(ViewImageGrid);
